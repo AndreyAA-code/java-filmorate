@@ -3,7 +3,6 @@ package ru.yandex.practicum.filmorate.controller;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.User;
 
 import java.sql.Date;
 import java.time.Duration;
@@ -26,6 +25,8 @@ public class FilmController {
     @PostMapping
     public Film createFilm(@RequestBody Film film) {
         validateFilm(film);
+        System.out.println(film.getDuration());
+
         film.setId(getNextId());
         films.put(film.getId(), film);
         return film;
@@ -56,11 +57,10 @@ public class FilmController {
         if (film.getDescription().length() > 200) {
             throw new ValidationException("Описание превышает 200 символов");
         }
-        System.out.println(LocalDate.of(1895,12,28));
         if (film.getReleaseDate().before(Date.valueOf(LocalDate.of(1895,12,28)))){
             throw new ValidationException("Ошибка в дате релиза фильма");
         }
-        if (film.getDuration().isNegative()) {
+        if (film.getDuration() <0) {
             throw new ValidationException("Продолжительность фильма не может быть отрицательной");
         }
         return film;
