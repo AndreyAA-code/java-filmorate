@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.controller;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.User;
 
 import java.sql.Date;
 import java.time.Duration;
@@ -24,10 +25,28 @@ public class FilmController {
 
     @PostMapping
     public Film createFilm(@RequestBody Film film) {
-
+        validateFilm(film);
         film.setId(getNextId());
         films.put(film.getId(), film);
         return film;
+    }
+
+    @PutMapping
+    public Film updateFilm(@RequestBody Film newFilm) {
+        if (newFilm.getId() == null) {
+            throw new ValidationException("id должен быть указан");
+        }
+        validateFilm(newFilm);
+        if (films.containsKey(newFilm.getId())) {
+            Film oldFilm = films.get(newFilm.getId());
+            validateFilm(newFilm);
+            oldFilm.setName(newFilm.getName());
+            oldFilm.setDescription(newFilm.getDescription());
+            oldFilm.setReleaseDate(newFilm.getReleaseDate());
+            oldFilm.setDuration(newFilm.getDuration());
+            return oldFilm;
+        }
+        throw new ValidationException("Такого Id нет");
     }
 
     private Film validateFilm(Film film) {

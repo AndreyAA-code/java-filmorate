@@ -12,7 +12,7 @@ import java.time.Duration;
  */
 @Data
 public class Film {
-    private long id;
+    private Long id;
     private String name;
     private String description;
     private Date releaseDate;
