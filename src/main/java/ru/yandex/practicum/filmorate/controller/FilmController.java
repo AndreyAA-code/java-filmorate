@@ -55,7 +55,7 @@ public class FilmController {
             oldFilm.setDescription(newFilm.getDescription());
             oldFilm.setReleaseDate(newFilm.getReleaseDate());
             oldFilm.setDuration(newFilm.getDuration());
-            log.debug("Film: {} info successfully updated", oldFilm);
+            log.info("Film: {} info successfully updated", oldFilm);
             return oldFilm;
         }
         log.debug("Film: {} with Id: {} not found in the database", newFilm, newFilm.getId());
@@ -84,7 +84,7 @@ public class FilmController {
             .mapToLong(id->id)
             .max()
             .orElse(0L);
-    log.debug("New id: {} succesfully generated", ++currentMaxId);
+    log.debug("New id: {} succesfully generated", currentMaxId+1);
     return ++currentMaxId;
     }
 }

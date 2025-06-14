@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.controller;
 
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
@@ -15,7 +14,8 @@ import java.util.Map;
 @RestController
 @RequestMapping("/users")
 public class UserController {
-    public static final Logger log = LoggerFactory.getLogger(UserController.class);
+
+    private final static Logger log = LoggerFactory.getLogger(UserController.class);
     private final Map<Long, User> users = new HashMap<>();
 
     @GetMapping
@@ -26,7 +26,7 @@ public class UserController {
 
     @PostMapping
     public User create(@RequestBody final User user) {
-        log.debug("Create user: {}", user);
+        log.info    ("Create user: {}", user);
         log.debug("User: {} send to validation", user);
         validateUser(user);
         log.debug("User: {} successfully validated", user);
@@ -65,7 +65,7 @@ public class UserController {
                 .mapToLong(id -> id)
                 .max()
                 .orElse(0L);
-        log.debug("New id: {} succesfully generated", ++currentMaxId);
+        log.debug("New id: {} succesfully generated", currentMaxId+1);
         return ++currentMaxId;
     }
 

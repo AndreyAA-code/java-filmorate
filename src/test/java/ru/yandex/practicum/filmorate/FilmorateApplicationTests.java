@@ -9,5 +9,8 @@ class FilmorateApplicationTests {
 	@Test
 	void contextLoads() {
 	}
+@Test
+	void test() {
 
+}
 }
