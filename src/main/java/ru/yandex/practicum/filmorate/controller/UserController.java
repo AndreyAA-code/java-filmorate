@@ -28,7 +28,7 @@ public class UserController {
 
     @PostMapping
     public User create(@RequestBody final User user) {
-        log.info    ("Create user: {}", user);
+        log.info("Create user: {}", user);
         log.debug("User: {} send to validation", user);
         validateUser(user);
         log.debug("User: {} successfully validated", user);
