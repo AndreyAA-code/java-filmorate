@@ -67,7 +67,7 @@ public class UserController {
                 .mapToLong(id -> id)
                 .max()
                 .orElse(0L);
-        log.debug("New id: {} succesfully generated", currentMaxId+1);
+        log.debug("New id: {} succesfully generated", currentMaxId + 1);
         return ++currentMaxId;
     }
 

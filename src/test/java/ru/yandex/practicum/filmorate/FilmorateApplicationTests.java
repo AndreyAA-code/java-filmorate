@@ -55,10 +55,10 @@ class FilmorateApplicationTests {
 		newFilm.setReleaseDate(Date.valueOf(LocalDate.of(2000, 6, 16)));
 		newFilm.setDuration(120);
 		filmController.updateFilm(newFilm);
-		assertEquals("Name Film Update",filmController.getFilms().get(1L).getName(), "Апдейт имени фильма не получился.");
-		assertEquals("Description Film Update",filmController.getFilms().get(1L).getDescription(), "Апдейт описания фильма не получился.");
-		assertEquals(Date.valueOf(LocalDate.of(2000, 6, 16)),filmController.getFilms().get(1L).getReleaseDate(), "Апдейт даты выхода фильма не получился.");
-		assertEquals(120,filmController.getFilms().get(1L).getDuration(), "Апдейт продолжительности фильма не получился.");
+		assertEquals("Name Film Update", filmController.getFilms().get(1L).getName(), "Апдейт имени фильма не получился.");
+		assertEquals("Description Film Update", filmController.getFilms().get(1L).getDescription(), "Апдейт описания фильма не получился.");
+		assertEquals(Date.valueOf(LocalDate.of(2000, 6, 16)), filmController.getFilms().get(1L).getReleaseDate(), "Апдейт даты выхода фильма не получился.");
+		assertEquals(120, filmController.getFilms().get(1L).getDuration(), "Апдейт продолжительности фильма не получился.");
 	}
 
 	@Test
@@ -94,9 +94,9 @@ class FilmorateApplicationTests {
 		userController.update(newUser);
 
 		assertEquals("Name User Update", userController.getUsers().get(1L).getName(), "Апдейт имени фильма не получился.");
-		assertEquals("updateUser@user.com",userController.getUsers().get(1L).getEmail(), "Апдейт имейла не получился..");
+		assertEquals("updateUser@user.com", userController.getUsers().get(1L).getEmail(), "Апдейт имейла не получился..");
 		assertEquals("updateUserLogin", userController.getUsers().get(1L).getLogin(), "Апдейт логина не получился.");
-		assertEquals(Date.valueOf(LocalDate.of(2000, 6, 16)),userController.getUsers().get(1L).getBirthday(), "Апдейт даты ДР не получился..");
+		assertEquals(Date.valueOf(LocalDate.of(2000, 6, 16)), userController.getUsers().get(1L).getBirthday(), "Апдейт даты ДР не получился..");
 
 	}
 
@@ -111,12 +111,12 @@ class FilmorateApplicationTests {
 		user.setBirthday(Date.valueOf(LocalDate.of(2981, 5, 1)));
 		try {
 			userController.create(user);
-		}
-		catch (ValidationException e) {
+		} catch (ValidationException e) {
 			System.out.println(e.getMessage());
-			assertEquals("неправильный формат имейл адреса",e.getMessage(), "Не ловит ошибку@.");
+			assertEquals("неправильный формат имейл адреса", e.getMessage(), "Не ловит ошибку@.");
 		}
 	}
+
 	@Test
 	void userNamefromLoginIfNameBlankTest() {
 		User user = new User();
@@ -127,7 +127,7 @@ class FilmorateApplicationTests {
 		user.setBirthday(Date.valueOf(LocalDate.of(1981, 5, 1)));
 		userController.create(user);
 
-		assertEquals("UserLogin",userController.getUsers().get(1L).getName(), "Пустое имя не меняется на логин.");
+		assertEquals("UserLogin", userController.getUsers().get(1L).getName(), "Пустое имя не меняется на логин.");
 	}
 
 	@Test
@@ -242,6 +242,5 @@ class FilmorateApplicationTests {
 			assertEquals("Продолжительность фильма не может быть отрицательной", e.getMessage(), "Отрицательная продолжительность фильма не отлавливается.");
 		}
 	}
-
 
 }

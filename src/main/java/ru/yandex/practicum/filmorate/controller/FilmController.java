@@ -71,22 +71,22 @@ public class FilmController {
         if (film.getDescription().length() > 200) {
             throw new ValidationException("Описание превышает 200 символов");
         }
-        if (film.getReleaseDate().before(Date.valueOf(LocalDate.of(1895,12,28)))){
+        if (film.getReleaseDate().before(Date.valueOf(LocalDate.of(1895, 12, 28)))) {
             throw new ValidationException("Ошибка в дате релиза фильма");
         }
-        if (film.getDuration() <0) {
+        if (film.getDuration() < 0) {
             throw new ValidationException("Продолжительность фильма не может быть отрицательной");
         }
         return film;
     }
 
     private long getNextId() {
-    long currentMaxId = films.keySet()
-            .stream()
-            .mapToLong(id->id)
-            .max()
-            .orElse(0L);
-    log.debug("New id: {} succesfully generated", currentMaxId+1);
-    return ++currentMaxId;
+        long currentMaxId = films.keySet()
+                .stream()
+                .mapToLong(id -> id)
+                .max()
+                .orElse(0L);
+        log.debug("New id: {} succesfully generated", currentMaxId + 1);
+        return ++currentMaxId;
     }
 }
