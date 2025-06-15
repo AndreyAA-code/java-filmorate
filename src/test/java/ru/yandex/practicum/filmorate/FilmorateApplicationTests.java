@@ -54,9 +54,9 @@ class FilmorateApplicationTests {
 		newFilm.setDuration(120);
 		filmController.updateFilm(newFilm);
 		assertEquals("Name Film Update",filmController.getFilms().get(1L).getName(), "Апдейт имени фильма не получился.");
-		assertEquals("Name Film Update",filmController.getFilms().get(1L).getName(), "Апдейт имени фильма не получился.");
-		assertEquals("Name Film Update",filmController.getFilms().get(1L).getName(), "Апдейт имени фильма не получился.");
-		assertEquals("Name Film Update",filmController.getFilms().get(1L).getName(), "Апдейт имени фильма не получился.");
+		assertEquals("Description Film Update",filmController.getFilms().get(1L).getDescription(), "Апдейт описания фильма не получился.");
+		assertEquals(Date.valueOf(LocalDate.of(2000, 6, 16)),filmController.getFilms().get(1L).getReleaseDate(), "Апдейт даты выхода фильма не получился.");
+		assertEquals(120,filmController.getFilms().get(1L).getDuration(), "Апдейт продолжительности фильма не получился.");
 	}
 
 	@Test
