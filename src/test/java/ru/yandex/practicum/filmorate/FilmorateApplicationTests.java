@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import ru.yandex.practicum.filmorate.controller.FilmController;
@@ -9,10 +10,9 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import java.sql.Date;
 import java.time.LocalDate;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-@SpringBootTest
+import static org.junit.jupiter.api.Assertions.*;
+
 class FilmorateApplicationTests {
 
 	@Test
@@ -30,7 +30,7 @@ class FilmorateApplicationTests {
 		film.setReleaseDate(Date.valueOf(LocalDate.of(1987, 5, 1)));
 		film.setDuration(90);
 		filmController.createFilm(film);
-		assertNotNull(filmController.getFilms().get(1L), "Фильм не создается.");
+		assertNotNull(film.getId(), "Фильм не создается.");
 	}
 
 	@Test
@@ -52,10 +52,10 @@ class FilmorateApplicationTests {
 		newFilm.setReleaseDate(Date.valueOf(LocalDate.of(2000, 6, 16)));
 		newFilm.setDuration(120);
 		filmController.updateFilm(newFilm);
-		assertEquals("Name Film Update", filmController.getFilms().get(1L).getName(), "Апдейт имени фильма не получился.");
-		assertEquals("Description Film Update", filmController.getFilms().get(1L).getDescription(), "Апдейт описания фильма не получился.");
-		assertEquals(Date.valueOf(LocalDate.of(2000, 6, 16)), filmController.getFilms().get(1L).getReleaseDate(), "Апдейт даты выхода фильма не получился.");
-		assertEquals(120, filmController.getFilms().get(1L).getDuration(), "Апдейт продолжительности фильма не получился.");
+		assertEquals("Name Film Update", film.getName(), "Апдейт имени фильма не получился.");
+		assertEquals("Description Film Update", film.getDescription(), "Апдейт описания фильма не получился.");
+		assertEquals(Date.valueOf(LocalDate.of(2000, 6, 16)), film.getReleaseDate(), "Апдейт даты выхода фильма не получился.");
+		assertEquals(120, film.getDuration(), "Апдейт продолжительности фильма не получился.");
 	}
 
 	@Test
@@ -68,7 +68,7 @@ class FilmorateApplicationTests {
 		user.setLogin("UserLogin");
 		user.setBirthday(Date.valueOf(LocalDate.of(1981, 5, 1)));
 		userController.create(user);
-		assertNotNull(userController.getUsers().get(1L), "Пользователь не создается.");
+		assertNotNull(user.getId(), "Пользователь не создается.");
 	}
 
 	@Test
@@ -90,10 +90,10 @@ class FilmorateApplicationTests {
 		newUser.setLogin("updateUserLogin");
 		userController.update(newUser);
 
-		assertEquals("Name User Update", userController.getUsers().get(1L).getName(), "Апдейт имени фильма не получился.");
-		assertEquals("updateUser@user.com", userController.getUsers().get(1L).getEmail(), "Апдейт имейла не получился..");
-		assertEquals("updateUserLogin", userController.getUsers().get(1L).getLogin(), "Апдейт логина не получился.");
-		assertEquals(Date.valueOf(LocalDate.of(2000, 6, 16)), userController.getUsers().get(1L).getBirthday(), "Апдейт даты ДР не получился..");
+		assertEquals("Name User Update", user.getName(), "Апдейт имени фильма не получился.");
+		assertEquals("updateUser@user.com", user.getEmail(), "Апдейт имейла не получился..");
+		assertEquals("updateUserLogin", user.getLogin(), "Апдейт логина не получился.");
+		assertEquals(Date.valueOf(LocalDate.of(2000, 6, 16)), user.getBirthday(), "Апдейт даты ДР не получился..");
 
 	}
 
@@ -104,14 +104,11 @@ class FilmorateApplicationTests {
 
 		user.setName("");
 		user.setEmail("user.com");
-		user.setLogin("User Login");
-		user.setBirthday(Date.valueOf(LocalDate.of(2981, 5, 1)));
-		try {
-			userController.create(user);
-		} catch (ValidationException e) {
-			System.out.println(e.getMessage());
-			assertEquals("неправильный формат имейл адреса", e.getMessage(), "Не ловит ошибку@.");
-		}
+		user.setLogin("UserLogin");
+		user.setBirthday(Date.valueOf(LocalDate.of(1981, 5, 1)));
+
+		ValidationException thrown = Assertions.assertThrows(ValidationException.class, () -> userController.create(user));
+        Assertions.assertEquals("неправильный формат имейл адреса", thrown.getMessage());
 	}
 
 	@Test
@@ -124,7 +121,7 @@ class FilmorateApplicationTests {
 		user.setBirthday(Date.valueOf(LocalDate.of(1981, 5, 1)));
 		userController.create(user);
 
-		assertEquals("UserLogin", userController.getUsers().get(1L).getName(), "Пустое имя не меняется на логин.");
+		assertEquals("UserLogin", user.getName(), "Пустое имя не меняется на логин.");
 	}
 
 	@Test
@@ -137,12 +134,8 @@ class FilmorateApplicationTests {
 		user.setLogin("UserLogin");
 		user.setBirthday(Date.valueOf(LocalDate.of(2981, 5, 1)));
 
-		try {
-			userController.create(user);
-		} catch (ValidationException e) {
-			System.out.println(e.getMessage());
-			assertEquals("дата рождения не может быть в будущем", e.getMessage(), "Не ловит ошибку cне наступившей датой ДР.");
-		}
+		ValidationException thrown = Assertions.assertThrows(ValidationException.class, () -> userController.create(user));
+		Assertions.assertEquals("дата рождения не может быть в будущем", thrown.getMessage());
 	}
 
 	@Test
@@ -155,12 +148,8 @@ class FilmorateApplicationTests {
 		user.setLogin("User Login");
 		user.setBirthday(Date.valueOf(LocalDate.of(1981, 5, 1)));
 
-		try {
-			userController.create(user);
-		} catch (ValidationException e) {
-			System.out.println(e.getMessage());
-			assertEquals("login не должен быть пустым или содержать пробелы", e.getMessage(), "Не ловит ошибку пробелов в логине.");
-		}
+		ValidationException thrown = Assertions.assertThrows(ValidationException.class, () -> userController.create(user));
+		Assertions.assertEquals("login не должен быть пустым или содержать пробелы", thrown.getMessage());
 	}
 
 	@Test
@@ -172,11 +161,9 @@ class FilmorateApplicationTests {
 		film.setDescription("Description Film");
 		film.setReleaseDate(Date.valueOf(LocalDate.of(1987, 5, 1)));
 		film.setDuration(90);
-		try {
-			filmController.createFilm(film);
-		} catch (ValidationException e) {
-			assertEquals("Имя не может быть пустым", e.getMessage(), "Пустое имя не отлавливается.");
-		}
+
+		ValidationException thrown = Assertions.assertThrows(ValidationException.class, () -> filmController.createFilm(film));
+		Assertions.assertEquals("Имя не может быть пустым", thrown.getMessage());
 	}
 
 	@Test
@@ -201,11 +188,8 @@ class FilmorateApplicationTests {
 				"on FilmDescription FilmDescription FilmDescription FilmDescription FilmDescription FilmDescription ");
 		film.setReleaseDate(Date.valueOf(LocalDate.of(1987, 5, 1)));
 		film.setDuration(90);
-		try {
-			filmController.createFilm(film);
-		} catch (ValidationException e) {
-			assertEquals("Описание превышает 200 символов", e.getMessage(), "Превышение длины описания не отлавливается.");
-		}
+		ValidationException thrown = Assertions.assertThrows(ValidationException.class, () -> filmController.createFilm(film));
+		Assertions.assertEquals("Описание превышает 200 символов", thrown.getMessage());
 	}
 
 	@Test
@@ -217,11 +201,8 @@ class FilmorateApplicationTests {
 		film.setDescription("Description Film");
 		film.setReleaseDate(Date.valueOf(LocalDate.of(1894, 5, 1)));
 		film.setDuration(90);
-		try {
-			filmController.createFilm(film);
-		} catch (ValidationException e) {
-			assertEquals("Ошибка в дате релиза фильма", e.getMessage(), "Неправильная дата релиза не отлавливается.");
-		}
+		ValidationException thrown = Assertions.assertThrows(ValidationException.class, () -> filmController.createFilm(film));
+		Assertions.assertEquals("Ошибка в дате релиза фильма", thrown.getMessage());
 	}
 
 	@Test
@@ -233,11 +214,8 @@ class FilmorateApplicationTests {
 		film.setDescription("Description Film");
 		film.setReleaseDate(Date.valueOf(LocalDate.of(1987, 5, 1)));
 		film.setDuration(-1);
-		try {
-			filmController.createFilm(film);
-		} catch (ValidationException e) {
-			assertEquals("Продолжительность фильма не может быть отрицательной", e.getMessage(), "Отрицательная продолжительность фильма не отлавливается.");
-		}
+		ValidationException thrown = Assertions.assertThrows(ValidationException.class, () -> filmController.createFilm(film));
+		Assertions.assertEquals("Продолжительность фильма не может быть отрицательной", thrown.getMessage());
 	}
 
 }

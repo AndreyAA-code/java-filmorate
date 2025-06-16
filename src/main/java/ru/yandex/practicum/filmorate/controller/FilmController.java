@@ -14,7 +14,6 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/films")
-@Data
 public class FilmController {
 
     private static final Logger log = LoggerFactory.getLogger(FilmController.class);
