@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
@@ -25,10 +26,10 @@ public class FilmController {
     }
 
     @PostMapping
-    public Film createFilm(@RequestBody Film film) {
+    public Film createFilm(@Valid @RequestBody Film film) {
         log.debug("Create film: {} started", film);
         log.debug("Film: {} send to validation", film);
-        validateFilm(film);
+       // validateFilm(film);
         log.debug("Film: {} successfully validated", film);
         film.setId(getNextId());
         log.debug("Film: {} created with id: {}", film, film.getId());
@@ -38,7 +39,7 @@ public class FilmController {
     }
 
     @PutMapping
-    public Film updateFilm(@RequestBody Film newFilm) {
+    public Film updateFilm(@Valid @RequestBody Film newFilm) {
         log.debug("Update film: {} started", newFilm);
         if (newFilm.getId() == null) {
             log.debug("Film: {} with Id: {} not found in the database", newFilm, newFilm.getId());
@@ -49,7 +50,7 @@ public class FilmController {
             log.debug("Film: {} with Id: {} found in the database", newFilm, newFilm.getId());
             Film oldFilm = films.get(newFilm.getId());
             log.debug("Film: {} send to validation", newFilm);
-            validateFilm(newFilm);
+           // validateFilm(newFilm);
             log.debug("Film: {} successfully validated", newFilm);
             oldFilm.setName(newFilm.getName());
             oldFilm.setDescription(newFilm.getDescription());
