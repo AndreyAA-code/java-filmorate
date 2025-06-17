@@ -7,6 +7,7 @@ import java.sql.Date;
 @Data
 public class User {
     private Long id;
+    @NotBlank
     @Email
     private String email;
     @NotBlank

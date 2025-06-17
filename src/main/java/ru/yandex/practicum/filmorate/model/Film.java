@@ -14,13 +14,12 @@ import java.sql.Date;
  */
 @Data
 public class Film {
-
     private Long id;
     @NotBlank
     private String name;
     @Size(min = 0, max = 200)
     private String description;
-
+@ReleaseDateShouldBeAfterBeginningOfFilmEra
     private Date releaseDate;
     @Min(0)
     private Integer duration;
