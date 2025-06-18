@@ -71,7 +71,7 @@ public class UserController {
         return ++currentMaxId;
     }
 
-    private User validateUser(User user) {
+   /* private User validateUser(User user) {
         if (user.getEmail() == null || user.getEmail().isEmpty()) {
             throw new ValidationException("Необходимо заполнить имейл");
         }
@@ -89,5 +89,5 @@ public class UserController {
         }
         return user;
     }
-
+*/
 }
