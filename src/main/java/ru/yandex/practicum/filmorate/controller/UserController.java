@@ -29,7 +29,9 @@ public class UserController {
     public User create(@Valid @RequestBody final User user) {
         log.info("Create user: {}", user);
         log.debug("User: {} send to validation", user);
-        //validateUser(user);
+        if (user.getName() == null || user.getName().isEmpty()) {
+            user.setName(user.getLogin());
+        }
         log.debug("User: {} successfully validated", user);
         user.setId(getNextId());
         log.debug("User: {} created with id: {}", user, user.getId());
@@ -48,7 +50,6 @@ public class UserController {
             log.debug("User: {} with Id: {} found in the database", newUser, newUser.getId());
             User oldUser = users.get(newUser.getId());
             log.debug("User: {} send to validation", newUser);
-            //validateUser(newUser);
             log.debug("User: {} successfully validated", newUser);
             oldUser.setName(newUser.getName());
             oldUser.setEmail(newUser.getEmail());

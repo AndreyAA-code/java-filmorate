@@ -14,10 +14,8 @@ public class User {
     private String email;
     @NotBlank
     @Pattern(regexp = "[^\s]*")
-    @DataBeginFilmEra
     private String login;
     private String name;
     @PastOrPresent
-    @DataBeginFilmEra
     private Date birthday;
 }

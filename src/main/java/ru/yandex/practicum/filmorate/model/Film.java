@@ -5,7 +5,6 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 import ru.yandex.practicum.filmorate.validation.DataBeginFilmEra;
-
 import java.sql.Date;
 
 /**
@@ -18,8 +17,7 @@ public class Film {
     private String name;
     @Size(min = 0, max = 200)
     private String description;
-//@ReleaseDateShouldBeAfterBeginningOfFilmEra
-   @DataBeginFilmEra
+    @DataBeginFilmEra
     private Date releaseDate;
     @Min(0)
     private Integer duration;
