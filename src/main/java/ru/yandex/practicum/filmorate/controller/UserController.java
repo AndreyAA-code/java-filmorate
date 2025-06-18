@@ -69,23 +69,4 @@ public class UserController {
         return ++currentMaxId;
     }
 
-   /* private User validateUser(User user) {
-        if (user.getEmail() == null || user.getEmail().isEmpty()) {
-            throw new ValidationException("Необходимо заполнить имейл");
-        }
-        if (!user.getEmail().contains("@")) {
-            throw new ValidationException("неправильный формат имейл адреса");
-        }
-        if (user.getLogin() == null || user.getLogin().isEmpty() || user.getLogin().contains(" ")) {
-            throw new ValidationException("login не должен быть пустым или содержать пробелы");
-        }
-        if (user.getName() == null || user.getName().isEmpty()) {
-            user.setName(user.getLogin());
-        }
-        if (user.getBirthday().after(Date.valueOf(LocalDate.now()))) {
-            throw new ValidationException("дата рождения не может быть в будущем");
-        }
-        return user;
-    }
-*/
 }
