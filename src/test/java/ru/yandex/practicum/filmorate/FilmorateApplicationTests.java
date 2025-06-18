@@ -111,7 +111,6 @@ class FilmorateApplicationTests {
 	@Test
 	void userValidateTest() {
 		User user = new User();
-		UserController userController = new UserController();
 
 		user.setName("");
 		user.setEmail("user.com"); //проверяем формат email
@@ -142,7 +141,6 @@ class FilmorateApplicationTests {
 	@Test
 	void filmValidateTest() {
 		Film film = new Film();
-		FilmController filmController = new FilmController();
 
 		film.setName("");
 		film.setDescription("Description Film Description FilmDescription FilmDescription FilmDescription FilmDescripti" +
