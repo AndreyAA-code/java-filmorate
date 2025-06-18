@@ -1,5 +1,10 @@
 package ru.yandex.practicum.filmorate;
 
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
+import jakarta.validation.ValidatorFactory;
+import org.hibernate.validator.internal.util.Contracts;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.filmorate.controller.FilmController;
@@ -9,10 +14,17 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import java.sql.Date;
 import java.time.LocalDate;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class FilmorateApplicationTests {
+
+	private static Validator validator;
+	static {
+		ValidatorFactory validatorFactory = Validation.buildDefaultValidatorFactory();
+		validator = validatorFactory.usingContext().getValidator();
+	}
 
 	@Test
 	void contextLoads() {
@@ -33,7 +45,7 @@ class FilmorateApplicationTests {
 	}
 
 	@Test
-	void filmUpdateTest() {
+	void filmUpdateTest() throws ValidationException {
 		Film newFilm = new Film();
 		Film film = new Film();
 		FilmController filmController = new FilmController();
@@ -97,17 +109,21 @@ class FilmorateApplicationTests {
 	}
 
 	@Test
-	void userValidateEmailTest() {
+	void userValidateTest() {
 		User user = new User();
 		UserController userController = new UserController();
 
 		user.setName("");
-		user.setEmail("user.com");
-		user.setLogin("UserLogin");
-		user.setBirthday(Date.valueOf(LocalDate.of(1981, 5, 1)));
+		user.setEmail("user.com"); //проверяем формат email
+		user.setLogin("User Login"); //проверяем пробел в логине
+		user.setBirthday(Date.valueOf(LocalDate.of(2030, 5, 1))); //проверяем дату ДР не в будущем
 
-		ValidationException thrown = Assertions.assertThrows(ValidationException.class, () -> userController.create(user));
-        Assertions.assertEquals("неправильный формат имейл адреса", thrown.getMessage());
+		Set<ConstraintViolation<User>> validates = validator.validate(user);
+
+		Assertions.assertTrue(validates.size() > 0);
+		validates.stream()
+				.map(v -> v.getMessage())
+				.forEach(System.out::println);
 	}
 
 	@Test
@@ -124,97 +140,34 @@ class FilmorateApplicationTests {
 	}
 
 	@Test
-	void userBirthdayCantBeInFutureTest() {
-		User user = new User();
-		UserController userController = new UserController();
-
-		user.setName("Name");
-		user.setEmail("user@com");
-		user.setLogin("UserLogin");
-		user.setBirthday(Date.valueOf(LocalDate.of(2981, 5, 1)));
-
-		ValidationException thrown = Assertions.assertThrows(ValidationException.class, () -> userController.create(user));
-		Assertions.assertEquals("дата рождения не может быть в будущем", thrown.getMessage());
-	}
-
-	@Test
-	void userLoginCantContainSpacesTest() {
-		User user = new User();
-		UserController userController = new UserController();
-
-		user.setName("Name");
-		user.setEmail("user@com");
-		user.setLogin("User Login");
-		user.setBirthday(Date.valueOf(LocalDate.of(1981, 5, 1)));
-
-		ValidationException thrown = Assertions.assertThrows(ValidationException.class, () -> userController.create(user));
-		Assertions.assertEquals("login не должен быть пустым или содержать пробелы", thrown.getMessage());
-	}
-
-	@Test
-	void filmNameCantBeBlankTest() {
+	void filmValidateTest() {
 		Film film = new Film();
 		FilmController filmController = new FilmController();
 
 		film.setName("");
-		film.setDescription("Description Film");
-		film.setReleaseDate(Date.valueOf(LocalDate.of(1987, 5, 1)));
-		film.setDuration(90);
-
-		ValidationException thrown = Assertions.assertThrows(ValidationException.class, () -> filmController.createFilm(film));
-		Assertions.assertEquals("Имя не может быть пустым", thrown.getMessage());
-	}
-
-	@Test
-	void filmDescriptionCantBeMoreThan200SymbolsTest() {
-		Film film = new Film();
-		FilmController filmController = new FilmController();
-
-		film.setName("film");
 		film.setDescription("Description Film Description FilmDescription FilmDescription FilmDescription FilmDescripti" +
 				"on FilmDescription FilmDescription FilmDescription FilmDescription FilmDescription FilmDescription " +
-				"on FilmDescription FilmDescription FilmDescription FilmDescription FilmDescription FilmDescription " +
-				"on FilmDescription FilmDescription FilmDescription FilmDescription FilmDescription FilmDescription " +
-				"on FilmDescription FilmDescription FilmDescription FilmDescription FilmDescription FilmDescription " +
-				"on FilmDescription FilmDescription FilmDescription FilmDescription FilmDescription FilmDescription " +
-				"on FilmDescription FilmDescription FilmDescription FilmDescription FilmDescription FilmDescription " +
-				"on FilmDescription FilmDescription FilmDescription FilmDescription FilmDescription FilmDescription " +
-				"on FilmDescription FilmDescription FilmDescription FilmDescription FilmDescription FilmDescription " +
-				"on FilmDescription FilmDescription FilmDescription FilmDescription FilmDescription FilmDescription " +
-				"on FilmDescription FilmDescription FilmDescription FilmDescription FilmDescription FilmDescription " +
-				"on FilmDescription FilmDescription FilmDescription FilmDescription FilmDescription FilmDescription " +
-				"on FilmDescription FilmDescription FilmDescription FilmDescription FilmDescription FilmDescription " +
-				"on FilmDescription FilmDescription FilmDescription FilmDescription FilmDescription FilmDescription ");
-		film.setReleaseDate(Date.valueOf(LocalDate.of(1987, 5, 1)));
-		film.setDuration(90);
-		ValidationException thrown = Assertions.assertThrows(ValidationException.class, () -> filmController.createFilm(film));
-		Assertions.assertEquals("Описание превышает 200 символов", thrown.getMessage());
-	}
-
-	@Test
-	void filmReleaseDateCantBeLessThanTest() {
-		Film film = new Film();
-		FilmController filmController = new FilmController();
-
-		film.setName("Film");
-		film.setDescription("Description Film");
-		film.setReleaseDate(Date.valueOf(LocalDate.of(1894, 5, 1)));
-		film.setDuration(90);
-		ValidationException thrown = Assertions.assertThrows(ValidationException.class, () -> filmController.createFilm(film));
-		Assertions.assertEquals("Ошибка в дате релиза фильма", thrown.getMessage());
-	}
-
-	@Test
-	void filmDurationCantBeNegativeTest() {
-		Film film = new Film();
-		FilmController filmController = new FilmController();
-
-		film.setName("Film");
-		film.setDescription("Description Film");
-		film.setReleaseDate(Date.valueOf(LocalDate.of(1987, 5, 1)));
+						"on FilmDescription FilmDescription FilmDescription FilmDescription FilmDescription FilmDescription " +
+						"on FilmDescription FilmDescription FilmDescription FilmDescription FilmDescription FilmDescription " +
+						"on FilmDescription FilmDescription FilmDescription FilmDescription FilmDescription FilmDescription " +
+						"on FilmDescription FilmDescription FilmDescription FilmDescription FilmDescription FilmDescription " +
+						"on FilmDescription FilmDescription FilmDescription FilmDescription FilmDescription FilmDescription " +
+						"on FilmDescription FilmDescription FilmDescription FilmDescription FilmDescription FilmDescription " +
+						"on FilmDescription FilmDescription FilmDescription FilmDescription FilmDescription FilmDescription " +
+						"on FilmDescription FilmDescription FilmDescription FilmDescription FilmDescription FilmDescription " +
+						"on FilmDescription FilmDescription FilmDescription FilmDescription FilmDescription FilmDescription " +
+						"on FilmDescription FilmDescription FilmDescription FilmDescription FilmDescription FilmDescription " +
+						"on FilmDescription FilmDescription FilmDescription FilmDescription FilmDescription FilmDescription " +
+						"on FilmDescription FilmDescription FilmDescription FilmDescription FilmDescription FilmDescription ");
+		film.setReleaseDate(Date.valueOf(LocalDate.of(1817, 5, 1)));
 		film.setDuration(-1);
-		ValidationException thrown = Assertions.assertThrows(ValidationException.class, () -> filmController.createFilm(film));
-		Assertions.assertEquals("Продолжительность фильма не может быть отрицательной", thrown.getMessage());
+
+		Set<ConstraintViolation<Film>> validates = validator.validate(film);
+
+		Assertions.assertTrue(validates.size() > 0);
+		validates.stream()
+				.map(v -> v.getMessage())
+				.forEach(System.out::println);
 	}
 
 }

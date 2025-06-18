@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.controller;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -12,6 +13,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+@Validated
 @RestController
 @RequestMapping("/films")
 public class FilmController {
@@ -61,22 +63,6 @@ public class FilmController {
         }
         log.debug("Film: {} with Id: {} not found in the database", newFilm, newFilm.getId());
         throw new ValidationException("Такого Id нет");
-    }
-
-    private Film validateFilm(Film film) {
-        if (film.getName() == null || film.getName().isEmpty()) {
-            throw new ValidationException("Имя не может быть пустым");
-        }
-        if (film.getDescription().length() > 200) {
-            throw new ValidationException("Описание превышает 200 символов");
-        }
-        if (film.getReleaseDate().before(Date.valueOf(LocalDate.of(1895, 12, 28)))) {
-            throw new ValidationException("Ошибка в дате релиза фильма");
-        }
-        if (film.getDuration() < 0) {
-            throw new ValidationException("Продолжительность фильма не может быть отрицательной");
-        }
-        return film;
     }
 
     private long getNextId() {

@@ -39,7 +39,7 @@ public class UserController {
     }
 
     @PutMapping
-    public User update(@RequestBody final User newUser) {
+    public User update(@Valid @RequestBody final User newUser) {
         if (newUser.getId() == null) {
             log.debug("Update user: {} started", newUser);
             throw new ValidationException("id должен быть указан");

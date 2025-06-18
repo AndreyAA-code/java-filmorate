@@ -6,7 +6,7 @@ import jakarta.validation.ConstraintValidatorContext;
 import java.sql.Date;
 import java.time.LocalDate;
 
-public class DateBeginFilmEraValidator implements ConstraintValidator<DataBeginFilmEra, Date> {
+public class DataBeginFilmEraValidator implements ConstraintValidator<DataBeginFilmEra, Date> {
 
     @Override
     public boolean isValid(Date date, ConstraintValidatorContext context) {
