@@ -4,6 +4,7 @@ import jakarta.validation.constraints.*;
 import lombok.Data;
 
 import java.sql.Date;
+import java.util.Set;
 
 @Data
 public class User {
@@ -17,4 +18,5 @@ public class User {
     private String name;
     @PastOrPresent
     private Date birthday;
+    private Set<Long> friends;
 }
