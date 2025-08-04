@@ -11,6 +11,9 @@ import ru.yandex.practicum.filmorate.controller.UserController;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
+import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
+
 import java.sql.Date;
 import java.time.LocalDate;
 import java.util.Set;
@@ -33,7 +36,8 @@ class FilmorateApplicationTests {
 	@Test
 	void filmCreateTest() {
 		Film film = new Film();
-		FilmController filmController = new FilmController();
+		InMemoryFilmStorage inMemoryFilmStorage = new InMemoryFilmStorage();
+		FilmController filmController = new FilmController(inMemoryFilmStorage);
 
 		film.setId(1L);
 		film.setName("Name Film");
@@ -48,7 +52,8 @@ class FilmorateApplicationTests {
 	void filmUpdateTest() throws ValidationException {
 		Film newFilm = new Film();
 		Film film = new Film();
-		FilmController filmController = new FilmController();
+		InMemoryFilmStorage inMemoryFilmStorage = new InMemoryFilmStorage();
+		FilmController filmController = new FilmController(inMemoryFilmStorage);
 
 		film.setId(1L);
 		film.setName("Name Film");
@@ -72,7 +77,8 @@ class FilmorateApplicationTests {
 	@Test
 	void userCreateTest() {
 		User user = new User();
-		UserController userController = new UserController();
+		InMemoryUserStorage inMemoryUserStorage = new InMemoryUserStorage();
+		UserController userController = new UserController(inMemoryUserStorage);
 
 		user.setName("Name User");
 		user.setEmail("user@user.com");
@@ -86,7 +92,8 @@ class FilmorateApplicationTests {
 	void userUpdateTest() {
 		User user = new User();
 		User newUser = new User();
-		UserController userController = new UserController();
+		InMemoryUserStorage inMemoryUserStorage = new InMemoryUserStorage();
+		UserController userController = new UserController(inMemoryUserStorage);
 
 		user.setName("Name User");
 		user.setEmail("user@user.com");
@@ -119,7 +126,7 @@ class FilmorateApplicationTests {
 
 		Set<ConstraintViolation<User>> validates = validator.validate(user);
 
-		Assertions.assertTrue(validates.size() > 0);
+		assertTrue(validates.size() > 0);
 		validates.stream()
 				.map(v -> v.getMessage())
 				.forEach(System.out::println);
@@ -128,7 +135,8 @@ class FilmorateApplicationTests {
 	@Test
 	void userNamefromLoginIfNameBlankTest() {
 		User user = new User();
-		UserController userController = new UserController();
+		InMemoryUserStorage inMemoryUserStorage = new InMemoryUserStorage();
+		UserController userController = new UserController(inMemoryUserStorage);
 		user.setName("");
 		user.setEmail("user@user.com");
 		user.setLogin("UserLogin");
@@ -162,7 +170,7 @@ class FilmorateApplicationTests {
 
 		Set<ConstraintViolation<Film>> validates = validator.validate(film);
 
-		Assertions.assertTrue(validates.size() > 0);
+		assertTrue(validates.size() > 0);
 		validates.stream()
 				.map(v -> v.getMessage())
 				.forEach(System.out::println);
