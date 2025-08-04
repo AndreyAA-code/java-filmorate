@@ -1,9 +1,12 @@
 package ru.yandex.practicum.filmorate.storage;
 
+import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.RequestBody;
 import ru.yandex.practicum.filmorate.controller.UserController;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.Collection;
@@ -35,6 +38,27 @@ public class InMemoryUserStorage implements UserStorage {
         users.put(user.getId(), user);
         log.info("User: {} successfully created with id: {}", user, user.getId());
         return user;
+    }
+
+    @Override
+    public User update(User newUser) {
+        if (newUser.getId() == null) {
+            log.debug("Update user: {} started", newUser);
+            throw new ValidationException("id должен быть указан");
+        }
+        if (users.containsKey(newUser.getId())) {
+            log.debug("User: {} with Id: {} found in the database", newUser, newUser.getId());
+            User oldUser = users.get(newUser.getId());
+            log.debug("User: {} send to validation", newUser);
+            log.debug("User: {} successfully validated", newUser);
+            oldUser.setName(newUser.getName());
+            oldUser.setEmail(newUser.getEmail());
+            oldUser.setBirthday(newUser.getBirthday());
+            oldUser.setLogin(newUser.getLogin());
+            log.debug("User: {} info successfully updated", oldUser);
+            return oldUser;
+        }
+        throw new ValidationException("Такого Id нет");
     }
 
     private long getNextId() {
