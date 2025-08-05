@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.storage;
 
 import jakarta.validation.Valid;
+import lombok.Getter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -17,8 +18,15 @@ import java.util.Map;
 public class InMemoryUserStorage implements UserStorage {
 
     private final Logger log = LoggerFactory.getLogger(UserController.class);
-    private final Map<Long, User> users = new HashMap<>();
 
+
+
+    @Getter
+    public static final Map<Long, User> users = new HashMap<>();
+
+    public Map<Long, User> getUsers() {
+        return users;
+    }
     @Override
     public Collection<User> findAll() {
         log.debug("Find all users");

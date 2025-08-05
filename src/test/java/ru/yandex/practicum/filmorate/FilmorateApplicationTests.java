@@ -4,13 +4,13 @@ import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.filmorate.controller.FilmController;
 import ru.yandex.practicum.filmorate.controller.UserController;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.UserService;
 import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
 import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
 
@@ -78,7 +78,8 @@ class FilmorateApplicationTests {
 	void userCreateTest() {
 		User user = new User();
 		InMemoryUserStorage inMemoryUserStorage = new InMemoryUserStorage();
-		UserController userController = new UserController(inMemoryUserStorage);
+		UserService userService = new UserService();
+		UserController userController = new UserController(inMemoryUserStorage, userService);
 
 		user.setName("Name User");
 		user.setEmail("user@user.com");
@@ -93,7 +94,8 @@ class FilmorateApplicationTests {
 		User user = new User();
 		User newUser = new User();
 		InMemoryUserStorage inMemoryUserStorage = new InMemoryUserStorage();
-		UserController userController = new UserController(inMemoryUserStorage);
+		UserService userService = new UserService();
+		UserController userController = new UserController(inMemoryUserStorage, userService);
 
 		user.setName("Name User");
 		user.setEmail("user@user.com");
@@ -136,7 +138,8 @@ class FilmorateApplicationTests {
 	void userNamefromLoginIfNameBlankTest() {
 		User user = new User();
 		InMemoryUserStorage inMemoryUserStorage = new InMemoryUserStorage();
-		UserController userController = new UserController(inMemoryUserStorage);
+		UserService userService = new UserService();
+		UserController userController = new UserController(inMemoryUserStorage, userService);
 		user.setName("");
 		user.setEmail("user@user.com");
 		user.setLogin("UserLogin");
