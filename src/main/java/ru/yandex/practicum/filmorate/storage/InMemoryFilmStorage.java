@@ -9,20 +9,26 @@ import ru.yandex.practicum.filmorate.model.Film;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 
 @Component
-public class InMemoryFilmStorage implements FilmStorage {
+public class InMemoryFilmStorage {
     private static final Logger log = LoggerFactory.getLogger(FilmController.class);
+
+    public Map<Long, Film> getFilms() {
+        return films;
+    }
+
     private final Map<Long, Film> films = new HashMap<>();
 
-    @Override
+   // @Override
     public Collection<Film> findAll() {
         log.debug("Find all films");
         return films.values();
     }
 
-    @Override
+   // @Override
     public Film createFilm(Film film) {
         log.debug("Create film: {} started", film);
         log.debug("Film: {} send to validation", film);
@@ -35,7 +41,7 @@ public class InMemoryFilmStorage implements FilmStorage {
         return film;
     }
 
-    @Override
+  //  @Override
     public Film updateFilm(Film newFilm) {
         log.debug("Update film: {} started", newFilm);
         if (newFilm.getId() == null) {
@@ -59,7 +65,7 @@ public class InMemoryFilmStorage implements FilmStorage {
         throw new ValidationException("Такого Id нет");
     }
 
-    @Override
+   // @Override
     public long getNextId() {
         long currentMaxId = films.keySet()
                 .stream()
@@ -69,6 +75,7 @@ public class InMemoryFilmStorage implements FilmStorage {
         log.debug("New id: {} succesfully generated", currentMaxId + 1);
         return ++currentMaxId;
     }
+
 
 
 

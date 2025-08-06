@@ -6,6 +6,8 @@ import jakarta.validation.constraints.Size;
 import lombok.Data;
 import ru.yandex.practicum.filmorate.validation.DataBeginFilmEra;
 import java.sql.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Film.
@@ -21,4 +23,5 @@ public class Film {
     private Date releaseDate;
     @Min(0)
     private Integer duration;
+    private Set<Long> likes = new HashSet<>();
 }

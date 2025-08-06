@@ -15,25 +15,23 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Component
-public class InMemoryUserStorage implements UserStorage {
+public class InMemoryUserStorage {
 
     private final Logger log = LoggerFactory.getLogger(UserController.class);
 
-
-
     @Getter
-    public static final Map<Long, User> users = new HashMap<>();
+    public final Map<Long, User> users = new HashMap<>();
 
     public Map<Long, User> getUsers() {
         return users;
     }
-    @Override
+   // @Override
     public Collection<User> findAll() {
         log.debug("Find all users");
         return users.values();
     }
 
-    @Override
+   // @Override
     public User create(User user) {
         log.info("Create user: {}", user);
         log.debug("User: {} send to validation", user);
@@ -48,7 +46,7 @@ public class InMemoryUserStorage implements UserStorage {
         return user;
     }
 
-    @Override
+ //   @Override
     public User update(User newUser) {
         if (newUser.getId() == null) {
             log.debug("Update user: {} started", newUser);

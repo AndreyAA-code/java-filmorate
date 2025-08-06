@@ -10,12 +10,14 @@ import ru.yandex.practicum.filmorate.controller.UserController;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.service.UserService;
 import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
 import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
 
 import java.sql.Date;
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -36,8 +38,8 @@ class FilmorateApplicationTests {
 	@Test
 	void filmCreateTest() {
 		Film film = new Film();
-		InMemoryFilmStorage inMemoryFilmStorage = new InMemoryFilmStorage();
-		FilmController filmController = new FilmController(inMemoryFilmStorage);
+		FilmService filmService = new FilmService();
+		FilmController filmController = new FilmController(filmService);
 
 		film.setId(1L);
 		film.setName("Name Film");
@@ -52,8 +54,8 @@ class FilmorateApplicationTests {
 	void filmUpdateTest() throws ValidationException {
 		Film newFilm = new Film();
 		Film film = new Film();
-		InMemoryFilmStorage inMemoryFilmStorage = new InMemoryFilmStorage();
-		FilmController filmController = new FilmController(inMemoryFilmStorage);
+		FilmService filmService = new FilmService();
+		FilmController filmController = new FilmController(filmService);
 
 		film.setId(1L);
 		film.setName("Name Film");
@@ -77,9 +79,8 @@ class FilmorateApplicationTests {
 	@Test
 	void userCreateTest() {
 		User user = new User();
-		InMemoryUserStorage inMemoryUserStorage = new InMemoryUserStorage();
 		UserService userService = new UserService();
-		UserController userController = new UserController(inMemoryUserStorage, userService);
+		UserController userController = new UserController(userService);
 
 		user.setName("Name User");
 		user.setEmail("user@user.com");
@@ -93,9 +94,8 @@ class FilmorateApplicationTests {
 	void userUpdateTest() {
 		User user = new User();
 		User newUser = new User();
-		InMemoryUserStorage inMemoryUserStorage = new InMemoryUserStorage();
 		UserService userService = new UserService();
-		UserController userController = new UserController(inMemoryUserStorage, userService);
+		UserController userController = new UserController(userService);
 
 		user.setName("Name User");
 		user.setEmail("user@user.com");
@@ -118,6 +118,47 @@ class FilmorateApplicationTests {
 	}
 
 	@Test
+	void userFriendsTest() {
+		User user1 = new User();
+		User user2 = new User();
+		User user3 = new User();
+		UserService userService = new UserService();
+		UserController userController = new UserController(userService);
+
+		user1.setName("Name User");
+		user1.setEmail("user1@user.com");
+		user1.setLogin("UserLogin1");
+		user1.setBirthday(Date.valueOf(LocalDate.of(1981, 5, 1)));
+		userController.create(user1);
+
+		user2.setName("Name User");
+		user2.setEmail("user2@user.com");
+		user2.setLogin("UserLogin2");
+		user2.setBirthday(Date.valueOf(LocalDate.of(1981, 5, 1)));
+		userController.create(user2);
+
+		user3.setName("Name User");
+		user3.setEmail("user3@user.com");
+		user3.setLogin("UserLogin3");
+		user3.setBirthday(Date.valueOf(LocalDate.of(1981, 5, 1)));
+		userController.create(user3);
+		Set<Long> set1 = new HashSet<>();
+		Set<Long> set2 = new HashSet<>();
+		set2.add(2L);
+
+
+		userController.addFriend(1L,2L);
+		userController.addFriend(1L,3L);
+		userController.addFriend(2L,3L);
+		set1 = userController.getCommonFriends(1L,3L);
+
+		assertNotNull(user1.getId(), "Пользователь не создается.");
+		assertNotNull(user2.getId(), "Пользователь не создается.");
+		assertNotNull(user3.getId(), "Пользователь не создается.");
+		assertEquals(set2, set1, "Поиск общих друзей ошибочен");
+
+	}
+	@Test
 	void userValidateTest() {
 		User user = new User();
 
@@ -137,9 +178,9 @@ class FilmorateApplicationTests {
 	@Test
 	void userNamefromLoginIfNameBlankTest() {
 		User user = new User();
-		InMemoryUserStorage inMemoryUserStorage = new InMemoryUserStorage();
+
 		UserService userService = new UserService();
-		UserController userController = new UserController(inMemoryUserStorage, userService);
+		UserController userController = new UserController(userService);
 		user.setName("");
 		user.setEmail("user@user.com");
 		user.setLogin("UserLogin");
