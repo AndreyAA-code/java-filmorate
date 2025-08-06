@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RequestBody;
 import ru.yandex.practicum.filmorate.controller.UserController;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
@@ -64,7 +65,7 @@ public class InMemoryUserStorage {
             log.debug("User: {} info successfully updated", oldUser);
             return oldUser;
         }
-        throw new ValidationException("Такого Id нет");
+        throw new NotFoundException("Такого Id нет");
     }
 
     private long getNextId() {

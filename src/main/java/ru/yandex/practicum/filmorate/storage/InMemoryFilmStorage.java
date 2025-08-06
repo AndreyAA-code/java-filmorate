@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.controller.FilmController;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 
@@ -32,7 +33,6 @@ public class InMemoryFilmStorage {
     public Film createFilm(Film film) {
         log.debug("Create film: {} started", film);
         log.debug("Film: {} send to validation", film);
-        // validateFilm(film);
         log.debug("Film: {} successfully validated", film);
         film.setId(getNextId());
         log.debug("Film: {} created with id: {}", film, film.getId());
@@ -46,13 +46,12 @@ public class InMemoryFilmStorage {
         log.debug("Update film: {} started", newFilm);
         if (newFilm.getId() == null) {
             log.debug("Film: {} with Id: {} not found in the database", newFilm, newFilm.getId());
-            throw new ValidationException("id должен быть указан");
+            throw new NotFoundException("id должен быть указан");
         }
         if (films.containsKey(newFilm.getId())) {
             log.debug("Film: {} with Id: {} found in the database", newFilm, newFilm.getId());
             Film oldFilm = films.get(newFilm.getId());
             log.debug("Film: {} send to validation", newFilm);
-            // validateFilm(newFilm);
             log.debug("Film: {} successfully validated", newFilm);
             oldFilm.setName(newFilm.getName());
             oldFilm.setDescription(newFilm.getDescription());
@@ -62,7 +61,7 @@ public class InMemoryFilmStorage {
             return oldFilm;
         }
         log.debug("Film: {} with Id: {} not found in the database", newFilm, newFilm.getId());
-        throw new ValidationException("Такого Id нет");
+        throw new NotFoundException("Такого Id нет");
     }
 
    // @Override
@@ -75,8 +74,5 @@ public class InMemoryFilmStorage {
         log.debug("New id: {} succesfully generated", currentMaxId + 1);
         return ++currentMaxId;
     }
-
-
-
 
 }
