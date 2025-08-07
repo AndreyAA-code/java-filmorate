@@ -12,12 +12,13 @@ import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
 
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.Set;
 
 @RequiredArgsConstructor
 @Service
 public class FilmService {
 
-    FilmStorage filmStorage;
+   final FilmStorage filmStorage = new InMemoryFilmStorage();
 
 
     public Collection<Film> findAll() {
@@ -32,7 +33,7 @@ public class FilmService {
         return filmStorage.updateFilm(newFilm);
     }
 
-    public Film addLike(Long id, Long userId) {
+    public Set<Long> addLike(Long id, Long userId) {
             return filmStorage.addLike(id, userId);
     }
 
@@ -44,7 +45,4 @@ public class FilmService {
         return filmStorage.getPopularFilms(count);
     }
 
-    public Film getFilmById(Long id) {
-        return filmStorage.getFilmById(id);
-    }
 }

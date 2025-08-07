@@ -1,7 +1,6 @@
 package ru.yandex.practicum.filmorate.storage;
 
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.RequestBody;
 import ru.yandex.practicum.filmorate.model.User;
 
@@ -18,13 +17,13 @@ public interface UserStorage {
 
     long getNextId();
 
-    User addFriend(Long id, Long friendId);
+    Set<Long> addFriend(Long id, Long friendId);
 
     void removeFriend(Long id, Long friendId);
 
-    User getAllFriends(Long id);
+    Set<Long> getAllFriends(Long id);
 
     Set<Long> getCommonFriends(Long id, Long otherId);
 
-    User getUserById(Long id);
+    boolean getUserById(Long id);
 }

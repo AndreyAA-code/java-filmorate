@@ -16,7 +16,7 @@ import java.util.*;
 @Service
 public class UserService {
 
-    UserStorage userStorage;
+    final UserStorage userStorage = new InMemoryUserStorage();
 
     private static final Logger log = LoggerFactory.getLogger(UserController.class);
 
@@ -32,24 +32,20 @@ public class UserService {
         return userStorage.update(newUser);
     }
 
-    public User addFriend(Long id, Long friendId) {
-        return userStorage.addFriend(id, friendId);
+    public void addFriend(Long id, Long friendId) {
+        userStorage.addFriend(id, friendId);
     }
 
     public void removeFriend(Long id, Long friendId) {
         userStorage.removeFriend(id, friendId);
     }
 
-    public User getAllFriends(Long id) {
+    public Set<Long> getAllFriends(Long id) {
        return userStorage.getAllFriends(id);
     }
 
     public Set<Long> getCommonFriends(Long id, Long otherId) {
        return userStorage.getCommonFriends(id, otherId);
-    }
-
-    public User getUserById(Long id) {
-        return userStorage.getUserById(id);
     }
 
 }

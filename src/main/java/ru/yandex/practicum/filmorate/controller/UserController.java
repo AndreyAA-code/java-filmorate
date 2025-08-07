@@ -15,12 +15,12 @@ import java.util.Set;
 @RestController
 @RequestMapping("/users")
 public class UserController {
-    UserService userService;
+    final UserService userService =new UserService();
 
-    @Autowired
-    public UserController(final UserService userService) {
-        this.userService = userService;
-    }
+ //   @Autowired
+  //  public UserController(final UserService userService) {
+ //       this.userService = userService;
+ //   }
 
     @GetMapping
     public Collection<User> findAll() {
@@ -38,8 +38,8 @@ public class UserController {
     }
 
     @PutMapping("/{id}/friends/{friendId}")
-    public User addFriend(@PathVariable Long id, @PathVariable Long friendId) {
-        return userService.addFriend(id, friendId);
+    public void addFriend(@PathVariable Long id, @PathVariable Long friendId) {
+        userService.addFriend(id, friendId);
     }
 
     @DeleteMapping("/{id}/friends/{friendId}")
@@ -48,7 +48,7 @@ public class UserController {
     }
 
     @GetMapping("/{id}/friends")
-    public User getAllFriends(@PathVariable Long id) {
+    public Set<Long> getAllFriends(@PathVariable Long id) {
         return userService.getAllFriends(id);
     }
 

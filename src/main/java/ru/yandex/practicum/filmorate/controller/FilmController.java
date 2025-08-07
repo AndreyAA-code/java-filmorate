@@ -9,13 +9,14 @@ import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
 
 import java.util.Collection;
+import java.util.Set;
 
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/films")
 public class FilmController {
 
-    FilmService filmService;
+    final FilmService filmService= new FilmService();
 
     @GetMapping
     public Collection<Film> findAll() {
@@ -33,7 +34,7 @@ public class FilmController {
     }
 
     @PutMapping("{id}/like/{userId}")
-    public Film addLike(@PathVariable Long id, @PathVariable Long userId) {
+    public Set<Long> addLike(@PathVariable Long id, @PathVariable Long userId) {
         return filmService.addLike(id, userId);
     }
 

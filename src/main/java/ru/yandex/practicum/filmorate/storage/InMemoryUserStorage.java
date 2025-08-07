@@ -74,24 +74,28 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public User addFriend(Long id, Long friendId) {
+    public Set<Long> addFriend(Long id, Long friendId) {
+        getUserById(id);
+        getUserById(friendId);
+      //  users.get(friendId).getFriends().add(id);
         users.get(id).getFriends().add(friendId);
-        users.get(friendId).getFriends().add(id);
-        return users.get(id);
+        return users.get(friendId).getFriends();
     }
 
     @Override
     public void removeFriend(Long id, Long friendId) {
+        getUserById(id);
+        getUserById(friendId);
         users.get(id).getFriends().remove(friendId);
         log.info("User: {} successfully got friend with id: {}", users.get(id),friendId);
-        getUserById(friendId).getFriends().remove(id);
+        users.get(friendId).getFriends().remove(id);
         log.info("User: {} successfully got friend with id: {}", users.get(friendId),id);
     }
 
     @Override
-    public User getAllFriends(Long id) {
-        users.get(id).getFriends();
-        return users.get(id);
+    public Set<Long> getAllFriends(Long id) {
+        getUserById(id);
+        return users.get(id).getFriends();
     }
 
     @Override
@@ -102,10 +106,10 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public User getUserById(Long id) {
-        if (users.containsKey(id)) {
-            return users.get(id);
+    public boolean getUserById(Long id) {
+        if (!users.containsKey(id)) {
+            throw new NotFoundException("User not found with id: " + id);
         }
-        throw new NotFoundException("User not found with id: " + id);
+        return false;
     }
 }

@@ -10,10 +10,7 @@ import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 @Primary
 @RequiredArgsConstructor
@@ -22,11 +19,8 @@ public class InMemoryFilmStorage implements FilmStorage {
     private static final Logger log = LoggerFactory.getLogger(FilmController.class);
     private final Comparator<Film> likesComparator = Comparator.comparing(Film::getLikesSize);
 
-    public Map<Long, Film> getFilms() {
-        return films;
-    }
-
     private final Map<Long, Film> films = new HashMap<>();
+    UserStorage userStorage;
 
     @Override
     public Collection<Film> findAll() {
@@ -46,7 +40,7 @@ public class InMemoryFilmStorage implements FilmStorage {
         return film;
     }
 
-  @Override
+    @Override
     public Film updateFilm(Film newFilm) {
         log.debug("Update film: {} started", newFilm);
         if (newFilm.getId() == null) {
@@ -81,17 +75,19 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public Film addLike(Long id, Long userId) {
+    public Set<Long> addLike(Long id, Long userId) {
+        getFilmById(id);
         films.get(id).getLikes().add(userId);
-        log.info("Film: {} successfully got like with user id: {}", films.get(id),userId);
-        return films.get(id);
+        log.info("Film: {} successfully got like with user id: {}", films.get(id), userId);
+        return films.get(id).getLikes();
     }
 
     @Override
     public Film removeLike(Long id, Long userId) {
+        getFilmById(id);
         if (films.get(id).getLikes().contains(userId)) {
             films.get(id).getLikes().remove(userId);
-            log.info("Film: {} successfully removed like with user id: {}", films.get(id),userId);
+            log.info("Film: {} successfully removed like with user id: {}", films.get(id), userId);
             return films.get(id);
         }
         throw new NotFoundException("UserId not found");
@@ -107,10 +103,9 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public Film getFilmById(Long id) {
-        if (films.containsKey(id)) {
-            return films.get(id);
+    public void getFilmById(Long id) {
+        if (!films.containsKey(id)) {
+            throw new NotFoundException("Film with id " + id + " not found");
         }
-        throw new NotFoundException("Film with id " + id + " not found");
     }
 }

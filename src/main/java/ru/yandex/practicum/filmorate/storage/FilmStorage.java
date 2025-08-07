@@ -4,6 +4,7 @@ import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.util.Collection;
+import java.util.Set;
 
 @Component
 public interface FilmStorage {
@@ -15,11 +16,11 @@ public interface FilmStorage {
 
     long getNextId();
 
-    Film addLike(Long id, Long userId);
+    Set<Long> addLike(Long id, Long userId);
 
     Film removeLike(Long id, Long userId);
 
     Collection<Film> getPopularFilms(int count);
 
-    Film getFilmById(Long id);
+    void getFilmById(Long id);
 }
