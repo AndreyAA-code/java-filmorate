@@ -1,21 +1,26 @@
 package ru.yandex.practicum.filmorate.storage;
 
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.controller.FilmController;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.service.FilmService;
 
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 
+@Primary
+@RequiredArgsConstructor
 @Component
-public class InMemoryFilmStorage {
+public class InMemoryFilmStorage implements FilmStorage {
     private static final Logger log = LoggerFactory.getLogger(FilmController.class);
+    private final Comparator<Film> likesComparator = Comparator.comparing(Film::getLikesSize);
 
     public Map<Long, Film> getFilms() {
         return films;
@@ -23,13 +28,13 @@ public class InMemoryFilmStorage {
 
     private final Map<Long, Film> films = new HashMap<>();
 
-   // @Override
+    @Override
     public Collection<Film> findAll() {
         log.debug("Find all films");
         return films.values();
     }
 
-   // @Override
+    @Override
     public Film createFilm(Film film) {
         log.debug("Create film: {} started", film);
         log.debug("Film: {} send to validation", film);
@@ -41,7 +46,7 @@ public class InMemoryFilmStorage {
         return film;
     }
 
-  //  @Override
+  @Override
     public Film updateFilm(Film newFilm) {
         log.debug("Update film: {} started", newFilm);
         if (newFilm.getId() == null) {
@@ -64,7 +69,7 @@ public class InMemoryFilmStorage {
         throw new NotFoundException("Такого Id нет");
     }
 
-   // @Override
+    @Override
     public long getNextId() {
         long currentMaxId = films.keySet()
                 .stream()
@@ -75,4 +80,37 @@ public class InMemoryFilmStorage {
         return ++currentMaxId;
     }
 
+    @Override
+    public Film addLike(Long id, Long userId) {
+        films.get(id).getLikes().add(userId);
+        log.info("Film: {} successfully got like with user id: {}", films.get(id),userId);
+        return films.get(id);
+    }
+
+    @Override
+    public Film removeLike(Long id, Long userId) {
+        if (films.get(id).getLikes().contains(userId)) {
+            films.get(id).getLikes().remove(userId);
+            log.info("Film: {} successfully removed like with user id: {}", films.get(id),userId);
+            return films.get(id);
+        }
+        throw new NotFoundException("UserId not found");
+    }
+
+    @Override
+    public Collection<Film> getPopularFilms(int count) {
+        return films.values()
+                .stream()
+                .sorted(likesComparator.reversed())
+                .limit(count)
+                .toList();
+    }
+
+    @Override
+    public Film getFilmById(Long id) {
+        if (films.containsKey(id)) {
+            return films.get(id);
+        }
+        throw new NotFoundException("Film with id " + id + " not found");
+    }
 }

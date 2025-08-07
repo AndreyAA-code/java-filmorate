@@ -9,6 +9,7 @@ import java.sql.Date;
 import java.util.HashSet;
 import java.util.Set;
 
+
 /**
  * Film.
  */
@@ -23,10 +24,9 @@ public class Film {
     private Date releaseDate;
     @Min(0)
     private Integer duration;
-    private Set<Long> likes = new HashSet<>();
+    private final Set<Long> likes = new HashSet<>();
 
-    public Integer getLikesSize(){
-        return likes.size();
+    public int getLikesSize() {
+    return likes.size();
     }
-
 }

@@ -1,22 +1,23 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
 
 import java.util.Collection;
 import java.util.Comparator;
 
+@RequiredArgsConstructor
 @Service
 public class FilmService {
 
-    private static final Logger log = LoggerFactory.getLogger(FilmService.class);
-    InMemoryFilmStorage filmStorage = new InMemoryFilmStorage();
-    private final Comparator<Film> likesComparator = Comparator.comparing(Film::getLikesSize);
-
+    FilmStorage filmStorage;
 
 
     public Collection<Film> findAll() {
@@ -32,31 +33,18 @@ public class FilmService {
     }
 
     public Film addLike(Long id, Long userId) {
-            getFilmById(id).getLikes().add(userId);
-            log.info("Film: {} successfully got like with user id: {}", filmStorage.getFilms().get(id),userId);
-            return filmStorage.getFilms().get(id);
+            return filmStorage.addLike(id, userId);
     }
 
     public Film removeLike(Long id, Long userId) {
-        if (getFilmById(id).getLikes().contains(userId)) {
-            getFilmById(id).getLikes().remove(userId);
-            log.info("Film: {} successfully removed like with user id: {}", filmStorage.getFilms().get(id),userId);
-            return filmStorage.getFilms().get(id);
-        }
-         throw new NotFoundException("UserId not found");
+         return filmStorage.removeLike(id, userId);
     }
 
     public Collection<Film> getPopularFilms(int count) {
-        return filmStorage.getFilms().values()
-                .stream()
-                .sorted(likesComparator.reversed())
-                .limit(count)
-                .toList();
+        return filmStorage.getPopularFilms(count);
     }
+
     public Film getFilmById(Long id) {
-        if (filmStorage.getFilms().containsKey(id)) {
-            return filmStorage.getFilms().get(id);
-        }
-        throw new NotFoundException("Film with id " + id + " not found");
+        return filmStorage.getFilmById(id);
     }
 }

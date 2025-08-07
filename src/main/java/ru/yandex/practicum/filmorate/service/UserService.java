@@ -8,6 +8,7 @@ import ru.yandex.practicum.filmorate.controller.UserController;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
+import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.util.*;
 
@@ -15,12 +16,9 @@ import java.util.*;
 @Service
 public class UserService {
 
-    private static final Logger log = LoggerFactory.getLogger(UserController.class);
-    InMemoryUserStorage userStorage = new InMemoryUserStorage();
+    UserStorage userStorage;
 
-    public UserService(InMemoryUserStorage userStorage) {
-        this.userStorage = userStorage;
-    }
+    private static final Logger log = LoggerFactory.getLogger(UserController.class);
 
     public Collection<User> findAll() {
         return userStorage.findAll();
@@ -35,35 +33,23 @@ public class UserService {
     }
 
     public User addFriend(Long id, Long friendId) {
-        getUserById(id).getFriends().add(friendId);
-        getUserById(friendId).getFriends().add(id);
-        return userStorage.users.get(id);
+        return userStorage.addFriend(id, friendId);
     }
 
     public void removeFriend(Long id, Long friendId) {
-        getUserById(id).getFriends().remove(friendId);
-        log.info("User: {} successfully got friend with id: {}", userStorage.users.get(id),friendId);
-        getUserById(friendId).getFriends().remove(id);
-        log.info("User: {} successfully got friend with id: {}", userStorage.users.get(friendId),id);
+        userStorage.removeFriend(id, friendId);
     }
 
     public User getAllFriends(Long id) {
-        getUserById(id).getFriends();
-        return userStorage.users.get(id);
+       return userStorage.getAllFriends(id);
     }
 
     public Set<Long> getCommonFriends(Long id, Long otherId) {
-        Set<Long> set1 = new HashSet<>(userStorage.users.get(id).getFriends());
-        set1.retainAll(userStorage.users.get(otherId).getFriends());
-        System.out.println(set1);
-        return set1;
+       return userStorage.getCommonFriends(id, otherId);
     }
 
     public User getUserById(Long id) {
-        if (userStorage.users.containsKey(id)) {
-            return userStorage.users.get(id);
-        }
-        throw new NotFoundException("User not found with id: " + id);
+        return userStorage.getUserById(id);
     }
 
 }

@@ -1,38 +1,32 @@
 package ru.yandex.practicum.filmorate.storage;
 
-import jakarta.validation.Valid;
-import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
-import org.springframework.web.bind.annotation.RequestBody;
 import ru.yandex.practicum.filmorate.controller.UserController;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
+@Primary
+@RequiredArgsConstructor
 @Component
-public class InMemoryUserStorage {
+public class InMemoryUserStorage implements UserStorage {
 
     private final Logger log = LoggerFactory.getLogger(UserController.class);
+    private final Map<Long, User> users = new HashMap<>();
 
-    @Getter
-    public final Map<Long, User> users = new HashMap<>();
-
-    public Map<Long, User> getUsers() {
-        return users;
-    }
-   // @Override
+    @Override
     public Collection<User> findAll() {
         log.debug("Find all users");
         return users.values();
     }
 
-   // @Override
+   @Override
     public User create(User user) {
         log.info("Create user: {}", user);
         log.debug("User: {} send to validation", user);
@@ -47,7 +41,7 @@ public class InMemoryUserStorage {
         return user;
     }
 
- //   @Override
+  @Override
     public User update(User newUser) {
         if (newUser.getId() == null) {
             log.debug("Update user: {} started", newUser);
@@ -68,7 +62,8 @@ public class InMemoryUserStorage {
         throw new NotFoundException("Такого Id нет");
     }
 
-    private long getNextId() {
+    @Override
+    public long getNextId() {
         long currentMaxId = users.keySet()
                 .stream()
                 .mapToLong(id -> id)
@@ -76,5 +71,41 @@ public class InMemoryUserStorage {
                 .orElse(0L);
         log.debug("New id: {} succesfully generated", currentMaxId + 1);
         return ++currentMaxId;
+    }
+
+    @Override
+    public User addFriend(Long id, Long friendId) {
+        users.get(id).getFriends().add(friendId);
+        users.get(friendId).getFriends().add(id);
+        return users.get(id);
+    }
+
+    @Override
+    public void removeFriend(Long id, Long friendId) {
+        users.get(id).getFriends().remove(friendId);
+        log.info("User: {} successfully got friend with id: {}", users.get(id),friendId);
+        getUserById(friendId).getFriends().remove(id);
+        log.info("User: {} successfully got friend with id: {}", users.get(friendId),id);
+    }
+
+    @Override
+    public User getAllFriends(Long id) {
+        users.get(id).getFriends();
+        return users.get(id);
+    }
+
+    @Override
+    public Set<Long> getCommonFriends(Long id, Long otherId) {
+        Set<Long> set1 = new HashSet<>(users.get(id).getFriends());
+        set1.retainAll(users.get(otherId).getFriends());
+        return set1;
+    }
+
+    @Override
+    public User getUserById(Long id) {
+        if (users.containsKey(id)) {
+            return users.get(id);
+        }
+        throw new NotFoundException("User not found with id: " + id);
     }
 }
