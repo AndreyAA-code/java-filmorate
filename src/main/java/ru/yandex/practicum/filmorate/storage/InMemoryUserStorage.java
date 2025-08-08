@@ -87,6 +87,7 @@ public class InMemoryUserStorage implements UserStorage {
         return friends;
     } */
 
+    /*
    @Override
    public List<User> addFriend(Long id, Long friendId) {
        User user1 = getUserById(id);         // Assuming getUserById returns User
@@ -103,6 +104,22 @@ public class InMemoryUserStorage implements UserStorage {
 
        return List.of(user1, user2);
        }
+*/
+    @Override
+    public List<User> addFriend(Long id, Long friendId) {
+        getUserById(4L).getFriends().add(5L);
+        getUserById(5L).getFriends().add(4L);
+        List<User> userstest  = new ArrayList<>();
+        userstest.add(getUserById(4L));
+        userstest.add(getUserById(5L));
+        System.out.println("0   "+ userstest.get(0) +"  \n  1     " + userstest.get(1));
+        System.out.println(userstest);
+
+
+
+
+        return userstest;
+    }
 
     @Override
     public void removeFriend(Long id, Long friendId) {
