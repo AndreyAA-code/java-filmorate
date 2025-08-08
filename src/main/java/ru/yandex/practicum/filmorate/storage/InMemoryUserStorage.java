@@ -75,7 +75,7 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
 
-   /* @Override
+   @Override
     public List<User> addFriend(Long id, Long friendId) {
         getUserById(id);
         getUserById(friendId);
@@ -85,40 +85,6 @@ public class InMemoryUserStorage implements UserStorage {
         List<User> friends = List.of(users.get(id), users.get(friendId));
         System.out.println(friends);
         return friends;
-    } */
-
-    /*
-   @Override
-   public List<User> addFriend(Long id, Long friendId) {
-       User user1 = getUserById(id);         // Assuming getUserById returns User
-       User user2 = getUserById(friendId);
-
-       // Add bidirectional friendship if not already present
-       if (!user1.getFriends().contains(friendId)) {
-           user1.getFriends().add(friendId);
-           user2.getFriends().add(id);
-           log.debug("Established friendship between {} and {}", id, friendId);
-       } else {
-           log.debug("Friendship already exists between {} and {}", id, friendId);
-       }
-
-       return List.of(user1, user2);
-       }
-*/
-    @Override
-    public List<User> addFriend(Long id, Long friendId) {
-        getUserById(4L).getFriends().add(5L);
-        getUserById(5L).getFriends().add(4L);
-        List<User> userstest  = new ArrayList<>();
-        userstest.add(getUserById(4L));
-        userstest.add(getUserById(5L));
-        System.out.println("0   "+ userstest.get(0) +"  \n  1     " + userstest.get(1));
-        System.out.println(userstest);
-
-
-
-
-        return userstest;
     }
 
     @Override
