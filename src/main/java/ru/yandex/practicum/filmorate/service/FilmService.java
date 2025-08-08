@@ -18,7 +18,7 @@ import java.util.Set;
 @Service
 public class FilmService {
 
-   final FilmStorage filmStorage = new InMemoryFilmStorage();
+   private final FilmStorage filmStorage;
 
 
     public Collection<Film> findAll() {

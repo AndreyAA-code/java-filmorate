@@ -20,7 +20,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     private final Comparator<Film> likesComparator = Comparator.comparing(Film::getLikesSize);
 
     private final Map<Long, Film> films = new HashMap<>();
-    UserStorage userStorage;
+    private final UserStorage userStorage;
 
     @Override
     public Collection<Film> findAll() {

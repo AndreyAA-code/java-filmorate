@@ -15,6 +15,7 @@ import java.util.*;
 @Primary
 @RequiredArgsConstructor
 @Component
+
 public class InMemoryUserStorage implements UserStorage {
 
     private final Logger log = LoggerFactory.getLogger(UserController.class);
@@ -73,14 +74,35 @@ public class InMemoryUserStorage implements UserStorage {
         return ++currentMaxId;
     }
 
-    @Override
-    public Set<Long> addFriend(Long id, Long friendId) {
+
+   /* @Override
+    public List<User> addFriend(Long id, Long friendId) {
         getUserById(id);
         getUserById(friendId);
-      //  users.get(friendId).getFriends().add(id);
         users.get(id).getFriends().add(friendId);
-        return users.get(friendId).getFriends();
-    }
+        log.debug("User: {} added friend: {}", id, friendId);
+        users.get(friendId).getFriends().add(id);
+        List<User> friends = List.of(users.get(id), users.get(friendId));
+        System.out.println(friends);
+        return friends;
+    } */
+
+   @Override
+   public List<User> addFriend(Long id, Long friendId) {
+       User user1 = getUserById(id);         // Assuming getUserById returns User
+       User user2 = getUserById(friendId);
+
+       // Add bidirectional friendship if not already present
+       if (!user1.getFriends().contains(friendId)) {
+           user1.getFriends().add(friendId);
+           user2.getFriends().add(id);
+           log.debug("Established friendship between {} and {}", id, friendId);
+       } else {
+           log.debug("Friendship already exists between {} and {}", id, friendId);
+       }
+
+       return List.of(user1, user2);
+       }
 
     @Override
     public void removeFriend(Long id, Long friendId) {
@@ -106,10 +128,10 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public boolean getUserById(Long id) {
+    public User getUserById(Long id) {
         if (!users.containsKey(id)) {
             throw new NotFoundException("User not found with id: " + id);
         }
-        return false;
+        return users.get(id);
     }
 }

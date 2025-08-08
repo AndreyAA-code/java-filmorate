@@ -16,7 +16,7 @@ import java.util.Set;
 @RequestMapping("/films")
 public class FilmController {
 
-    final FilmService filmService= new FilmService();
+   private final FilmService filmService;
 
     @GetMapping
     public Collection<Film> findAll() {

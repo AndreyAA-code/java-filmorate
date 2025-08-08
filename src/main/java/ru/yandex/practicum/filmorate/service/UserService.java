@@ -12,11 +12,13 @@ import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.util.*;
 
-@RequiredArgsConstructor
+
 @Service
+@RequiredArgsConstructor
+
 public class UserService {
 
-    final UserStorage userStorage = new InMemoryUserStorage();
+    private final UserStorage userStorage;
 
     private static final Logger log = LoggerFactory.getLogger(UserController.class);
 
@@ -32,8 +34,8 @@ public class UserService {
         return userStorage.update(newUser);
     }
 
-    public void addFriend(Long id, Long friendId) {
-        userStorage.addFriend(id, friendId);
+    public List<User> addFriend(Long id, Long friendId) {
+        return userStorage.addFriend(id, friendId);
     }
 
     public void removeFriend(Long id, Long friendId) {
