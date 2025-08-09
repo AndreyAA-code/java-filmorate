@@ -1,24 +1,18 @@
 package ru.yandex.practicum.filmorate.service;
 
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
-import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
 
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.Set;
 
 @RequiredArgsConstructor
 @Service
 public class FilmService {
 
-   private final FilmStorage filmStorage;
+    private final FilmStorage filmStorage;
 
 
     public Collection<Film> findAll() {
@@ -34,11 +28,11 @@ public class FilmService {
     }
 
     public Set<Long> addLike(Long id, Long userId) {
-            return filmStorage.addLike(id, userId);
+        return filmStorage.addLike(id, userId);
     }
 
     public Film removeLike(Long id, Long userId) {
-         return filmStorage.removeLike(id, userId);
+        return filmStorage.removeLike(id, userId);
     }
 
     public Collection<Film> getPopularFilms(int count) {

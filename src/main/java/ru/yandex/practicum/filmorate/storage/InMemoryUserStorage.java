@@ -27,7 +27,7 @@ public class InMemoryUserStorage implements UserStorage {
         return users.values();
     }
 
-   @Override
+    @Override
     public User create(User user) {
         log.info("Create user: {}", user);
         log.debug("User: {} send to validation", user);
@@ -42,7 +42,7 @@ public class InMemoryUserStorage implements UserStorage {
         return user;
     }
 
-  @Override
+    @Override
     public User update(User newUser) {
         if (newUser.getId() == null) {
             log.debug("Update user: {} started", newUser);
@@ -75,7 +75,7 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
 
-   @Override
+    @Override
     public List<User> addFriend(Long id, Long friendId) {
         getUserById(id);
         getUserById(friendId);
@@ -92,9 +92,9 @@ public class InMemoryUserStorage implements UserStorage {
         getUserById(id);
         getUserById(friendId);
         users.get(id).getFriends().remove(friendId);
-        log.info("User: {} successfully got friend with id: {}", users.get(id),friendId);
+        log.info("User: {} successfully got friend with id: {}", users.get(id), friendId);
         users.get(friendId).getFriends().remove(id);
-        log.info("User: {} successfully got friend with id: {}", users.get(friendId),id);
+        log.info("User: {} successfully got friend with id: {}", users.get(friendId), id);
     }
 
     @Override
@@ -102,7 +102,7 @@ public class InMemoryUserStorage implements UserStorage {
         getUserById(id);
         List<Long> friends_id = new ArrayList<>(users.get(id).getFriends());
         List<User> friends = new ArrayList<>();
-        for (int index = 0; index<friends_id.size();index++) {
+        for (int index = 0; index < friends_id.size(); index++) {
             friends.add(users.get(friends_id.get(index)));
         }
         return friends;
@@ -110,23 +110,20 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public List<User> getCommonFriends(Long id, Long otherId) {
-       List<Long> user1friends_id = new ArrayList<>(users.get(id).getFriends());
+        List<Long> user1friends_id = new ArrayList<>(users.get(id).getFriends());
         System.out.println("user1friends_id" + user1friends_id);
-       List<Long> user2friends_id = new ArrayList<>(users.get(otherId).getFriends());
-       System.out.println("user2friends_id" + user2friends_id);
-            user1friends_id.retainAll(user2friends_id);
+        List<Long> user2friends_id = new ArrayList<>(users.get(otherId).getFriends());
+        System.out.println("user2friends_id" + user2friends_id);
+        user1friends_id.retainAll(user2friends_id);
         System.out.println("user1friends_id: " + user1friends_id);
-            List <User> common_friends = new ArrayList<>();
-        System.out.println("common_friends: "+ common_friends);
-        for (int index = 0; index<user1friends_id.size();index++) {
+        List<User> common_friends = new ArrayList<>();
+        System.out.println("common_friends: " + common_friends);
+        for (int index = 0; index < user1friends_id.size(); index++) {
             common_friends.add(users.get(user1friends_id.get(index)));
         }
         System.out.println("common_friends: " + common_friends);
-            return common_friends;
+        return common_friends;
 
-        //Set<Long> set1 = new HashSet<>(users.get(id).getFriends());
-        //set1.retainAll(users.get(otherId).getFriends());
-      //  return set1;
     }
 
     @Override

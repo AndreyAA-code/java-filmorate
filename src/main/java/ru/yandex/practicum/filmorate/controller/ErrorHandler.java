@@ -16,11 +16,11 @@ public class ErrorHandler {
     public ErrorResponse handle(final ValidationException e) {
         return new ErrorResponse(e.getMessage());
     }
+
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handle(final NotFoundException e) {
         return new ErrorResponse(e.getMessage());
     }
-
 
 }

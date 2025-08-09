@@ -23,11 +23,5 @@ public class User {
     @PastOrPresent
     private Date birthday;
     private Set<Long> friends = new HashSet<>();
-    /*private Set<User> friendsTest;
-    public void setFriends(Set<User> friendsTest) {
-        this.friendsTest = friendsTest;
-    }
-    public Set<User> getFriends_test() {
-        return friendsTest;
-    } */
+
 }

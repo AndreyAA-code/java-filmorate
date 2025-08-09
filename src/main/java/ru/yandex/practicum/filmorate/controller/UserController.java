@@ -2,26 +2,18 @@ package ru.yandex.practicum.filmorate.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
-import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/users")
 public class UserController {
     private final UserService userService;
-
- //   @Autowired
-  //  public UserController(final UserService userService) {
- //       this.userService = userService;
- //   }
 
     @GetMapping
     public Collection<User> findAll() {
