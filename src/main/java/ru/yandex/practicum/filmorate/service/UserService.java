@@ -42,7 +42,7 @@ public class UserService {
         userStorage.removeFriend(id, friendId);
     }
 
-    public Set<Long> getAllFriends(Long id) {
+    public List<User> getAllFriends(Long id) {
        return userStorage.getAllFriends(id);
     }
 

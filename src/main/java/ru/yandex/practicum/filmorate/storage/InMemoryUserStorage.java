@@ -83,7 +83,7 @@ public class InMemoryUserStorage implements UserStorage {
         log.debug("User: {} added friend: {}", id, friendId);
         users.get(friendId).getFriends().add(id);
         List<User> friends = List.of(users.get(id), users.get(friendId));
-        System.out.println(friends);
+        List<Long> testFriend = new ArrayList<>(users.get(id).getFriends());
         return friends;
     }
 
@@ -98,9 +98,14 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public Set<Long> getAllFriends(Long id) {
+    public List<User> getAllFriends(Long id) {
         getUserById(id);
-        return users.get(id).getFriends();
+        List<Long> friends_id = new ArrayList<>(users.get(id).getFriends());
+        List<User> friends = new ArrayList<>();
+        for (int index =0; index<friends_id.size();index++) {
+            friends.add(users.get(friends_id.get(index)));
+        }
+        return friends;
     }
 
     @Override
