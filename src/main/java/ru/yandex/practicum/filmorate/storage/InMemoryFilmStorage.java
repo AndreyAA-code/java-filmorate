@@ -77,6 +77,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     @Override
     public Set<Long> addLike(Long id, Long userId) {
         getFilmById(id);
+        userStorage.getUserById(userId);
         films.get(id).getLikes().add(userId);
         log.info("Film: {} successfully got like with user id: {}", films.get(id), userId);
         return films.get(id).getLikes();
@@ -108,4 +109,6 @@ public class InMemoryFilmStorage implements FilmStorage {
             throw new NotFoundException("Film with id " + id + " not found");
         }
     }
+
+
 }
