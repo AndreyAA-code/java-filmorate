@@ -100,10 +100,10 @@ public class InMemoryUserStorage implements UserStorage {
     @Override
     public List<User> getAllFriends(Long id) {
         getUserById(id);
-        List<Long> friends_id = new ArrayList<>(users.get(id).getFriends());
+        List<Long> friendsId = new ArrayList<>(users.get(id).getFriends());
         List<User> friends = new ArrayList<>();
-        for (int index = 0; index < friends_id.size(); index++) {
-            friends.add(users.get(friends_id.get(index)));
+        for (int index = 0; index < friendsId.size(); index++) {
+            friends.add(users.get(friendsId.get(index)));
         }
         return friends;
     }
