@@ -110,19 +110,19 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public List<User> getCommonFriends(Long id, Long otherId) {
-        List<Long> user1friends_id = new ArrayList<>(users.get(id).getFriends());
-        System.out.println("user1friends_id" + user1friends_id);
-        List<Long> user2friends_id = new ArrayList<>(users.get(otherId).getFriends());
-        System.out.println("user2friends_id" + user2friends_id);
-        user1friends_id.retainAll(user2friends_id);
-        System.out.println("user1friends_id: " + user1friends_id);
-        List<User> common_friends = new ArrayList<>();
-        System.out.println("common_friends: " + common_friends);
-        for (int index = 0; index < user1friends_id.size(); index++) {
-            common_friends.add(users.get(user1friends_id.get(index)));
+        List<Long> user1friendsId = new ArrayList<>(users.get(id).getFriends());
+        System.out.println("user1friendsId" + user1friendsId);
+        List<Long> user2friendsId = new ArrayList<>(users.get(otherId).getFriends());
+        System.out.println("user2friendsId" + user2friendsId);
+        user1friendsId.retainAll(user2friendsId);
+        System.out.println("user1friends_id: " + user1friendsId);
+        List<User> commonFriends = new ArrayList<>();
+        System.out.println("commonFriends: " + commonFriends);
+        for (int index = 0; index < user1friendsId.size(); index++) {
+            commonFriends.add(users.get(user1friendsId.get(index)));
         }
-        System.out.println("common_friends: " + common_friends);
-        return common_friends;
+        System.out.println("commonFriends: " + commonFriends);
+        return commonFriends;
 
     }
 
