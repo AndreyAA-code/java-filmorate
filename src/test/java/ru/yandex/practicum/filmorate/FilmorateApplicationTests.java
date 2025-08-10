@@ -23,7 +23,9 @@ import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.sql.Date;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -142,14 +144,13 @@ private UserController userController;
 		assertEquals(Date.valueOf(LocalDate.of(2000, 6, 16)), user.getBirthday(), "Апдейт даты ДР не получился..");
 
 	}
-/*
+
 	@Test
 	void userFriendsTest() {
+		setUpControllers();
 		User user1 = new User();
 		User user2 = new User();
 		User user3 = new User();
-		UserService userService = new UserService();
-		UserController userController = new UserController(userService);
 
 		user1.setName("Name User");
 		user1.setEmail("user1@user.com");
@@ -173,17 +174,18 @@ private UserController userController;
 		set2.add(2L);
 
 
-		userController.addFriend(1L,2L);
-		userController.addFriend(1L,3L);
-		userController.addFriend(2L,3L);
-		set1 = userController.getCommonFriends(1L,3L);
+		userController.addFriend(user1.getId(), user2.getId());
+		userController.addFriend(user1.getId(), user3.getId());
+		userController.addFriend(user2.getId(), user3.getId());
 
-		assertNotNull(user1.getId(), "Пользователь не создается.");
-		assertNotNull(user2.getId(), "Пользователь не создается.");
-		assertNotNull(user3.getId(), "Пользователь не создается.");
-		assertEquals(set2, set1, "Поиск общих друзей ошибочен");
+		List<User> commonFriends = userController.getCommonFriends(user1.getId(), user2.getId());
+
+		assertEquals(1, commonFriends.size());
+		assertTrue(commonFriends.contains(user3));
 
 	}
+
+
 	@Test
 	void userValidateTest() {
 		User user = new User();
@@ -203,10 +205,9 @@ private UserController userController;
 
 	@Test
 	void userNamefromLoginIfNameBlankTest() {
+		setUpControllers();
 		User user = new User();
 
-		UserService userService = new UserService();
-		UserController userController = new UserController(userService);
 		user.setName("");
 		user.setEmail("user@user.com");
 		user.setLogin("UserLogin");
@@ -218,6 +219,7 @@ private UserController userController;
 
 	@Test
 	void filmValidateTest() {
+		setUpControllers();
 		Film film = new Film();
 
 		film.setName("");
@@ -245,5 +247,5 @@ private UserController userController;
 				.map(v -> v.getMessage())
 				.forEach(System.out::println);
 	}
-*/
+
 }
