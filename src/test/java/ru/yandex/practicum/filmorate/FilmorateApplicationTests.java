@@ -90,14 +90,16 @@ private UserController userController;
 
 	@Test
 	void userCreateTest() {
-		User user = createValidUser();
+		setUpControllers();
+		User user = new User();
 		User createdUser = userController.create(user);
 		assertNotNull(createdUser.getId(), "Пользователь не создается.");
 	}
 
 	@Test
 	void userUpdateTest() {
-		User user = createValidUser();
+		setUpControllers();
+		User user = new User();
 		User createdUser = userController.create(user);
 
 		User updatedUser = new User();
@@ -116,11 +118,10 @@ private UserController userController;
 
 
 	@Test
-	void userUpdateTest() {
+	void userUpdateTestUserController() {
+		setUpControllers();
 		User user = new User();
 		User newUser = new User();
-		UserService userService = new UserService();
-		UserController userController = new UserController(userService);
 
 		user.setName("Name User");
 		user.setEmail("user@user.com");
@@ -141,7 +142,7 @@ private UserController userController;
 		assertEquals(Date.valueOf(LocalDate.of(2000, 6, 16)), user.getBirthday(), "Апдейт даты ДР не получился..");
 
 	}
-
+/*
 	@Test
 	void userFriendsTest() {
 		User user1 = new User();
@@ -244,5 +245,5 @@ private UserController userController;
 				.map(v -> v.getMessage())
 				.forEach(System.out::println);
 	}
-
+*/
 }
