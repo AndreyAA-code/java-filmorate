@@ -1,0 +1,51 @@
+package ru.yandex.practicum.filmorate.service;
+
+import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.controller.UserController;
+import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.UserStorage;
+
+import java.util.*;
+
+
+@Service
+@RequiredArgsConstructor
+
+public class UserService {
+
+    private final UserStorage userStorage;
+
+    private static final Logger log = LoggerFactory.getLogger(UserController.class);
+
+    public Collection<User> findAll() {
+        return userStorage.findAll();
+    }
+
+    public User create(User user) {
+        return userStorage.create(user);
+    }
+
+    public User update(User newUser) {
+        return userStorage.update(newUser);
+    }
+
+    public List<User> addFriend(Long id, Long friendId) {
+        return userStorage.addFriend(id, friendId);
+    }
+
+    public void removeFriend(Long id, Long friendId) {
+        userStorage.removeFriend(id, friendId);
+    }
+
+    public List<User> getAllFriends(Long id) {
+        return userStorage.getAllFriends(id);
+    }
+
+    public List<User> getCommonFriends(Long id, Long otherId) {
+        return userStorage.getCommonFriends(id, otherId);
+    }
+
+}

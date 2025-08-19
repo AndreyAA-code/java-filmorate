@@ -2,10 +2,15 @@ package ru.yandex.practicum.filmorate.model;
 
 import jakarta.validation.constraints.*;
 import lombok.Data;
+import lombok.RequiredArgsConstructor;
 
 import java.sql.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
+@RequiredArgsConstructor
+
 public class User {
     private Long id;
     @NotBlank
@@ -17,4 +22,6 @@ public class User {
     private String name;
     @PastOrPresent
     private Date birthday;
+    private Set<Long> friends = new HashSet<>();
+
 }

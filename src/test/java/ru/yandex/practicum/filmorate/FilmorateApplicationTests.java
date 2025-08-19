@@ -4,89 +4,121 @@ import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
-import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.filmorate.controller.FilmController;
 import ru.yandex.practicum.filmorate.controller.UserController;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.FilmService;
+import ru.yandex.practicum.filmorate.service.UserService;
+import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
+import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
+import ru.yandex.practicum.filmorate.storage.UserStorage;
+
 import java.sql.Date;
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+
 class FilmorateApplicationTests {
 
 	private static Validator validator;
+	private FilmController filmController;
+private UserController userController;
 
-	static {
+	@BeforeAll
+	static void setUpValidator() {
 		ValidatorFactory validatorFactory = Validation.buildDefaultValidatorFactory();
 		validator = validatorFactory.usingContext().getValidator();
 	}
 
-	@Test
-	void contextLoads() {
+	void setUpControllers() {
+		UserStorage userStorage = new InMemoryUserStorage();
+		InMemoryFilmStorage filmStorage = new InMemoryFilmStorage(userStorage);
+		FilmService filmService = new FilmService(filmStorage);
+		UserService userService = new UserService(userStorage);
+		filmController = new FilmController(filmService);
+		userController = new UserController(userService);
 	}
+
 
 	@Test
 	void filmCreateTest() {
+		setUpControllers();
 		Film film = new Film();
-		FilmController filmController = new FilmController();
-
-		film.setId(1L);
 		film.setName("Name Film");
 		film.setDescription("Description Film");
 		film.setReleaseDate(Date.valueOf(LocalDate.of(1987, 5, 1)));
 		film.setDuration(90);
-		filmController.createFilm(film);
-		assertNotNull(film.getId(), "Фильм не создается.");
+
+		Film createdFilm = filmController.createFilm(film);
+		assertNotNull(createdFilm.getId(), "Фильм не создается.");
 	}
 
 	@Test
 	void filmUpdateTest() throws ValidationException {
-		Film newFilm = new Film();
+		setUpControllers();
 		Film film = new Film();
-		FilmController filmController = new FilmController();
-
-		film.setId(1L);
 		film.setName("Name Film");
 		film.setDescription("Description Film");
 		film.setReleaseDate(Date.valueOf(LocalDate.of(1987, 5, 1)));
 		film.setDuration(90);
 		filmController.createFilm(film);
 
-		newFilm.setId(1L);
+		Film newFilm = new Film();
+		newFilm.setId(film.getId());
 		newFilm.setName("Name Film Update");
 		newFilm.setDescription("Description Film Update");
 		newFilm.setReleaseDate(Date.valueOf(LocalDate.of(2000, 6, 16)));
 		newFilm.setDuration(120);
-		filmController.updateFilm(newFilm);
-		assertEquals("Name Film Update", film.getName(), "Апдейт имени фильма не получился.");
-		assertEquals("Description Film Update", film.getDescription(), "Апдейт описания фильма не получился.");
-		assertEquals(Date.valueOf(LocalDate.of(2000, 6, 16)), film.getReleaseDate(), "Апдейт даты выхода фильма не получился.");
-		assertEquals(120, film.getDuration(), "Апдейт продолжительности фильма не получился.");
+
+		Film updatedFilm = filmController.updateFilm(newFilm);
+		assertEquals("Name Film Update", updatedFilm.getName(), "Апдейт имени фильма не получился.");
+		assertEquals("Description Film Update", updatedFilm.getDescription(), "Апдейт описания фильма не получился.");
+		assertEquals(Date.valueOf(LocalDate.of(2000, 6, 16)), updatedFilm.getReleaseDate(), "Апдейт даты выхода фильма не получился.");
+		assertEquals(120, updatedFilm.getDuration(), "Апдейт продолжительности фильма не получился.");
 	}
 
 	@Test
 	void userCreateTest() {
+		setUpControllers();
 		User user = new User();
-		UserController userController = new UserController();
-
-		user.setName("Name User");
-		user.setEmail("user@user.com");
-		user.setLogin("UserLogin");
-		user.setBirthday(Date.valueOf(LocalDate.of(1981, 5, 1)));
-		userController.create(user);
-		assertNotNull(user.getId(), "Пользователь не создается.");
+		User createdUser = userController.create(user);
+		assertNotNull(createdUser.getId(), "Пользователь не создается.");
 	}
 
 	@Test
 	void userUpdateTest() {
+		setUpControllers();
+		User user = new User();
+		User createdUser = userController.create(user);
+
+		User updatedUser = new User();
+		updatedUser.setId(createdUser.getId());
+		updatedUser.setName("Updated Name");
+		updatedUser.setEmail("updated@email.com");
+		updatedUser.setLogin("updatedLogin");
+		updatedUser.setBirthday(Date.valueOf(LocalDate.of(1990, 1, 1)));
+
+		User result = userController.update(updatedUser);
+		assertEquals(updatedUser.getName(), result.getName());
+		assertEquals(updatedUser.getEmail(), result.getEmail());
+		assertEquals(updatedUser.getLogin(), result.getLogin());
+		assertEquals(updatedUser.getBirthday(), result.getBirthday());
+	}
+
+
+	@Test
+	void userUpdateTestUserController() {
+		setUpControllers();
 		User user = new User();
 		User newUser = new User();
-		UserController userController = new UserController();
 
 		user.setName("Name User");
 		user.setEmail("user@user.com");
@@ -109,6 +141,47 @@ class FilmorateApplicationTests {
 	}
 
 	@Test
+	void userFriendsTest() {
+		setUpControllers();
+		User user1 = new User();
+		User user2 = new User();
+		User user3 = new User();
+
+		user1.setName("Name User");
+		user1.setEmail("user1@user.com");
+		user1.setLogin("UserLogin1");
+		user1.setBirthday(Date.valueOf(LocalDate.of(1981, 5, 1)));
+		userController.create(user1);
+
+		user2.setName("Name User");
+		user2.setEmail("user2@user.com");
+		user2.setLogin("UserLogin2");
+		user2.setBirthday(Date.valueOf(LocalDate.of(1981, 5, 1)));
+		userController.create(user2);
+
+		user3.setName("Name User");
+		user3.setEmail("user3@user.com");
+		user3.setLogin("UserLogin3");
+		user3.setBirthday(Date.valueOf(LocalDate.of(1981, 5, 1)));
+		userController.create(user3);
+		Set<Long> set1 = new HashSet<>();
+		Set<Long> set2 = new HashSet<>();
+		set2.add(2L);
+
+
+		userController.addFriend(user1.getId(), user2.getId());
+		userController.addFriend(user1.getId(), user3.getId());
+		userController.addFriend(user2.getId(), user3.getId());
+
+		List<User> commonFriends = userController.getCommonFriends(user1.getId(), user2.getId());
+
+		assertEquals(1, commonFriends.size());
+		assertTrue(commonFriends.contains(user3));
+
+	}
+
+
+	@Test
 	void userValidateTest() {
 		User user = new User();
 
@@ -119,7 +192,7 @@ class FilmorateApplicationTests {
 
 		Set<ConstraintViolation<User>> validates = validator.validate(user);
 
-		Assertions.assertTrue(validates.size() > 0);
+		assertTrue(validates.size() > 0);
 		validates.stream()
 				.map(v -> v.getMessage())
 				.forEach(System.out::println);
@@ -127,8 +200,9 @@ class FilmorateApplicationTests {
 
 	@Test
 	void userNamefromLoginIfNameBlankTest() {
+		setUpControllers();
 		User user = new User();
-		UserController userController = new UserController();
+
 		user.setName("");
 		user.setEmail("user@user.com");
 		user.setLogin("UserLogin");
@@ -140,6 +214,7 @@ class FilmorateApplicationTests {
 
 	@Test
 	void filmValidateTest() {
+		setUpControllers();
 		Film film = new Film();
 
 		film.setName("");
@@ -162,7 +237,7 @@ class FilmorateApplicationTests {
 
 		Set<ConstraintViolation<Film>> validates = validator.validate(film);
 
-		Assertions.assertTrue(validates.size() > 0);
+		assertTrue(validates.size() > 0);
 		validates.stream()
 				.map(v -> v.getMessage())
 				.forEach(System.out::println);
