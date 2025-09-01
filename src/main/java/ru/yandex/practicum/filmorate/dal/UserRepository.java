@@ -12,6 +12,7 @@ import java.util.Optional;
 public class UserRepository extends BaseRepository<User> {
     private static final String FIND_ALL_QUERY = "SELECT * FROM users";
     private static final String FIND_BY_ID_QUERY = "SELECT * FROM users WHERE id = ?";
+    private static final String FIND_BY_EMAIL_QUERY = "SELECT * FROM users WHERE email = ?";
     private static final String INSERT_QUERY = "INSERT INTO users (name,email,login,birthday)" + " VALUES (?,?,?,?) returning id";
     private static final String UPDATE_QUERY = "UPDATE users SET name=?,email=?,login=?,birthday=? WHERE id=?";
     private static final String DELETE_QUERY = "DELETE FROM users WHERE id=?";
@@ -22,6 +23,10 @@ public class UserRepository extends BaseRepository<User> {
 
     public List<User> findAll() {
         return findMany(FIND_ALL_QUERY);
+    }
+
+    public Optional<User> findByEmail(String email) {
+        return findOne(FIND_BY_EMAIL_QUERY, email);
     }
 
     public Optional<User> findById(Long id) {
