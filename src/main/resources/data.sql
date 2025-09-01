@@ -21,7 +21,7 @@ WHEN NOT MATCHED THEN
     INSERT (name) VALUES (source.name);
 
 MERGE into FRIENDSHIP_STATUS AS target
-    USING (VALUES ('Запрос'),
+    USING (VALUES ('Не подтвержена'),
                   ('Подтверждена')
         ) AS source (status)
 ON target.STATUS = source.status
