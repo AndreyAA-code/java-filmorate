@@ -4,6 +4,7 @@ package ru.yandex.practicum.filmorate.mapper;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import ru.yandex.practicum.filmorate.dto.NewUserRequest;
+import ru.yandex.practicum.filmorate.dto.UpdateUserRequest;
 import ru.yandex.practicum.filmorate.dto.UserDto;
 import ru.yandex.practicum.filmorate.model.User;
 
@@ -28,6 +29,18 @@ public final class UserMapper {
         user.setLogin(request.getLogin());
         user.setBirthday(request.getBirthday());
         return user;
+    }
 
+    public static User updateUserFields(User user, UpdateUserRequest request) {
+        if (request.hasEmail()) {
+            user.setEmail(request.getEmail());
+        }
+        if (request.hasPassword()) {
+            user.setPassword(request.getPassword());
+        }
+        if (request.hasUsername()) {
+            user.setUsername(request.getUsername());
+        }
+        return user;
     }
 }
