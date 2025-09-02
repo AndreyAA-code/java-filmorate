@@ -20,7 +20,7 @@ public class User {
     @Pattern(regexp = "[^\s]*")
     private String login;
     private String name;
-    @PastOrPresent
+    @PastOrPresent(message = "Дата рождения не может быть в будущем")
     private Date birthday;
     private Set<Long> friends = new HashSet<>();
 

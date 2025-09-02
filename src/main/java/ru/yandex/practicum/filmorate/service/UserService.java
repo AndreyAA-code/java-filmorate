@@ -33,10 +33,17 @@ public class UserService {
         if (request.getEmail() == null || request.getEmail().isEmpty()) {
             throw new ValidationException("Email должен быть указан");
         }
+
+        if (request.getBirthday() == null) {
+            throw new ValidationException("Дата не верна");
+        }
+
         Optional<User> alreadyExistUser = userRepository.findByEmail(request.getEmail());
         if (alreadyExistUser.isPresent()) {
             throw new ValidationException("Такой Email уже есть");
         }
+
+
 
         User user = UserMapper.mapToUser(request);
         user = userRepository.save(user);
@@ -49,10 +56,8 @@ public class UserService {
     }
 
     public UserDto updateUser(UpdateUserRequest request) {
-       // log.debug("Updating user ID: {} with data: {}", userId, request);
         User updatedUser = userRepository.findById(request.getId())
                 .map(user ->{
-                    log.debug("Found user: {}", user);
                     User updated = UserMapper.updateUserFields(user, request);
                     return updated;
                 })
