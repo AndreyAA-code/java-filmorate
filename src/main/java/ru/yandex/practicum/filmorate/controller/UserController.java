@@ -2,8 +2,12 @@ package ru.yandex.practicum.filmorate.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.dal.UserRepository;
+import ru.yandex.practicum.filmorate.dto.NewUserRequest;
+import ru.yandex.practicum.filmorate.dto.UpdateUserRequest;
 import ru.yandex.practicum.filmorate.dto.UserDto;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
@@ -13,6 +17,7 @@ import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
+@Slf4j
 @RequestMapping("/users")
 public class UserController {
     private final UserService userService;
@@ -22,6 +27,21 @@ public class UserController {
         return userService.findAll();
     }
 
+    @GetMapping("/{userId}")
+    @ResponseStatus(HttpStatus.OK)
+    public UserDto getUserById(@PathVariable("userId") long userId) {
+        return userService.getUserById(userId);
+    }
+
+    @PostMapping
+    public UserDto createUser(@RequestBody NewUserRequest userRequest) {
+        return userService.createUser(userRequest);
+    }
+
+    @PutMapping
+    public UserDto updateUser(@Valid @RequestBody UpdateUserRequest request) {
+        return userService.updateUser(request);
+    }
 }
  /*
     private final UserService userService;
