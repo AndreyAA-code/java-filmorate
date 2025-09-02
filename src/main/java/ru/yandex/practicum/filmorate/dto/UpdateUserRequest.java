@@ -1,12 +1,18 @@
 package ru.yandex.practicum.filmorate.dto;
 
-import java.util.Date;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.Data;
 
+import java.sql.Date;
+
+@Data
 public class UpdateUserRequest {
     private String login;
     private String email;
     private String name;
     private Date birthday;
+    @JsonIgnore // Игнорировать поле id из JSON
+    private Long id;
 
     public boolean hasLogin() {
         return ! (login == null || login.isBlank());

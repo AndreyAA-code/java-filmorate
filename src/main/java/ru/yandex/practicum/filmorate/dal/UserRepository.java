@@ -13,7 +13,7 @@ public class UserRepository extends BaseRepository<User> {
     private static final String FIND_ALL_QUERY = "SELECT * FROM users";
     private static final String FIND_BY_ID_QUERY = "SELECT * FROM users WHERE id = ?";
     private static final String FIND_BY_EMAIL_QUERY = "SELECT * FROM users WHERE email = ?";
-    private static final String INSERT_QUERY = "INSERT INTO users (name,email,login,birthday)" + " VALUES (?,?,?,?) returning id";
+    private static final String INSERT_QUERY = "INSERT INTO users (name,email,login,birthday)" + " VALUES (?,?,?,?)";
     private static final String UPDATE_QUERY = "UPDATE users SET name=?,email=?,login=?,birthday=? WHERE id=?";
     private static final String DELETE_QUERY = "DELETE FROM users WHERE id=?";
 
@@ -34,13 +34,13 @@ public class UserRepository extends BaseRepository<User> {
     }
 
     public User save(User user) {
-        long id = insert(INSERT_QUERY, user.getName(), user.getEmail(), user.getBirthday(), user.getLogin());
+        long id = insert(INSERT_QUERY, user.getName(), user.getEmail(), user.getLogin(), user.getBirthday());
         user.setId(id);
         return user;
     }
 
     public User update(User user) {
-        update(UPDATE_QUERY, user.getId(), user.getName(), user.getEmail(), user.getBirthday(), user.getLogin(), user.getId());
+        update(UPDATE_QUERY, user.getName(), user.getEmail(), user.getLogin(), user.getBirthday(), user.getId());
         return user;
     }
 

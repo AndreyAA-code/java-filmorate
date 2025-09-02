@@ -35,11 +35,14 @@ public final class UserMapper {
         if (request.hasEmail()) {
             user.setEmail(request.getEmail());
         }
-        if (request.hasPassword()) {
-            user.setPassword(request.getPassword());
+        if (request.hasName()) {
+            user.setName(request.getName());
         }
-        if (request.hasUsername()) {
-            user.setUsername(request.getUsername());
+        if (request.hasLogin()) {
+            user.setLogin(request.getLogin());
+        }
+        if (request.hasBirthday()) {
+            user.setBirthday(request.getBirthday());
         }
         return user;
     }

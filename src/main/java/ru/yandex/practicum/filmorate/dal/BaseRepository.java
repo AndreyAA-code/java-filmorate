@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.dal;
 
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -10,10 +11,12 @@ import ru.yandex.practicum.filmorate.exception.InternalServerException;
 
 import java.sql.PreparedStatement;
 import java.sql.Statement;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
 @RequiredArgsConstructor
+@Slf4j
 public class BaseRepository<T> {
 
     protected final JdbcTemplate jdbc;
@@ -39,11 +42,22 @@ public class BaseRepository<T> {
     }
 
     protected void update(String query, Object... params) {
+       try {
+           log.debug("Executing UPDATE query: {}", query);
+           log.debug("Query parameters: {}", Arrays.toString(params));
         int rowsUpdated = jdbc.update(query, params);
+           log.debug("Rows updated: {}", rowsUpdated);
+
         if (rowsUpdated == 0) {
+            log.error("No rows were updated for query: {}", query);
             throw new InternalServerException("Не удалось обновить данные");
         }
-    }
+        } catch (EmptyResultDataAccessException ignored) {
+               log.error("Database error during update: ");
+               throw new InternalServerException("Database error:");
+           }
+        }
+
 
     protected long insert(String query, Object... params) {
         GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();

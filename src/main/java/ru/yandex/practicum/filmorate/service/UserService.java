@@ -1,12 +1,14 @@
 package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dal.UserRepository;
 import ru.yandex.practicum.filmorate.dto.NewUserRequest;
 import ru.yandex.practicum.filmorate.dto.UpdateUserRequest;
 import ru.yandex.practicum.filmorate.dto.UserDto;
 import ru.yandex.practicum.filmorate.exception.InternalServerException;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.mapper.UserMapper;
 import ru.yandex.practicum.filmorate.model.User;
@@ -17,6 +19,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class UserService {
     private final UserRepository userRepository;
 
@@ -41,11 +44,23 @@ public class UserService {
         return UserMapper.mapToUserDto(user);
     }
 
+    public UserDto getUserById(long userId) {
+        return userRepository.findById(userId)
+                .map(UserMapper::mapToUserDto)
+                .orElseThrow(() -> new NotFoundException("Пользователь не найден с ID: " + userId));
+    }
+
     public UserDto updateUser(long userId, UpdateUserRequest request) {
+        log.debug("Updating user ID: {} with data: {}", userId, request);
         User updatedUser = userRepository.findById(userId)
-                .map(user -> UserMapper.updateUserFields(user, request))
-                .orElseThrow(() -> new InternalServerException("Пользователь не найден"));
+                .map(user ->{
+                    log.debug("Found user: {}", user);
+                    User updated = UserMapper.updateUserFields(user, request);
+                    return updated;
+                })
+                .orElseThrow(() -> new NotFoundException("Пользователь не найден"));
         updatedUser = userRepository.update(updatedUser);
+        log.debug("User saved successfully: {}", updatedUser);
         return UserMapper.mapToUserDto(updatedUser);
     }
 }
