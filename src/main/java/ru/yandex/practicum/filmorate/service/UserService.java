@@ -43,12 +43,16 @@ public class UserService {
             throw new ValidationException("Такой Email уже есть");
         }
 
+        if (request.getName().isEmpty()) {
+            request.setName(request.getLogin());
+        }
 
 
         User user = UserMapper.mapToUser(request);
         user = userRepository.save(user);
         return UserMapper.mapToUserDto(user);
     }
+
     public UserDto getUserById(long userId) {
         return userRepository.findById(userId)
                 .map(UserMapper::mapToUserDto)
@@ -57,7 +61,7 @@ public class UserService {
 
     public UserDto updateUser(UpdateUserRequest request) {
         User updatedUser = userRepository.findById(request.getId())
-                .map(user ->{
+                .map(user -> {
                     User updated = UserMapper.updateUserFields(user, request);
                     return updated;
                 })
