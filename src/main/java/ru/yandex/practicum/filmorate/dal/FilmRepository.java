@@ -29,7 +29,7 @@ public class FilmRepository extends BaseRepository<Film> {
     }
 
     public Film save(Film film) {
-        long id = insert(INSERT_FILM_QUERY, film.getName(), film.getDescription(), film.getReleaseDate(), film.getDuration(), film.getMpa());
+        long id = insert(INSERT_FILM_QUERY, film.getName(), film.getDescription(), film.getReleaseDate(), film.getDuration(), film.getMpa(), film.getGenres());
         film.setId(id);
         return film;
     }

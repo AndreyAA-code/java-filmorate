@@ -14,7 +14,8 @@ MERGE into genres AS target
                   ('Драма'),
                   ('Мультфильм'),
                   ('Триллер'),
-                  ('Документальный')
+                  ('Документальный'),
+                  ('Боевик')
         ) AS source (name)
 ON target.name = source.name
 WHEN NOT MATCHED THEN

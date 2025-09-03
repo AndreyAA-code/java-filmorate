@@ -27,7 +27,7 @@ CREATE TABLE IF NOT EXISTS films (
                                      release_date DATE NOT NULL CHECK (films.release_date >= '1895-12-28'),
                                      duration INTEGER NOT NULL CHECK (duration > 0),
                                      description VARCHAR(200),
-                                     mpa INT NOT NULL references mpa(id) ON DELETE RESTRICT
+                                     mpa BIGINT NOT NULL references mpa(id) ON DELETE RESTRICT
 );
 
 CREATE TABLE IF NOT EXISTS films_likes (

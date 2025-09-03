@@ -4,6 +4,7 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.validation.DataBeginFilmEra;
 
 import java.sql.Date;
@@ -21,6 +22,6 @@ public class NewFilmRequest {
     private Date releaseDate;
     @Min(0)
     private Integer duration;
-    private Integer mpa;
+    private Mpa mpa;
     private final Set<Long> genres = new HashSet<>();
 }
