@@ -1,4 +1,4 @@
-MERGE into rating AS target
+MERGE into mpa AS target
     USING (VALUES ('G'),
                ('PG'),
                ('PG-13'),
@@ -9,7 +9,7 @@ ON target.name = source.name
 WHEN NOT MATCHED THEN
     INSERT (name) VALUES (source.name);
 
-MERGE into genre AS target
+MERGE into genres AS target
     USING (VALUES ('Комедия'),
                   ('Драма'),
                   ('Мультфильм'),

@@ -20,9 +20,9 @@ public class Film {
     private Date releaseDate;
     @Min(0)
     private Integer duration;
-    private Integer mpa;
+    private Mpa mpa;
     private final Set<Long> likes = new HashSet<>();
-    private final Set<Long> genres = new HashSet<>();
+    private final Set<Genre> genres = new HashSet<>();
 
     public int getLikesSize() {
         return likes.size();

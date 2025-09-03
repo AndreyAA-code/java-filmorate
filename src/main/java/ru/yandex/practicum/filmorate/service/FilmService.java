@@ -3,14 +3,19 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dal.FilmRepository;
+import ru.yandex.practicum.filmorate.dal.GenreRepository;
+import ru.yandex.practicum.filmorate.dal.MpaRepository;
 import ru.yandex.practicum.filmorate.dto.FilmDto;
 import ru.yandex.practicum.filmorate.dto.NewFilmRequest;
 import ru.yandex.practicum.filmorate.dto.NewUserRequest;
 import ru.yandex.practicum.filmorate.dto.UserDto;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.mapper.FilmMapper;
 import ru.yandex.practicum.filmorate.mapper.UserMapper;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 
@@ -25,6 +30,8 @@ import java.util.stream.Collectors;
 public class FilmService {
 
     private final FilmRepository filmRepository;
+    private final MpaRepository mpaRepository;
+    private final GenreRepository genreRepository;
 
     public List<FilmDto> findAll() {
         return filmRepository.findAll()
@@ -47,8 +54,26 @@ public class FilmService {
         return FilmMapper.mapToFilmDto(film);
     }
 
+    public List<Genre> getAllGenres() {
+        return genreRepository.getAllGenres();
+    }
+
+    public Genre getGenreById(Long id) {
+        return genreRepository.getGenreById(id)
+                .orElseThrow(() -> new NotFoundException("Жанр с id=" + id + " не найден"));
+    }
+
+    public List<Mpa> getAllMpa() {
+        return mpaRepository.getAllMpa();
+    }
+
+    public Mpa getMpaById(Long id) {
+    return mpaRepository.getMpaById(id)
+            .orElseThrow(() -> new NotFoundException("MPA с id=" + id + " не найден"));
+    }
 
 }
+
  /*   private final FilmStorage filmStorage;
 
 

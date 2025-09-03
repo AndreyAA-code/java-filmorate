@@ -9,6 +9,7 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 
 @RequiredArgsConstructor
@@ -18,7 +19,7 @@ public class FilmController {
     private final FilmService filmService;
 
     @GetMapping
-    public Collection<FilmDto> findAll() {
+    public List<FilmDto> findAll() {
         return filmService.findAll();
     }
 
