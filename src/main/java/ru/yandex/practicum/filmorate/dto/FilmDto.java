@@ -25,4 +25,13 @@ public class FilmDto {
     private Integer duration;
     private Mpa mpa;
     private Set<Genre> genres = new HashSet<>();
+
+
+    public Set<Genre> getGenres() {
+        return genres;
+    }
+
+    public void setGenres(Set<Genre> genres) {
+        this.genres = genres != null ? genres : new HashSet<>();
+    }
 }

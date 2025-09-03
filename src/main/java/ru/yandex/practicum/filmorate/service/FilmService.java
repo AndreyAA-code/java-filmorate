@@ -5,10 +5,7 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dal.FilmRepository;
 import ru.yandex.practicum.filmorate.dal.GenreRepository;
 import ru.yandex.practicum.filmorate.dal.MpaRepository;
-import ru.yandex.practicum.filmorate.dto.FilmDto;
-import ru.yandex.practicum.filmorate.dto.NewFilmRequest;
-import ru.yandex.practicum.filmorate.dto.NewUserRequest;
-import ru.yandex.practicum.filmorate.dto.UserDto;
+import ru.yandex.practicum.filmorate.dto.*;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.mapper.FilmMapper;
@@ -52,6 +49,10 @@ public class FilmService {
         Film film = FilmMapper.mapToFilm(filmRequest);
         film = filmRepository.save(film);
         return FilmMapper.mapToFilmDto(film);
+    }
+
+    public Film updateFilm(Film film) {
+        return filmRepository.update(film);
     }
 
     public List<Genre> getAllGenres() {

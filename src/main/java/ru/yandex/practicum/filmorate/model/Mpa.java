@@ -9,9 +9,6 @@ public class Mpa {
     private Long id;
     private String name;
 
-    public Mpa(int id, String name) {
-    }
-
     public Mpa() {
 
     }
