@@ -37,8 +37,15 @@ public class FilmService {
          .collect(Collectors.toList());
     }
     public FilmDto createFilm(NewFilmRequest filmRequest) {
+
+        System.out.println("=== CREATING FILM ===");
+        System.out.println("Request MPA: " + filmRequest.getMpa());
+        System.out.println("Request MPA ID: " + (filmRequest.getMpa() != null ? filmRequest.getMpa().getId() : "null"));
         if (filmRequest.getName() == null || filmRequest.getName().isEmpty()) {
             throw new ValidationException("Название должно быть указано");
+        }
+        if (!mpaRepository.existsById(filmRequest.getMpa().getId())) {
+            throw new NotFoundException("Неверный MPA");
         }
 
         Optional<Film> alreadyExistFilm = filmRepository.findByName(filmRequest.getName());
@@ -47,12 +54,25 @@ public class FilmService {
         }
 
         Film film = FilmMapper.mapToFilm(filmRequest);
+        System.out.println("Mapped film MPA ID: " + film.getMpa().getId());
         film = filmRepository.save(film);
         return FilmMapper.mapToFilmDto(film);
     }
 
-    public Film updateFilm(Film film) {
-        return filmRepository.update(film);
+    public FilmDto updateFilm(UpdateFilmRequest request) {
+        System.out.println("Update request: " + request);
+        System.out.println("MPA from request: " + request.getMpa());
+        Film updatedFilm = filmRepository.findById(request.getId())
+                .map(film -> {
+                    Film updated = FilmMapper.updateFilmFields(film, request);
+                    System.out.println("Updated film before save: " + updated);
+                    System.out.println("MPA before save: " + updated.getMpa());
+                    return updated;
+                })
+                .orElseThrow(() -> new NotFoundException("Фильм не найден"));
+
+        updatedFilm = filmRepository.update(updatedFilm);
+        return FilmMapper.mapToFilmDto(updatedFilm);
     }
 
     public List<Genre> getAllGenres() {

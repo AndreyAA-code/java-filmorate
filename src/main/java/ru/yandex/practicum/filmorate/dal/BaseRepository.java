@@ -59,4 +59,9 @@ public class BaseRepository<T> {
             throw new InternalServerException("Не удалось сохранить данные");
         }
     }
+
+    protected boolean exists(String query, Object... params) {
+        Integer count = jdbc.queryForObject(query, Integer.class, params);
+        return count != null && count > 0;
+    }
 }

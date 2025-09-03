@@ -34,4 +34,24 @@ public class UpdateFilmRequest {
         public void setGenres(Set<Genre> genres) {
             this.genres = genres != null ? genres : new HashSet<>();
         }
+
+    public boolean hasName() {
+        return ! (name == null || name.isBlank());
+    }
+
+    public boolean hasDescription() {
+            return ! (description == null || description.isBlank());
+    }
+
+    public boolean hasReleaseDate() {
+            return releaseDate != null;
+    }
+
+    public boolean hasDuration() {
+            return duration != null;
+    }
+
+    public boolean hasMpa() {
+        return mpa != null && mpa.getId() != null;
+    }
 }

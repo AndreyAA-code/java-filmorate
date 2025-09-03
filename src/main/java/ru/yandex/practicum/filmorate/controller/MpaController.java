@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -21,7 +22,7 @@ public class MpaController {
     }
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public Mpa findMpaById(@PathVariable long id) {
+    public Mpa findMpaById(@Valid @PathVariable long id) {
         return filmService.getMpaById(id);
     }
 }

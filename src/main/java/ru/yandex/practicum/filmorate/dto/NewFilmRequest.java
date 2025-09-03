@@ -4,6 +4,7 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+import org.hibernate.validator.constraints.Range;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.validation.DataBeginFilmEra;
@@ -24,9 +25,12 @@ public class NewFilmRequest {
     @Min(0)
     private Integer duration;
     private Mpa mpa;
-
     private Set<Genre> genres = new HashSet<>();
 
+    public Mpa getMpa() {
+        System.out.println("Getting MPA: " + mpa);
+        return mpa;
+    }
     public Set<Genre> getGenres() {
         return genres;
     }

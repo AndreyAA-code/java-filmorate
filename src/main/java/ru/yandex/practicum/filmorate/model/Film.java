@@ -4,6 +4,7 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+import org.hibernate.validator.constraints.Range;
 import ru.yandex.practicum.filmorate.validation.DataBeginFilmEra;
 import java.sql.Date;
 import java.util.ArrayList;
