@@ -3,6 +3,8 @@ package ru.yandex.practicum.filmorate.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.dto.FilmDto;
+import ru.yandex.practicum.filmorate.dto.NewFilmRequest;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
@@ -13,18 +15,20 @@ import java.util.Set;
 @RestController
 @RequestMapping("/films")
 public class FilmController {
-
     private final FilmService filmService;
 
     @GetMapping
-    public Collection<Film> findAll() {
+    public Collection<FilmDto> findAll() {
         return filmService.findAll();
     }
 
     @PostMapping
-    public Film createFilm(@Valid @RequestBody Film film) {
-        return filmService.createFilm(film);
+    public FilmDto createFilm(@Valid @RequestBody NewFilmRequest filmRequest) {
+        return filmService.createFilm(filmRequest);
     }
+}
+
+    /*
 
     @PutMapping
     public Film updateFilm(@Valid @RequestBody Film newFilm) {
@@ -46,4 +50,4 @@ public class FilmController {
         return filmService.getPopularFilms(count);
     }
 
-}
+} */

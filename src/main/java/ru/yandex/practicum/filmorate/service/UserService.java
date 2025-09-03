@@ -74,22 +74,7 @@ public class UserService {
 
 
 
-    /*private final UserStorage userStorage;
-
-    private static final Logger log = LoggerFactory.getLogger(UserController.class);
-
-    public Collection<User> findAll() {
-        return userStorage.findAll();
-    }
-
-    public User create(User user) {
-        return userStorage.create(user);
-    }
-
-    public User update(User newUser) {
-        return userStorage.update(newUser);
-    }
-
+    /*
     public List<User> addFriend(Long id, Long friendId) {
         return userStorage.addFriend(id, friendId);
     }

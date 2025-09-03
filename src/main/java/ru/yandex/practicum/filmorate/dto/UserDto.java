@@ -1,18 +1,17 @@
 package ru.yandex.practicum.filmorate.dto;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import jakarta.validation.constraints.PastOrPresent;
-import jakarta.validation.constraints.Pattern;
 import lombok.Data;
 
 import java.sql.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
 public class UserDto {
-   // @JsonProperty (access = JsonProperty.Access.READ_ONLY)
     private long id;
     private String name;
     private String email;
     private Date birthday;
     private String login;
+    private final Set<Long> genres = new HashSet<>();
 }
