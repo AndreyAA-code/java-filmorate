@@ -27,7 +27,6 @@ public class User {
     private String name;
     @PastOrPresent
     private LocalDate birthday;
-
-    @Builder.Default
+    //@Builder.Default
     private Set<Long> friends = new HashSet<>();
 }
