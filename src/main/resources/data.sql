@@ -1,30 +1,18 @@
-MERGE into mpa AS target
-    USING (VALUES ('G'),
-               ('PG'),
-               ('PG-13'),
-               ('R'),
-               ('NC-17')
-        ) AS source (name)
-ON target.name = source.name
-WHEN NOT MATCHED THEN
-    INSERT (name) VALUES (source.name);
+INSERT INTO mpa (name)
+VALUES
+    ('G'),
+    ('PG'),
+    ('PG-13'),
+    ('R'),
+    ('NC-17')
+ON CONFLICT (name) DO NOTHING;
 
-MERGE into genres AS target
-    USING (VALUES ('Комедия'),
-                  ('Драма'),
-                  ('Мультфильм'),
-                  ('Триллер'),
-                  ('Документальный'),
-                  ('Боевик')
-        ) AS source (name)
-ON target.name = source.name
-WHEN NOT MATCHED THEN
-    INSERT (name) VALUES (source.name);
-
-MERGE into FRIENDSHIP_STATUS AS target
-    USING (VALUES ('Не подтвержена'),
-                  ('Подтверждена')
-        ) AS source (status)
-ON target.STATUS = source.status
-WHEN NOT MATCHED THEN
-    INSERT (STATUS) VALUES (source.status);
+INSERT INTO genres (name)
+VALUES
+    ('Комедия'),
+    ('Драма'),
+    ('Мультфильм'),
+    ('Триллер'),
+    ('Документальный'),
+    ('Боевик')
+ON CONFLICT (name) DO NOTHING;

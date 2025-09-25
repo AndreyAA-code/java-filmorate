@@ -1,95 +1,61 @@
 package ru.yandex.practicum.filmorate.service;
-
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.dal.UserRepository;
-import ru.yandex.practicum.filmorate.dto.NewUserRequest;
-import ru.yandex.practicum.filmorate.dto.UpdateUserRequest;
-import ru.yandex.practicum.filmorate.dto.UserDto;
-import ru.yandex.practicum.filmorate.exception.NotFoundException;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
-import ru.yandex.practicum.filmorate.mapper.UserMapper;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.repository.UserRepository;
 
-import java.util.*;
-import java.util.stream.Collectors;
-
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
 
 @Service
-@RequiredArgsConstructor
-@Slf4j
+@AllArgsConstructor
 public class UserService {
-    private final UserRepository userRepository;
 
-    public List<UserDto> findAll() {
-        return userRepository.findAll()
-                .stream()
-                .map(UserMapper::mapToUserDto)
-                .collect(Collectors.toList());
+    //@Qualifier("InMemoryUserRepository")
+
+    public final UserRepository userRepository;
+
+   // @Autowired
+   // public UserService(UserRepository userRepository) {
+   //     this.userRepository = userRepository;
+   // }
+
+
+    public Collection<User> getAllUsers () {
+        return userRepository.getAllUsers();
     }
 
-    public UserDto createUser(NewUserRequest request) {
-        if (request.getEmail() == null || request.getEmail().isEmpty()) {
-            throw new ValidationException("Email должен быть указан");
-        }
-
-        if (request.getBirthday() == null) {
-            throw new ValidationException("Дата не верна");
-        }
-
-        Optional<User> alreadyExistUser = userRepository.findByEmail(request.getEmail());
-        if (alreadyExistUser.isPresent()) {
-            throw new ValidationException("Такой Email уже есть");
-        }
-
-        if (request.getName().isEmpty()) {
-            request.setName(request.getLogin());
-        }
-
-
-        User user = UserMapper.mapToUser(request);
-        user = userRepository.save(user);
-        return UserMapper.mapToUserDto(user);
+    public User getUserById (Long id) {
+       return userRepository.getUserById(id);
     }
 
-    public UserDto getUserById(long userId) {
-        return userRepository.findById(userId)
-                .map(UserMapper::mapToUserDto)
-                .orElseThrow(() -> new NotFoundException("Пользователь не найден с ID: " + userId));
+    public User createUser(User user) {
+        return userRepository.createUser(user);
     }
 
-    public UserDto updateUser(UpdateUserRequest request) {
-        User updatedUser = userRepository.findById(request.getId())
-                .map(user -> {
-                    User updated = UserMapper.updateUserFields(user, request);
-                    return updated;
-                })
-                .orElseThrow(() -> new NotFoundException("Пользователь не найден"));
-        updatedUser = userRepository.update(updatedUser);
-        log.debug("User saved successfully: {}", updatedUser);
-        return UserMapper.mapToUserDto(updatedUser);
-    }
-}
-
-
-
-    /*
-    public List<User> addFriend(Long id, Long friendId) {
-        return userStorage.addFriend(id, friendId);
+    public User updateUser(User user) {
+        return userRepository.updateUser(user);
     }
 
-    public void removeFriend(Long id, Long friendId) {
-        userStorage.removeFriend(id, friendId);
+    public void deleteUser(Long id) {
+        userRepository.deleteUser(id);
     }
 
-    public List<User> getAllFriends(Long id) {
-        return userStorage.getAllFriends(id);
+    public List<User> getUserFriends (Long id) {
+       return userRepository.getUserFriends(id);
     }
 
-    public List<User> getCommonFriends(Long id, Long otherId) {
-        return userStorage.getCommonFriends(id, otherId);
+    public List<User> updateUserFriends(Long id, Long friendId) {
+        return userRepository.updateUserFriends(id, friendId);
+    }
+
+    public List<User> deleteUserFriends(Long id, Long friendId) {
+        return userRepository.deleteUserFriends(id,friendId);
+    }
+
+    public Set<User> getCommonFriends(Long id, Long otherId) {
+        return userRepository.getCommonFriends(id, otherId);
     }
 
 }
-*/

@@ -1,0 +1,30 @@
+# описания сервисов (контейнеров), которые должны быть развёрнуты
+services:
+  # описание контейнера db
+  db: # имя сервиса
+    # образ, из которого должен быть запущен контейнер
+    image: postgres:17.6
+    # имя, которое нужно присвоить контейнеру
+    container_name: postgres-filmorate
+    # публикуемые порты
+    ports:
+      - "5432:5432"
+    # настройки монтирования volume
+    volumes:
+      - ./volumes/postgres:/var/lib/postgresql/data/
+    # переменные окружения
+    environment:
+      - POSTGRES_DB=filmorate
+      - POSTGRES_USER=sa
+      - POSTGRES_PASSWORD=password
+    # описание способа проверки, что контейнер в рабочем состоянии
+    healthcheck:
+      # указываем, какую команду выполнить внутри контейнера для проверки его статуса
+      # в этом примере вызывается утилита pg_isready, входящая в состав PostgreSQL
+      test: pg_isready -q -d $$POSTGRES_DB -U $$POSTGRES_USER
+      # через какое время после запуска начинать проверку
+      timeout: 5s
+      # интервал повторов проверки
+      interval: 5s
+      # количество попыток
+      retries: 10
