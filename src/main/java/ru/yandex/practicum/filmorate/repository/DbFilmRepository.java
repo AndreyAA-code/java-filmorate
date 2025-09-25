@@ -164,7 +164,7 @@ public class DbFilmRepository implements FilmRepository {
 
     @Override
     public Collection<Genre> getGenres() {
-        String sql = "SELECT * FROM genres;";
+        String sql = "SELECT * FROM genres ORDER BY id ASC;";
         List <Genre> genres = jdbc.query(sql, genreRowMapper);
         return genres;
     }
@@ -179,7 +179,7 @@ public class DbFilmRepository implements FilmRepository {
 
     @Override
     public Collection<Mpa> getMpas() {
-        String sql = "SELECT * FROM mpa;";
+        String sql = "SELECT * FROM mpa ORDER BY id ASC;";
         List<Mpa> mpas = jdbc.query(sql,mpaRowMapper);
         return mpas;
     }

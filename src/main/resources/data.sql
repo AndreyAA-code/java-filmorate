@@ -1,18 +1,19 @@
-INSERT INTO mpa (name)
+MERGE INTO mpa (name) KEY (name)
 VALUES
     ('G'),
     ('PG'),
     ('PG-13'),
     ('R'),
-    ('NC-17')
-ON CONFLICT (name) DO NOTHING;
+    ('NC-17');
+ -- ON CONFLICT (name) DO NOTHING;
 
-INSERT INTO genres (name)
+Merge INTO genres (name) KEY (name)
 VALUES
     ('Комедия'),
     ('Драма'),
     ('Мультфильм'),
     ('Триллер'),
     ('Документальный'),
-    ('Боевик')
-ON CONFLICT (name) DO NOTHING;
+    ('Боевик');
+--ON CONFLICT (name) DO NOTHING;
+
