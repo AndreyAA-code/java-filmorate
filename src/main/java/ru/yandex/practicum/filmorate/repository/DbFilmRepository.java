@@ -15,7 +15,6 @@ import ru.yandex.practicum.filmorate.repository.mappers.FilmRowMapper;
 import ru.yandex.practicum.filmorate.repository.mappers.GenreRowMapper;
 import ru.yandex.practicum.filmorate.repository.mappers.MpaRowMapper;
 import ru.yandex.practicum.filmorate.repository.mappers.UserRowMapper;
-
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.util.Collection;
