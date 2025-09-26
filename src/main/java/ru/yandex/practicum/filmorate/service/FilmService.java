@@ -4,6 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.PathVariable;
+import ru.yandex.practicum.filmorate.dto.FilmDto;
+import ru.yandex.practicum.filmorate.mapper.FilmMapper;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
@@ -11,6 +13,7 @@ import ru.yandex.practicum.filmorate.repository.FilmRepository;
 import ru.yandex.practicum.filmorate.repository.UserRepository;
 
 import java.util.Collection;
+import java.util.stream.Collectors;
 
 //переделать на интерфейс
 //добавить класс в памяти
@@ -31,8 +34,11 @@ public class FilmService {
         this.userRepository = userRepository;
     }
 
-    public Collection<Film> getAllFilms() {
-        return filmRepository.getAllFilms();
+    public Collection<FilmDto> getAllFilms() {
+        return filmRepository.getAllFilms()
+                .stream()
+                .map(FilmMapper::mapToFilmDto)
+                .collect(Collectors.toList());
     }
 
     public Film addFilm(Film film) {

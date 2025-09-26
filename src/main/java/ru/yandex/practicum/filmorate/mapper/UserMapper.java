@@ -20,5 +20,4 @@ public final class UserMapper {
         userDto.setFriends(user.getFriends());
         return userDto;
     }
-
 }
