@@ -35,17 +35,41 @@ public class DbFilmRepository implements FilmRepository {
     private final MpaRowMapper  mpaRowMapper;
     private final UserRowMapper userRowMapper;
 
+    private final static String FIND_ALL_FILMS_QUERY = "SELECT films.*, mpa.name as mpa_name FROM films" +
+            " LEFT JOIN mpa ON films.mpa = mpa.id ORDER BY films.id ASC;";
+    private final static String UPDATE_FILM_QUERY = "UPDATE films SET name = ?, description = ?, release_date = ?, duration = ? WHERE id =?";
+    private final static String FIND_FILM_BY_ID_QUERY = "SELECT films.*, mpa.name as mpa_name FROM films" +
+            " LEFT JOIN mpa ON films.mpa = mpa.id WHERE films.id = ?;";
+    private final static String DELETE_FILM_QUERY = "DELETE FROM films WHERE id =?;";
+    private final static String ADD_LIKE_TO_FILM_QUERY = "INSERT INTO films_likes (user_id, film_id) VALUES (?, ?);";
+    private final static String DELETE_LIKE_FROM_FILM_QUERY = "DELETE FROM films_likes where user_id =? AND film_id = ?;";
+    private final static String GET_POPULAR_FILMS_QUERY = "SELECT films.*, mpa.name as mpa_name, COUNT(films_likes.user_id) as likes_count FROM films " +
+            "LEFT JOIN films_likes ON films.id = films_likes.film_id " +
+            "LEFT JOIN mpa ON films.mpa = mpa.id GROUP BY films.id, mpa.name " +
+            "ORDER BY COUNT(films_likes.user_id) DESC LIMIT ?";
+    private final static String GET_ALL_GENRES_QUERY = "SELECT * FROM genres ORDER BY id ASC;";
+    private final static String GET_GENRE_BY_ID_QUERY = "SELECT * FROM genres WHERE id =?;";
+    private final static String GET_ALL_MPA_QUERY = "SELECT * FROM mpa ORDER BY id ASC;";
+    private final static String GET_MPA_BY_ID_QUERY = "SELECT * FROM mpa WHERE id = ?;";
+    private final static String IF_MPA_EXISTS_QUERY = "SELECT COUNT(*) FROM mpa where id=?;";
+    private final static String IF_FILM_EXISTS_QUERY = "SELECT COUNT(*) FROM films WHERE id = ?;";
+    private final static String IF_USER_EXISTS_QUERY = "SELECT COUNT(*) FROM users where id=?;";
+    private final static String IF_GENRE_EXISTS_QUERY = "SELECT COUNT(*) FROM genres where id=?;";
+    private final static String GET_GENRES_FOR_FILM_QUERY = "SELECT * FROM genres JOIN genres_films" +
+            " ON genres.id = genres_films.genre_id WHERE film_id = ? ORDER BY genres.id ASC";
+    private final static String GET_LIKES_FOR_FILM_QUERY = "SELECT users.* FROM films_likes JOIN users ON films_likes.user_id = users.id" +
+            " WHERE films_likes.film_id = ?;";
+    private final static String ADD_FILM_QUERY = "INSERT INTO films (name, description, release_date, duration, mpa)" +
+            " VALUES (?, ?, ?, ?, ?)";
+    private final static String ADD_GENRES_TO_FILM_QUERY = "INSERT INTO genres_films (genre_id, film_id) VALUES (?, ?)";
+
+
     @Override
     public Film addFilm(Film film) {
         checkMpaId(film.getMpa().getId());
-
         KeyHolder keyHolder = new GeneratedKeyHolder();
-        String sql = "INSERT INTO films (name, description, release_date, duration, mpa)" +
-                " VALUES (?, ?, ?, ?, ?)";
-        String sql1 = "INSERT INTO genres_films (genre_id, film_id) VALUES (?, ?)";
-
         jdbc.update(connection -> {
-            PreparedStatement ps = connection.prepareStatement(sql, new String[]{"id"});
+            PreparedStatement ps = connection.prepareStatement(ADD_FILM_QUERY, new String[]{"id"});
             ps.setString(1, film.getName());
             ps.setString(2, film.getDescription());
             ps.setDate(3, Date.valueOf(film.getReleaseDate()));
@@ -58,27 +82,26 @@ public class DbFilmRepository implements FilmRepository {
         if (!(film.getGenres() == null)) {
             for (Genre genre : film.getGenres()) {
                 checkGenreId(genre.getId());
-                jdbc.update(sql1, genre.getId(), film.getId());
+                jdbc.update(ADD_GENRES_TO_FILM_QUERY, genre.getId(), film.getId());
             }
             film.setGenres(loadGenres(film));
         }
         if (!(film.getMpa() == null)){
             film.setMpa(getMpaById(film.getMpa().getId()));
     }
-
         return film;
     }
 
     @Override
     public Collection<Film> getAllFilms() {
-        String sql = "SELECT films.*, mpa.name as mpa_name FROM films" +
-                " LEFT JOIN mpa ON films.mpa = mpa.id ORDER BY films.id ASC;";
-        List <Film> films = jdbc.query(sql, filmRowMapper);
+        List <Film> films = jdbc.query(FIND_ALL_FILMS_QUERY, filmRowMapper);
         for (Film film : films) {
             film.setGenres(loadGenres(film));
-            film.setLikes(loadLikes(film.getId()).stream().map(user ->  user.getId()).collect(Collectors.toSet()));
+            film.setLikes(loadLikes(film.getId())
+                    .stream()
+                    .map(user ->  user.getId())
+                    .collect(Collectors.toSet()));
         }
-
         return films;
     }
 
@@ -86,8 +109,7 @@ public class DbFilmRepository implements FilmRepository {
     public Film updateFilm(Film newFilm) {
         Film film = new Film();
         checkFilmId(newFilm.getId());
-        String sql = "Update films Set name = ?, description = ?, release_date = ?, duration = ? WHERE id =?";
-        jdbc.update(sql, newFilm.getName(), newFilm.getDescription(), newFilm.getReleaseDate(), newFilm.getDuration(), newFilm.getId());
+        jdbc.update(UPDATE_FILM_QUERY, newFilm.getName(), newFilm.getDescription(), newFilm.getReleaseDate(), newFilm.getDuration(), newFilm.getId());
         newFilm.setGenres(loadGenres(newFilm));
         newFilm.setMpa(getMpaById(newFilm.getMpa().getId()));
         newFilm.setLikes(loadLikes(newFilm.getId()).stream().map(user -> user.getId()).collect(Collectors.toSet()));
@@ -97,10 +119,7 @@ public class DbFilmRepository implements FilmRepository {
     @Override
     public Film getFilmById(Long id) {
         checkFilmId(id);
-        String sql = "SELECT films.*, mpa.name as mpa_name FROM films" +
-                " LEFT JOIN mpa ON films.mpa = mpa.id WHERE films.id = ?;";
-
-        Film film = jdbc.queryForObject(sql, filmRowMapper, id);
+        Film film = jdbc.queryForObject(FIND_FILM_BY_ID_QUERY, filmRowMapper, id);
         if (!(loadGenres(film).size() == 0)) {
             film.setGenres(loadGenres(film));
         }
@@ -114,8 +133,7 @@ public class DbFilmRepository implements FilmRepository {
     @Override
     public Film deleteFilmById(Long id) {
         checkFilmId(id);
-        String sql = "DELETE FROM films WHERE id =?;";
-        Film film = jdbc.queryForObject(sql,filmRowMapper,id);
+        Film film = jdbc.queryForObject(DELETE_FILM_QUERY,filmRowMapper,id);
         return film;
     }
 
@@ -123,11 +141,11 @@ public class DbFilmRepository implements FilmRepository {
     public Film likeFilmById(Long filmId, Long userId) {
         checkFilmId(filmId);
         checkUserId(userId);
-        String sql = "INSERT INTO films_likes (user_id, film_id) VALUES (?, ?);";
-        jdbc.update(sql, userId, filmId);
-        String sql1 = "SELECT films.*, mpa.name as mpa_name FROM films" +
-                " LEFT JOIN mpa ON films.mpa = mpa.id WHERE films.id = ?;";
-        Film film = jdbc.queryForObject(sql1, filmRowMapper, filmId);
+
+        jdbc.update(ADD_LIKE_TO_FILM_QUERY, userId, filmId);
+        //String sql1 = "SELECT films.*, mpa.name as mpa_name FROM films" +
+          //      " LEFT JOIN mpa ON films.mpa = mpa.id WHERE films.id = ?;";
+        Film film = jdbc.queryForObject(FIND_FILM_BY_ID_QUERY, filmRowMapper, filmId);
         film.setLikes(loadLikes(filmId)
                 .stream()
                 .map(User::getId)
@@ -139,11 +157,8 @@ public class DbFilmRepository implements FilmRepository {
     public Film deleteLikeUser(Long filmId, Long userId) {
         checkFilmId(filmId);
         checkUserId(userId);
-        String sql = "DELETE FROM films_likes where user_id =? AND film_id = ?;";
-        jdbc.update(sql, userId, filmId);
-        String sql1 = "SELECT films.*, mpa.name as mpa_name FROM films" +
-                " LEFT JOIN mpa ON films.mpa = mpa.id WHERE films.id = ?;";
-        Film film = jdbc.queryForObject(sql1, filmRowMapper, filmId);
+        jdbc.update(DELETE_LIKE_FROM_FILM_QUERY, userId, filmId);
+        Film film = jdbc.queryForObject(FIND_FILM_BY_ID_QUERY, filmRowMapper, filmId);
         film.setLikes(loadLikes(filmId)
                 .stream()
                 .map(User::getId)
@@ -153,84 +168,68 @@ public class DbFilmRepository implements FilmRepository {
 
     @Override
     public Collection<Film> getPopularFilms(Long count) {
-        String sql ="SELECT films.*, mpa.name as mpa_name, COUNT(films_likes.user_id) as likes_count FROM films " +
-                "LEFT JOIN films_likes ON films.id = films_likes.film_id " +
-                "LEFT JOIN mpa ON films.mpa = mpa.id GROUP BY films.id, mpa.name " +
-                "ORDER BY COUNT(films_likes.user_id) DESC LIMIT ?";
-        List <Film> popularFilms = jdbc.query(sql, filmRowMapper, count);
+        List <Film> popularFilms = jdbc.query(GET_POPULAR_FILMS_QUERY, filmRowMapper, count);
         return popularFilms;
     }
 
     @Override
     public Collection<Genre> getGenres() {
-        String sql = "SELECT * FROM genres ORDER BY id ASC;";
-        List <Genre> genres = jdbc.query(sql, genreRowMapper);
+        List <Genre> genres = jdbc.query(GET_ALL_GENRES_QUERY, genreRowMapper);
         return genres;
     }
 
     @Override
     public Genre getGenresById(Long id) {
         checkGenreId(id);
-        String sql = "Select * FROM genres WHERE id =?;";
-        Genre genre  = jdbc.queryForObject(sql, genreRowMapper,id);
+        Genre genre  = jdbc.queryForObject(GET_GENRE_BY_ID_QUERY, genreRowMapper,id);
         return genre;
     }
 
     @Override
     public Collection<Mpa> getMpas() {
-        String sql = "SELECT * FROM mpa ORDER BY id ASC;";
-        List<Mpa> mpas = jdbc.query(sql,mpaRowMapper);
+        List<Mpa> mpas = jdbc.query(GET_ALL_MPA_QUERY,mpaRowMapper);
         return mpas;
     }
 
     @Override
     public Mpa getMpaById(Long id) {
         checkMpaId(id);
-        String sql = "SELECT * FROM mpa WHERE id = ?;";
-        Mpa mpa = jdbc.queryForObject(sql,mpaRowMapper, id);
+        Mpa mpa = jdbc.queryForObject(GET_MPA_BY_ID_QUERY,mpaRowMapper, id);
         return mpa;
     }
 
     public void checkMpaId (Long id){
-        String sql = "SELECT COUNT(*) FROM mpa where id=?;";
-        if (jdbc.queryForObject(sql,Integer.class,id) == 0){
+        if (jdbc.queryForObject(IF_MPA_EXISTS_QUERY,Integer.class,id) == 0){
             throw new NotFoundException("Mpa with id " + id + " not found");
         };
     }
 
     public void checkFilmId(Long id){
-        String sql = "SELECT COUNT(*) FROM films WHERE id = ?;";
-        if (jdbc.queryForObject(sql,Integer.class,id) == 0){
+        if (jdbc.queryForObject(IF_FILM_EXISTS_QUERY,Integer.class,id) == 0){
             throw new NotFoundException("Film with id " + id + " not found");
         }
     }
 
     public void checkUserId(Long id){
-        String sql = "SELECT COUNT(*) FROM users WHERE id = ?;";
-        if (jdbc.queryForObject(sql,Integer.class,id) == 0){
+        if (jdbc.queryForObject(IF_USER_EXISTS_QUERY,Integer.class,id) == 0){
             throw new NotFoundException("User with id " + id + " not found");
         }
     }
 
     public void checkGenreId(Long id){
-        String sql = "SELECT COUNT(*) FROM genres WHERE id = ?;";
-        if (jdbc.queryForObject(sql,Integer.class,id) == 0 || jdbc.queryForObject(sql,Integer.class,id) == null){
+        if (jdbc.queryForObject(IF_GENRE_EXISTS_QUERY,Integer.class,id) == 0 || jdbc.queryForObject(IF_GENRE_EXISTS_QUERY,Integer.class,id) == null){
             throw new NotFoundException("Genre with id " + id + " not found");
         }
     }
 
     public Set<Genre> loadGenres(Film film){
-        String sql = "SELECT * FROM genres JOIN genres_films" +
-                " ON genres.id = genres_films.genre_id WHERE film_id = ? ORDER BY genres.id ASC";
-        List<Genre> genres = jdbc.query(sql, genreRowMapper, film.getId());
+        List<Genre> genres = jdbc.query(GET_GENRES_FOR_FILM_QUERY, genreRowMapper, film.getId());
         Set<Genre> genres1 = new LinkedHashSet<>(genres);
         return genres1;
     }
 
     public Set<User> loadLikes(Long filmId){
-        String sql = "SELECT users.* FROM films_likes JOIN users ON films_likes.user_id = users.id" +
-                " WHERE films_likes.film_id = ?;";
-        List <User> likes = jdbc.query(sql, userRowMapper, filmId);
+        List <User> likes = jdbc.query(GET_LIKES_FOR_FILM_QUERY, userRowMapper, filmId);
         Set <User> likes1 = new LinkedHashSet<>(likes);
         return likes1;
     }

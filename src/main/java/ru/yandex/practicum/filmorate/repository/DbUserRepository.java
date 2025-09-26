@@ -39,10 +39,6 @@ public class DbUserRepository implements UserRepository {
             "WHERE f1.user_Id = ? AND f2.user_Id = ?;";
     private static final String IF_USER_EXISTS_QUERY = "SELECT COUNT(*) FROM users WHERE id = ?";
 
-    
-    
-    
-
     @Override
     public Collection<User> getAllUsers() {
                 List<User> users = jdbc.query(FIND_ALL_USERS_QUERY, mapper);
