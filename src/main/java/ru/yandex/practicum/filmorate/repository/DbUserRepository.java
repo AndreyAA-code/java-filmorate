@@ -25,10 +25,27 @@ public class DbUserRepository implements UserRepository {
     private JdbcTemplate jdbc;
     private final UserRowMapper mapper;
 
+    private static final String FIND_ALL_USERS_QUERY = "SELECT * FROM users ORDER BY id ASC";
+    private static final String FIND_USERS_BY_ID_QUERY = "SELECT * FROM users WHERE id = ?";
+    private static final String FIND_USER_FRIENDS_QUERY = "SELECT users.* FROM friends JOIN users " +
+            "ON friends.friend_id = users.id WHERE friends.user_id = ?";
+    private static final String CREATE_USER_QUERY = "INSERT INTO users (email, login, name, birthday) VALUES (?, ?, ?, ?)";
+    private static final String UPDATE_USER_QUERY =  "UPDATE users SET email = ?, login = ?, name = ?, birthday = ? WHERE id =?";
+    private static final String DELETE_USER_QUERY = "DELETE FROM users WHERE id = ?";
+    private static final String ADD_USER_FRIEND_QUERY = "INSERT INTO friends (user_id, friend_id) VALUES (?, ?)";
+    private static final String DELETE_USER_FRIEND_QUERY = "DELETE FROM friends WHERE user_id = ? AND friend_id = ?";
+    private static final String FIND_COMMON_FRIENDS_QUERY = "SELECT users.* FROM friends AS f1 JOIN friends AS f2 \n" +
+            "ON f1.friend_id = f2.friend_id JOIN users ON f1.friend_id = USERs.id " +
+            "WHERE f1.user_Id = ? AND f2.user_Id = ?;";
+    private static final String IF_USER_EXISTS_QUERY = "SELECT COUNT(*) FROM users WHERE id = ?";
+
+    
+    
+    
+
     @Override
     public Collection<User> getAllUsers() {
-        String sql = "SELECT * FROM users ORDER BY id ASC";
-        List<User> users = jdbc.query(sql, mapper);
+                List<User> users = jdbc.query(FIND_ALL_USERS_QUERY, mapper);
         for (User user : users) {
             Set<Long> friendIds = getUserFriends(user.getId())
                     .stream()
@@ -42,8 +59,7 @@ public class DbUserRepository implements UserRepository {
     @Override
     public User getUserById(Long id) {
         checkUserId(id);
-        String sql = "SELECT * FROM users WHERE id = ?";
-        User user = jdbc.queryForObject(sql, mapper, id);
+        User user = jdbc.queryForObject(FIND_USERS_BY_ID_QUERY, mapper, id);
 
         Set<Long> friendIds = getUserFriends(id)
                 .stream()
@@ -56,19 +72,16 @@ public class DbUserRepository implements UserRepository {
     @Override
     public List<User> getUserFriends(Long id) {
         checkUserId(id);
-        String sql1 = "SELECT users.* FROM friends JOIN users ON friends.friend_id = users.id " +
-                "WHERE friends.user_id = ?";
-        List<User> friends = jdbc.query(sql1, mapper, id);
+        List<User> friends = jdbc.query(FIND_USER_FRIENDS_QUERY, mapper, id);
         return friends;
     }
 
     @Override
     public User createUser(User user) {
         KeyHolder keyHolder = new GeneratedKeyHolder();
-        String sql = "INSERT INTO users (email, login, name, birthday) VALUES (?, ?, ?, ?)";
-
+        
         jdbc.update(connection -> {
-            PreparedStatement ps = connection.prepareStatement(sql, new String[]{"id"});
+            PreparedStatement ps = connection.prepareStatement(CREATE_USER_QUERY, new String[]{"id"});
             ps.setString(1, user.getEmail());
             ps.setString(2, user.getLogin());
             ps.setString(3, user.getName());
@@ -83,9 +96,8 @@ public class DbUserRepository implements UserRepository {
     @Override
     public User updateUser(User newUser) {
         checkUserId(newUser.getId());
-
-        String sql = "UPDATE users SET email = ?, login = ?, name = ?, birthday = ? WHERE id =?";
-        jdbc.update(sql, newUser.getEmail(), newUser.getLogin(), newUser.getName(),
+        
+        jdbc.update(UPDATE_USER_QUERY, newUser.getEmail(), newUser.getLogin(), newUser.getName(),
                 newUser.getBirthday(), newUser.getId());
 
         return newUser;
@@ -94,19 +106,16 @@ public class DbUserRepository implements UserRepository {
     @Override
     public void deleteUser(Long id) {
         checkUserId(id);
-        String sql = "DELETE FROM users WHERE id = ?";
-        jdbc.update(sql, id);
+        jdbc.update(DELETE_USER_QUERY, id);
     }
 
     @Override
     public List<User> updateUserFriends(Long id, Long friendId) {
         checkUserId(id);
         checkUserId(friendId);
-
-        String sql = "INSERT INTO friends (user_id, friend_id) VALUES (?, ?)";
-        jdbc.update(sql, id, friendId);
-        String sql1 = "SELECT * FROM users WHERE id = ?";
-        List<User> users = jdbc.query(sql1, mapper, id);
+        
+        jdbc.update(ADD_USER_FRIEND_QUERY, id, friendId);
+        List<User> users = jdbc.query(FIND_USERS_BY_ID_QUERY, mapper, id);
         return users;
     }
 
@@ -114,10 +123,9 @@ public class DbUserRepository implements UserRepository {
     public List<User> deleteUserFriends(Long id, Long friendId) {
         checkUserId(id);
         checkUserId(friendId);
-        String sql = "DELETE FROM friends WHERE user_id = ? AND friend_id = ?";
-        jdbc.update(sql, id, friendId);
-        String sql1 = "SELECT * FROM users WHERE id = ?";
-        List<User> users = jdbc.query(sql1, mapper, id);
+
+        jdbc.update(DELETE_USER_FRIEND_QUERY, id, friendId);
+        List<User> users = jdbc.query(FIND_USER_FRIENDS_QUERY, mapper, id);
         return users;
     }
 
@@ -125,10 +133,8 @@ public class DbUserRepository implements UserRepository {
     public Set<User> getCommonFriends(Long id, Long otherId) {
         checkUserId(id);
         checkUserId(otherId);
-        String sql = "SELECT users.* FROM friends AS f1 JOIN friends AS f2 \n" +
-                "ON f1.friend_id = f2.friend_id JOIN users ON f1.friend_id = USERs.id " +
-                "WHERE f1.user_Id = ? AND f2.user_Id = ?;";
-        List <User> users = jdbc.query(sql, mapper, id, otherId);
+
+        List <User> users = jdbc.query(FIND_COMMON_FRIENDS_QUERY, mapper, id, otherId);
 
         Set<User> commonFriends = new LinkedHashSet<>(users);
 
@@ -136,8 +142,8 @@ public class DbUserRepository implements UserRepository {
     }
 
     public void checkUserId(Long userId) {
-        String sql = "SELECT COUNT(*) FROM users WHERE id = ?";
-        if (jdbc.queryForObject(sql, Integer.class, userId) == 0) {
+
+        if (jdbc.queryForObject(IF_USER_EXISTS_QUERY, Integer.class, userId) == 0) {
             throw new NotFoundException("User with id " + userId + " not found");
         }
     }

@@ -11,9 +11,6 @@ import ru.yandex.practicum.filmorate.mapper.UserMapper;
 import ru.yandex.practicum.filmorate.repository.DbUserRepository;
 import ru.yandex.practicum.filmorate.repository.mappers.UserRowMapper;
 import ru.yandex.practicum.filmorate.service.UserService;
-
-import java.util.Optional;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 @JdbcTest
