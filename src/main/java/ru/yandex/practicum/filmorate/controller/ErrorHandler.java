@@ -9,9 +9,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.ErrorResponse;
 
-
-//добавить stream на сообщения про validation.error
-
 @RestControllerAdvice
 @Slf4j
 public class ErrorHandler {

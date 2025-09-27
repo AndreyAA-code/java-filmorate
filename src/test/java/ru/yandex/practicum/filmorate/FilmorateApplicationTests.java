@@ -253,15 +253,24 @@ class FilmorateApplicationTests {
     @Test
     void filmLikesTest() {
         Film film = new Film();
-        // TODO: добавьте логику теста
-        // Например:
         film.setName("Test Film");
         film.setDescription("Test Description");
         film.setReleaseDate(LocalDate.of(2000, 1, 1));
         film.setDuration(120L);
         film.setMpa(new Mpa(1L, "G"));
-
         FilmDto filmDto = filmController.addFilm(film);
-        assertNotNull(filmDto.getId());
+
+        User user = new User();
+        user.setName("Name User");
+        user.setBirthday(Date.valueOf(LocalDate.of(1987, 5, 1)).toLocalDate());
+        user.setLogin("login");
+        user.setEmail("email@ya.com");
+        UserDto createdUser = userController.createUser(user);
+
+        filmController.likeFilmById(filmDto.getId(), createdUser.getId());
+
+        FilmDto updatedFilm = filmController.getFilmById(filmDto.getId());
+        assertTrue(updatedFilm.getLikes().contains(createdUser.getId()), "Лайк пользователя не добавлен");
+
     }
 }

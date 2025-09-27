@@ -24,8 +24,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Repository
-@Primary
 @AllArgsConstructor
+@Primary
 
 public class DbFilmRepository implements FilmRepository {
 
