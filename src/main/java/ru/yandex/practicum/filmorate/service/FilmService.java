@@ -41,32 +41,35 @@ public class FilmService {
                 .collect(Collectors.toList());
     }
 
-    public Film addFilm(Film film) {
-        return filmRepository.addFilm(film);
+    public FilmDto addFilm(Film film) {
+        return FilmMapper.mapToFilmDto(filmRepository.addFilm(film));
     }
 
-    public Film updateFilm(Film film) {
-        return filmRepository.updateFilm(film);
+    public FilmDto updateFilm(Film film) {
+        return FilmMapper.mapToFilmDto(filmRepository.updateFilm(film));
     }
 
-    public Film getFilmById(Long id) {
-        return filmRepository.getFilmById(id);
+    public FilmDto getFilmById(Long id) {
+        return FilmMapper.mapToFilmDto(filmRepository.getFilmById(id));
     }
 
-    public Film deleteFilmById(Long id) {
-        return filmRepository.deleteFilmById(id);
+    public FilmDto deleteFilmById(Long id) {
+        return FilmMapper.mapToFilmDto(filmRepository.deleteFilmById(id));
     }
 
-    public Film likeFilmById(Long filmId, Long userId) {
-        return filmRepository.likeFilmById(filmId, userId);
+    public FilmDto likeFilmById(Long filmId, Long userId) {
+        return FilmMapper.mapToFilmDto(filmRepository.likeFilmById(filmId, userId));
     }
 
-    public Film deleteLikeUser(@PathVariable Long filmId, @PathVariable Long userId) {
-        return filmRepository.deleteLikeUser(filmId, userId);
+    public FilmDto deleteLikeUser(@PathVariable Long filmId, @PathVariable Long userId) {
+        return FilmMapper.mapToFilmDto(filmRepository.deleteLikeUser(filmId, userId));
     }
 
-    public Collection<Film> getPopularFilms(Long count) {
-        return filmRepository.getPopularFilms(count);
+    public Collection<FilmDto> getPopularFilms(Long count) {
+        return filmRepository.getPopularFilms(count)
+                .stream()
+                .map(FilmMapper::mapToFilmDto)
+                .collect(Collectors.toList());
     }
 
     public Collection<Genre> getGenres() {

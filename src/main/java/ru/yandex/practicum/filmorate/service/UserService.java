@@ -55,7 +55,8 @@ public class UserService {
     }
 
     public List<UserDto> deleteUserFriends(Long id, Long friendId) {
-        return userRepository.deleteUserFriends(id,friendId).stream()
+        return userRepository.deleteUserFriends(id,friendId)
+                .stream()
                 .map(UserMapper::mapToUserDto)
                 .collect(Collectors.toList());
     }
