@@ -74,6 +74,9 @@ public class DbUserRepository implements UserRepository {
 
     @Override
     public User createUser(User user) {
+        if (user.getName().isEmpty()){
+            user.setName(user.getLogin());
+        }
         KeyHolder keyHolder = new GeneratedKeyHolder();
         
         jdbc.update(connection -> {

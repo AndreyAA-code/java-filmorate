@@ -1,59 +1,15 @@
 package ru.yandex.practicum.filmorate;
 
-import lombok.RequiredArgsConstructor;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
-import org.springframework.context.annotation.Import;
-import org.springframework.test.context.jdbc.Sql;
-import ru.yandex.practicum.filmorate.dto.UserDto;
-import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.repository.DbUserRepository;
-import ru.yandex.practicum.filmorate.repository.mappers.UserRowMapper;
-
-import java.util.Optional;
-
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-
-@JdbcTest
-@AutoConfigureTestDatabase
-@RequiredArgsConstructor(onConstructor_ = @Autowired)
-@Import({DbUserRepository.class, UserRowMapper.class})
-class FilmoRateApplicationTests {
-    private final DbUserRepository dbUserRepository;
-
-
-    @Test
-    @Sql(scripts = "/testData.sql")
-    public void testFindUserById() {
-
-        Optional<User> userOptional = Optional.ofNullable(dbUserRepository.getUserById(1L));
-
-        assertThat(userOptional)
-                .isPresent()
-                .hasValueSatisfying(user ->
-                        assertThat(user).hasFieldOrPropertyWithValue("id", 1L)
-                );
-    }
-}
-
-
-
-
-
-
-/*
 import jakarta.validation.*;
 import lombok.RequiredArgsConstructor;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.test.context.jdbc.Sql;
 import ru.yandex.practicum.filmorate.controller.FilmController;
 import ru.yandex.practicum.filmorate.controller.UserController;
 import ru.yandex.practicum.filmorate.dto.FilmDto;
@@ -62,7 +18,10 @@ import ru.yandex.practicum.filmorate.mapper.UserMapper;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.repository.*;
+import ru.yandex.practicum.filmorate.repository.DbFilmRepository;
+import ru.yandex.practicum.filmorate.repository.DbUserRepository;
+import ru.yandex.practicum.filmorate.repository.FilmRepository;
+import ru.yandex.practicum.filmorate.repository.UserRepository;
 import ru.yandex.practicum.filmorate.repository.mappers.FilmRowMapper;
 import ru.yandex.practicum.filmorate.repository.mappers.GenreRowMapper;
 import ru.yandex.practicum.filmorate.repository.mappers.MpaRowMapper;
@@ -73,47 +32,64 @@ import ru.yandex.practicum.filmorate.service.UserService;
 import java.sql.Date;
 import java.time.LocalDate;
 import java.util.HashSet;
-import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
-//@JdbcTest
-@SpringBootTest
+
+@JdbcTest
 @AutoConfigureTestDatabase
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
-@Import({DbUserRepository.class,UserRowMapper.class,FilmRowMapper.class,GenreRowMapper.class,MpaRowMapper.class})
-
+@Import({DbUserRepository.class, DbFilmRepository.class, UserRowMapper.class,
+        FilmRowMapper.class, GenreRowMapper.class, MpaRowMapper.class})
 class FilmorateApplicationTests {
 
+    private final DbUserRepository dbUserRepository;
+    private final JdbcTemplate jdbcTemplate;
+    private FilmController filmController;
+    private UserController userController;
     private static Validator validator;
-    FilmController filmController;
-    UserController userController;
 
-    @BeforeAll
-    static void setUpValidator() {
+    static {
         ValidatorFactory validatorFactory = Validation.buildDefaultValidatorFactory();
-        validator = validatorFactory.usingContext().getValidator();
+        validator = validatorFactory.getValidator();
     }
 
+    @BeforeEach
+    @Sql(scripts = "/testData.sql")
     void setUpControllers() {
-        JdbcTemplate userJdbc = new JdbcTemplate();
-        final UserRowMapper userMapper = new UserRowMapper();
-        JdbcTemplate filmJdbc = new JdbcTemplate();
-        final FilmRowMapper filmMapper = new FilmRowMapper();
+
+        final UserRowMapper userRowMapper = new UserRowMapper();
+        final FilmRowMapper filmRowMapper = new FilmRowMapper();
         final GenreRowMapper genreRowMapper = new GenreRowMapper();
         final MpaRowMapper mpaRowMapper = new MpaRowMapper();
-        UserRepository userRepository = new DbUserRepository(userJdbc,userMapper);
-        FilmRepository filmRepository = new DbFilmRepository(filmJdbc,filmMapper,genreRowMapper, mpaRowMapper,userMapper);
-        FilmService filmService = new FilmService(filmRepository,userRepository);
+
+        UserRepository userRepository = new DbUserRepository(jdbcTemplate, userRowMapper);
+        FilmRepository filmRepository = new DbFilmRepository(jdbcTemplate, filmRowMapper, genreRowMapper, mpaRowMapper, userRowMapper);
+        FilmService filmService = new FilmService(filmRepository, userRepository);
         UserService userService = new UserService(userRepository);
         filmController = new FilmController(filmService);
         userController = new UserController(userService);
     }
 
+    @Test
+    @Sql(scripts = "/testData.sql")
+    public void testFindUserById() {
+
+        System.out.println(dbUserRepository.getAllUsers());
+        Optional<User> userOptional = Optional.ofNullable(dbUserRepository.getUserById(1L));
+
+        assertThat(userOptional)
+                .isPresent()
+                .hasValueSatisfying(user ->
+                        assertThat(user).hasFieldOrPropertyWithValue("id", 1L)
+                );
+    }
 
     @Test
     void filmCreateTest() {
-        setUpControllers();
+
         Film film = new Film();
         film.setName("Name Film");
         film.setDescription("Description Film");
@@ -126,7 +102,7 @@ class FilmorateApplicationTests {
 
     @Test
     void filmUpdateTest() throws ValidationException {
-        setUpControllers();
+
         Film film = new Film();
         film.setName("Name Film");
         film.setDescription("Description Film");
@@ -152,16 +128,25 @@ class FilmorateApplicationTests {
 
     @Test
     void userCreateTest() {
-        setUpControllers();
+
         User user = new User();
+        user.setName("Name User");
+        user.setBirthday(Date.valueOf(LocalDate.of(1987, 5, 1)).toLocalDate());
+        user.setLogin("login");
+        user.setEmail("email@ya.com");
         UserDto createdUser = userController.createUser(user);
+
         assertNotNull(createdUser.getId(), "Пользователь не создается.");
     }
 
     @Test
     void userUpdateTest() {
-        setUpControllers();
+
         User user = new User();
+        user.setName("Name User");
+        user.setBirthday(Date.valueOf(LocalDate.of(1987, 5, 1)).toLocalDate());
+        user.setLogin("login");
+        user.setEmail("email@ya.com");
         UserDto createdUser = userController.createUser(user);
 
         User updatedUser = new User();
@@ -178,36 +163,9 @@ class FilmorateApplicationTests {
         assertEquals(updatedUser.getBirthday(), result.getBirthday());
     }
 
-
-    @Test
-    void userUpdateTestUserController() {
-        setUpControllers();
-        User user = new User();
-        User newUser = new User();
-
-        user.setName("Name User");
-        user.setEmail("user@user.com");
-        user.setLogin("UserLogin");
-        user.setBirthday(Date.valueOf(LocalDate.of(1981, 5, 1)).toLocalDate());
-        userController.createUser(user);
-
-        newUser.setId(1L);
-        newUser.setName("Name User Update");
-        newUser.setBirthday(Date.valueOf(LocalDate.of(2000, 6, 16)).toLocalDate());
-        newUser.setEmail("updateUser@user.com");
-        newUser.setLogin("updateUserLogin");
-        userController.updateUser(newUser);
-
-        assertEquals("Name User Update", user.getName(), "Апдейт имени фильма не получился.");
-        assertEquals("updateUser@user.com", user.getEmail(), "Апдейт имейла не получился..");
-        assertEquals("updateUserLogin", user.getLogin(), "Апдейт логина не получился.");
-        assertEquals(LocalDate.of(2000, 6, 16), user.getBirthday(), "Апдейт даты ДР не получился..");
-
-    }
-
     @Test
     void userFriendsTest() {
-        setUpControllers();
+
         User user1 = new User();
         User user2 = new User();
         User user3 = new User();
@@ -243,9 +201,7 @@ class FilmorateApplicationTests {
         UserDto userDto1 = UserMapper.mapToUserDto(user3);
         assertEquals(1, commonFriends.size());
         assertTrue(commonFriends.contains(userDto1));
-
     }
-
 
     @Test
     void userValidateTest() {
@@ -265,41 +221,26 @@ class FilmorateApplicationTests {
     }
 
     @Test
-    void userNamefromLoginIfNameBlankTest() {
-        setUpControllers();
+    void userNameFromLoginIfNameBlankTest() {
         User user = new User();
-
         user.setName("");
         user.setEmail("user@user.com");
         user.setLogin("UserLogin");
-        user.setBirthday(Date.valueOf(LocalDate.of(1981, 5, 1)).toLocalDate());
-        userController.createUser(user);
+        user.setBirthday(LocalDate.of(1981, 5, 1));
 
-        assertEquals("UserLogin", user.getName(), "Пустое имя не меняется на логин.");
+        UserDto createdUser = userController.createUser(user);
+        assertEquals("UserLogin", createdUser.getName(), "Пустое имя не меняется на логин.");
     }
 
     @Test
     void filmValidateTest() {
-        setUpControllers();
         Film film = new Film();
 
         film.setName("");
-        film.setDescription("Description Film Description FilmDescription FilmDescription FilmDescription FilmDescripti" +
-                "on FilmDescription FilmDescription FilmDescription FilmDescription FilmDescription FilmDescription " +
-                "on FilmDescription FilmDescription FilmDescription FilmDescription FilmDescription FilmDescription " +
-                "on FilmDescription FilmDescription FilmDescription FilmDescription FilmDescription FilmDescription " +
-                "on FilmDescription FilmDescription FilmDescription FilmDescription FilmDescription FilmDescription " +
-                "on FilmDescription FilmDescription FilmDescription FilmDescription FilmDescription FilmDescription " +
-                "on FilmDescription FilmDescription FilmDescription FilmDescription FilmDescription FilmDescription " +
-                "on FilmDescription FilmDescription FilmDescription FilmDescription FilmDescription FilmDescription " +
-                "on FilmDescription FilmDescription FilmDescription FilmDescription FilmDescription FilmDescription " +
-                "on FilmDescription FilmDescription FilmDescription FilmDescription FilmDescription FilmDescription " +
-                "on FilmDescription FilmDescription FilmDescription FilmDescription FilmDescription FilmDescription " +
-                "on FilmDescription FilmDescription FilmDescription FilmDescription FilmDescription FilmDescription " +
-                "on FilmDescription FilmDescription FilmDescription FilmDescription FilmDescription FilmDescription " +
-                "on FilmDescription FilmDescription FilmDescription FilmDescription FilmDescription FilmDescription ");
+        film.setDescription("A".repeat(201)); // Создаем строку длиной 201 символ
         film.setReleaseDate(Date.valueOf(LocalDate.of(1817, 5, 1)).toLocalDate());
         film.setDuration(-1L);
+        film.setMpa(new Mpa(1L, "G"));
 
         Set<ConstraintViolation<Film>> validates = validator.validate(film);
 
@@ -309,5 +250,18 @@ class FilmorateApplicationTests {
                 .forEach(System.out::println);
     }
 
+    @Test
+    void filmLikesTest() {
+        Film film = new Film();
+        // TODO: добавьте логику теста
+        // Например:
+        film.setName("Test Film");
+        film.setDescription("Test Description");
+        film.setReleaseDate(LocalDate.of(2000, 1, 1));
+        film.setDuration(120L);
+        film.setMpa(new Mpa(1L, "G"));
+
+        FilmDto filmDto = filmController.addFilm(film);
+        assertNotNull(filmDto.getId());
+    }
 }
- */
