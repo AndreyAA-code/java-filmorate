@@ -30,7 +30,7 @@ public class DbUserRepository implements UserRepository {
     private static final String FIND_USER_FRIENDS_QUERY = "SELECT users.* FROM friends JOIN users " +
             "ON friends.friend_id = users.id WHERE friends.user_id = ?";
     private static final String CREATE_USER_QUERY = "INSERT INTO users (email, login, name, birthday) VALUES (?, ?, ?, ?)";
-    private static final String UPDATE_USER_QUERY =  "UPDATE users SET email = ?, login = ?, name = ?, birthday = ? WHERE id =?";
+    private static final String UPDATE_USER_QUERY = "UPDATE users SET email = ?, login = ?, name = ?, birthday = ? WHERE id =?";
     private static final String DELETE_USER_QUERY = "DELETE FROM users WHERE id = ?";
     private static final String ADD_USER_FRIEND_QUERY = "INSERT INTO friends (user_id, friend_id) VALUES (?, ?)";
     private static final String DELETE_USER_FRIEND_QUERY = "DELETE FROM friends WHERE user_id = ? AND friend_id = ?";
@@ -41,7 +41,7 @@ public class DbUserRepository implements UserRepository {
 
     @Override
     public Collection<User> getAllUsers() {
-                List<User> users = jdbc.query(FIND_ALL_USERS_QUERY, mapper);
+        List<User> users = jdbc.query(FIND_ALL_USERS_QUERY, mapper);
         for (User user : users) {
             Set<Long> friendIds = getUserFriends(user.getId())
                     .stream()
@@ -74,11 +74,11 @@ public class DbUserRepository implements UserRepository {
 
     @Override
     public User createUser(User user) {
-        if (user.getName().isEmpty()){
+        if (user.getName().isEmpty()) {
             user.setName(user.getLogin());
         }
         KeyHolder keyHolder = new GeneratedKeyHolder();
-        
+
         jdbc.update(connection -> {
             PreparedStatement ps = connection.prepareStatement(CREATE_USER_QUERY, new String[]{"id"});
             ps.setString(1, user.getEmail());
@@ -95,7 +95,7 @@ public class DbUserRepository implements UserRepository {
     @Override
     public User updateUser(User newUser) {
         checkUserId(newUser.getId());
-        
+
         jdbc.update(UPDATE_USER_QUERY, newUser.getEmail(), newUser.getLogin(), newUser.getName(),
                 newUser.getBirthday(), newUser.getId());
 
@@ -112,7 +112,7 @@ public class DbUserRepository implements UserRepository {
     public List<User> updateUserFriends(Long id, Long friendId) {
         checkUserId(id);
         checkUserId(friendId);
-        
+
         jdbc.update(ADD_USER_FRIEND_QUERY, id, friendId);
         List<User> users = jdbc.query(FIND_USERS_BY_ID_QUERY, mapper, id);
         return users;
@@ -133,7 +133,7 @@ public class DbUserRepository implements UserRepository {
         checkUserId(id);
         checkUserId(otherId);
 
-        List <User> users = jdbc.query(FIND_COMMON_FRIENDS_QUERY, mapper, id, otherId);
+        List<User> users = jdbc.query(FIND_COMMON_FRIENDS_QUERY, mapper, id, otherId);
 
         Set<User> commonFriends = new LinkedHashSet<>(users);
 
@@ -146,6 +146,5 @@ public class DbUserRepository implements UserRepository {
             throw new NotFoundException("User with id " + userId + " not found");
         }
     }
-
 
 }

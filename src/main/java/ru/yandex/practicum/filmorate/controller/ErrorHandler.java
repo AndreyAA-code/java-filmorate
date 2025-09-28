@@ -23,7 +23,7 @@ public class ErrorHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleMethodArgumentNotValid(MethodArgumentNotValidException ex) {
-       String message = ex.getBindingResult().getFieldError().getDefaultMessage();
+        String message = ex.getBindingResult().getFieldError().getDefaultMessage();
         return new ErrorResponse("Validation Failed: " + message);
     }
 }

@@ -237,7 +237,7 @@ class FilmorateApplicationTests {
         Film film = new Film();
 
         film.setName("");
-        film.setDescription("A".repeat(201)); // Создаем строку длиной 201 символ
+        film.setDescription("A".repeat(201)); // Проверяем строку более 200 символов
         film.setReleaseDate(Date.valueOf(LocalDate.of(1817, 5, 1)).toLocalDate());
         film.setDuration(-1L);
         film.setMpa(new Mpa(1L, "G"));

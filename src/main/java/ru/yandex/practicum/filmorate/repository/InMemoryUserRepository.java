@@ -66,7 +66,7 @@ public class InMemoryUserRepository implements UserRepository {
     }
 
     public void checkUserId(Long id) {
-        if (users.get(id) == null){
+        if (users.get(id) == null) {
             throw new NotFoundException("User with id " + id + " not found");
         }
     }
@@ -97,19 +97,19 @@ public class InMemoryUserRepository implements UserRepository {
         //users.get(friendId).getFriends().add(id); //изменилось правило в ФЗ 12
         return users.get(id).getFriends()
                 .stream()
-                .map(userId->users.get(userId))
+                .map(userId -> users.get(userId))
                 .collect(Collectors.toList());
     }
 
-@Override
+    @Override
     public List<User> deleteUserFriends(Long id, Long friendId) {
         checkUserId(id);
         checkUserId(friendId);
         users.get(id).getFriends().remove(friendId);
-      //  users.get(friendId).getFriends().remove(id); //изменилось правило в ФЗ 12
+        //  users.get(friendId).getFriends().remove(id); //изменилось правило в ФЗ 12
         return users.get(id).getFriends()
                 .stream()
-                .map(userId->users.get(userId))
+                .map(userId -> users.get(userId))
                 .collect(Collectors.toList());
     }
 
@@ -119,11 +119,11 @@ public class InMemoryUserRepository implements UserRepository {
         checkUserId(otherId);
         Set<User> friends1 = users.get(id).getFriends()
                 .stream()
-                .map(userId->users.get(userId))
+                .map(userId -> users.get(userId))
                 .collect(Collectors.toSet());
-        Set<User> friends2 =users.get(otherId).getFriends()
+        Set<User> friends2 = users.get(otherId).getFriends()
                 .stream()
-                .map(userId->users.get(userId))
+                .map(userId -> users.get(userId))
                 .collect(Collectors.toSet());
         friends1.retainAll(friends2);
         return friends1;

@@ -47,7 +47,6 @@ class InMemoryFilmorateApplicationTests {
         userController = new UserController(userService);
     }
 
-
     @Test
     void filmCreateTest() {
         setUpControllers();
@@ -222,20 +221,7 @@ class InMemoryFilmorateApplicationTests {
         Film film = new Film();
 
         film.setName("");
-        film.setDescription("Description Film Description FilmDescription FilmDescription FilmDescription FilmDescripti" +
-                "on FilmDescription FilmDescription FilmDescription FilmDescription FilmDescription FilmDescription " +
-                "on FilmDescription FilmDescription FilmDescription FilmDescription FilmDescription FilmDescription " +
-                "on FilmDescription FilmDescription FilmDescription FilmDescription FilmDescription FilmDescription " +
-                "on FilmDescription FilmDescription FilmDescription FilmDescription FilmDescription FilmDescription " +
-                "on FilmDescription FilmDescription FilmDescription FilmDescription FilmDescription FilmDescription " +
-                "on FilmDescription FilmDescription FilmDescription FilmDescription FilmDescription FilmDescription " +
-                "on FilmDescription FilmDescription FilmDescription FilmDescription FilmDescription FilmDescription " +
-                "on FilmDescription FilmDescription FilmDescription FilmDescription FilmDescription FilmDescription " +
-                "on FilmDescription FilmDescription FilmDescription FilmDescription FilmDescription FilmDescription " +
-                "on FilmDescription FilmDescription FilmDescription FilmDescription FilmDescription FilmDescription " +
-                "on FilmDescription FilmDescription FilmDescription FilmDescription FilmDescription FilmDescription " +
-                "on FilmDescription FilmDescription FilmDescription FilmDescription FilmDescription FilmDescription " +
-                "on FilmDescription FilmDescription FilmDescription FilmDescription FilmDescription FilmDescription ");
+        film.setDescription("A".repeat(201)); // Проверяем строку более 200 символов
         film.setReleaseDate(Date.valueOf(LocalDate.of(1817, 5, 1)).toLocalDate());
         film.setDuration(-1L);
 

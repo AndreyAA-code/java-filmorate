@@ -27,12 +27,12 @@ public class InMemoryFilmRepository implements FilmRepository {
             5L, new Mpa(5L, "NC-17")
     );
     private final Map<Long, Genre> genreMap = Map.of(
-            1L, new Genre(1L,"Комедия"),
-            2L, new Genre(2L,"Драма"),
-            3L, new Genre(3L,"Мультфильм"),
-            4L, new Genre(4L,"Триллер"),
-            5L, new Genre(5L,"Документальный"),
-            6L, new Genre(6L,"Боевик")
+            1L, new Genre(1L, "Комедия"),
+            2L, new Genre(2L, "Драма"),
+            3L, new Genre(3L, "Мультфильм"),
+            4L, new Genre(4L, "Триллер"),
+            5L, new Genre(5L, "Документальный"),
+            6L, new Genre(6L, "Боевик")
     );
 
 
@@ -174,8 +174,4 @@ public class InMemoryFilmRepository implements FilmRepository {
                 .orElse(0L);
         return ++maxID;
     }
-
-
-
 }
-

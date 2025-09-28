@@ -17,15 +17,15 @@ public class UserService {
 
     public final UserRepository userRepository;
 
-    public Collection<UserDto> getAllUsers () {
+    public Collection<UserDto> getAllUsers() {
         return userRepository.getAllUsers()
                 .stream()
                 .map(UserMapper::mapToUserDto)
                 .collect(Collectors.toList());
     }
 
-    public UserDto getUserById (Long id) {
-       return UserMapper.mapToUserDto(userRepository.getUserById(id));
+    public UserDto getUserById(Long id) {
+        return UserMapper.mapToUserDto(userRepository.getUserById(id));
     }
 
     public UserDto createUser(User user) {
@@ -40,11 +40,11 @@ public class UserService {
         userRepository.deleteUser(id);
     }
 
-    public List<UserDto> getUserFriends (Long id) {
-       return userRepository.getUserFriends(id)
-               .stream()
-               .map(UserMapper::mapToUserDto)
-               .collect(Collectors.toList());
+    public List<UserDto> getUserFriends(Long id) {
+        return userRepository.getUserFriends(id)
+                .stream()
+                .map(UserMapper::mapToUserDto)
+                .collect(Collectors.toList());
     }
 
     public List<UserDto> updateUserFriends(Long id, Long friendId) {
@@ -55,7 +55,7 @@ public class UserService {
     }
 
     public List<UserDto> deleteUserFriends(Long id, Long friendId) {
-        return userRepository.deleteUserFriends(id,friendId)
+        return userRepository.deleteUserFriends(id, friendId)
                 .stream()
                 .map(UserMapper::mapToUserDto)
                 .collect(Collectors.toList());
@@ -67,5 +67,4 @@ public class UserService {
                 .map(UserMapper::mapToUserDto)
                 .collect(Collectors.toSet());
     }
-
 }
