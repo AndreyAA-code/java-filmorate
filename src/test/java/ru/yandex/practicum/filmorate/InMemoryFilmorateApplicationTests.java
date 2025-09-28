@@ -21,7 +21,6 @@ import ru.yandex.practicum.filmorate.service.UserService;
 import java.sql.Date;
 import java.time.LocalDate;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -39,6 +38,7 @@ class InMemoryFilmorateApplicationTests {
         validator = validatorFactory.usingContext().getValidator();
     }
     void setUpControllers() {
+
         UserRepository userRepository = new InMemoryUserRepository();
         FilmRepository filmRepository = new InMemoryFilmRepository(new UserService(userRepository));
         FilmService filmService = new FilmService(filmRepository,userRepository);
