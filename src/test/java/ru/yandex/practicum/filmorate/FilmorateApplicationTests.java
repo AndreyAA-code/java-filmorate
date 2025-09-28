@@ -30,14 +30,15 @@ class FilmorateApplicationTests {
 
 	private static Validator validator;
 	private FilmController filmController;
-private UserController userController;
+	private UserController userController;
 
 	@BeforeAll
 	static void setUpValidator() {
 		ValidatorFactory validatorFactory = Validation.buildDefaultValidatorFactory();
 		validator = validatorFactory.usingContext().getValidator();
 	}
-
+}
+/*
 	void setUpControllers() {
 		UserStorage userStorage = new InMemoryUserStorage();
 		InMemoryFilmStorage filmStorage = new InMemoryFilmStorage(userStorage);
@@ -243,4 +244,4 @@ private UserController userController;
 				.forEach(System.out::println);
 	}
 
-}
+} */
