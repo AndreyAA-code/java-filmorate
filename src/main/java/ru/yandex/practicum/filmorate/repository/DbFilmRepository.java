@@ -35,33 +35,33 @@ public class DbFilmRepository implements FilmRepository {
     private final MpaRowMapper mpaRowMapper;
     private final UserRowMapper userRowMapper;
 
-    private final static String FIND_ALL_FILMS_QUERY = "SELECT films.*, mpa.name as mpa_name FROM films" +
+    private static final String FIND_ALL_FILMS_QUERY = "SELECT films.*, mpa.name as mpa_name FROM films" +
             " LEFT JOIN mpa ON films.mpa = mpa.id ORDER BY films.id ASC;";
-    private final static String UPDATE_FILM_QUERY = "UPDATE films SET name = ?, description = ?, release_date = ?, duration = ? WHERE id =?";
-    private final static String FIND_FILM_BY_ID_QUERY = "SELECT films.*, mpa.name as mpa_name FROM films" +
+    private static final String UPDATE_FILM_QUERY = "UPDATE films SET name = ?, description = ?, release_date = ?, duration = ? WHERE id =?";
+    private static final String FIND_FILM_BY_ID_QUERY = "SELECT films.*, mpa.name as mpa_name FROM films" +
             " LEFT JOIN mpa ON films.mpa = mpa.id WHERE films.id = ?;";
-    private final static String DELETE_FILM_QUERY = "DELETE FROM films WHERE id =?;";
-    private final static String ADD_LIKE_TO_FILM_QUERY = "INSERT INTO films_likes (user_id, film_id) VALUES (?, ?);";
-    private final static String DELETE_LIKE_FROM_FILM_QUERY = "DELETE FROM films_likes where user_id =? AND film_id = ?;";
-    private final static String GET_POPULAR_FILMS_QUERY = "SELECT films.*, mpa.name as mpa_name, COUNT(films_likes.user_id) as likes_count FROM films " +
+    private static final String DELETE_FILM_QUERY = "DELETE FROM films WHERE id =?;";
+    private static final String ADD_LIKE_TO_FILM_QUERY = "INSERT INTO films_likes (user_id, film_id) VALUES (?, ?);";
+    private static final String DELETE_LIKE_FROM_FILM_QUERY = "DELETE FROM films_likes where user_id =? AND film_id = ?;";
+    private static final String GET_POPULAR_FILMS_QUERY = "SELECT films.*, mpa.name as mpa_name, COUNT(films_likes.user_id) as likes_count FROM films " +
             "LEFT JOIN films_likes ON films.id = films_likes.film_id " +
             "LEFT JOIN mpa ON films.mpa = mpa.id GROUP BY films.id, mpa.name " +
             "ORDER BY COUNT(films_likes.user_id) DESC LIMIT ?";
-    private final static String GET_ALL_GENRES_QUERY = "SELECT * FROM genres ORDER BY id ASC;";
-    private final static String GET_GENRE_BY_ID_QUERY = "SELECT * FROM genres WHERE id =?;";
-    private final static String GET_ALL_MPA_QUERY = "SELECT * FROM mpa ORDER BY id ASC;";
-    private final static String GET_MPA_BY_ID_QUERY = "SELECT * FROM mpa WHERE id = ?;";
-    private final static String IF_MPA_EXISTS_QUERY = "SELECT COUNT(*) FROM mpa where id=?;";
-    private final static String IF_FILM_EXISTS_QUERY = "SELECT COUNT(*) FROM films WHERE id = ?;";
-    private final static String IF_USER_EXISTS_QUERY = "SELECT COUNT(*) FROM users where id=?;";
-    private final static String IF_GENRE_EXISTS_QUERY = "SELECT COUNT(*) FROM genres where id=?;";
-    private final static String GET_GENRES_FOR_FILM_QUERY = "SELECT * FROM genres JOIN genres_films" +
+    private static final String GET_ALL_GENRES_QUERY = "SELECT * FROM genres ORDER BY id ASC;";
+    private static final String GET_GENRE_BY_ID_QUERY = "SELECT * FROM genres WHERE id =?;";
+    private static final String GET_ALL_MPA_QUERY = "SELECT * FROM mpa ORDER BY id ASC;";
+    private static final String GET_MPA_BY_ID_QUERY = "SELECT * FROM mpa WHERE id = ?;";
+    private static final String IF_MPA_EXISTS_QUERY = "SELECT COUNT(*) FROM mpa where id=?;";
+    private static final String IF_FILM_EXISTS_QUERY = "SELECT COUNT(*) FROM films WHERE id = ?;";
+    private static final String IF_USER_EXISTS_QUERY = "SELECT COUNT(*) FROM users where id=?;";
+    private static final String IF_GENRE_EXISTS_QUERY = "SELECT COUNT(*) FROM genres where id=?;";
+    private static final String GET_GENRES_FOR_FILM_QUERY = "SELECT * FROM genres JOIN genres_films" +
             " ON genres.id = genres_films.genre_id WHERE film_id = ? ORDER BY genres.id ASC";
-    private final static String GET_LIKES_FOR_FILM_QUERY = "SELECT users.* FROM films_likes JOIN users ON films_likes.user_id = users.id" +
+    private static final String GET_LIKES_FOR_FILM_QUERY = "SELECT users.* FROM films_likes JOIN users ON films_likes.user_id = users.id" +
             " WHERE films_likes.film_id = ?;";
-    private final static String ADD_FILM_QUERY = "INSERT INTO films (name, description, release_date, duration, mpa)" +
+    private static final String ADD_FILM_QUERY = "INSERT INTO films (name, description, release_date, duration, mpa)" +
             " VALUES (?, ?, ?, ?, ?)";
-    private final static String ADD_GENRES_TO_FILM_QUERY = "INSERT INTO genres_films (genre_id, film_id) VALUES (?, ?)";
+    private static final String ADD_GENRES_TO_FILM_QUERY = "INSERT INTO genres_films (genre_id, film_id) VALUES (?, ?)";
 
 
     @Override
