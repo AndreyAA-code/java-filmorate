@@ -37,8 +37,8 @@ class InMemoryFilmorateApplicationTests {
         ValidatorFactory validatorFactory = Validation.buildDefaultValidatorFactory();
         validator = validatorFactory.usingContext().getValidator();
     }
-    void setUpControllers() {
 
+    void setUpControllers() {
         UserRepository userRepository = new InMemoryUserRepository();
         FilmRepository filmRepository = new InMemoryFilmRepository(new UserService(userRepository));
         FilmService filmService = new FilmService(filmRepository,userRepository);
