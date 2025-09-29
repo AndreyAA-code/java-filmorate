@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS films (
     description VARCHAR(200),
     release_date DATE CHECK (release_date >= '1895-12-28'),
     duration BIGINT NOT NULL,
-    mpa BIGINT REFERENCES mpa(id)
+    mpa_id BIGINT REFERENCES mpa(id)
     );
 
 CREATE TABLE IF NOT EXISTS users (

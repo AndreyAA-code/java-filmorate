@@ -16,7 +16,7 @@ import java.util.Set;
 @RequestMapping("/users")
 public class UserController {
 
-    public final UserService userService;
+    private final UserService userService;
 
     @GetMapping
     public Collection<UserDto> getAllUsers() {

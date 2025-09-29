@@ -24,12 +24,4 @@ public interface FilmRepository {
 
     Collection<Film> getPopularFilms(Long count);
 
-    Collection<Genre> getGenres();
-
-    Genre getGenresById(Long id);
-
-    Collection<Mpa> getMpas();
-
-    Mpa getMpaById(Long id);
-
 }

@@ -6,20 +6,18 @@ import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.dto.FilmDto;
 import ru.yandex.practicum.filmorate.model.Film;
 
-@Component
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-
 public class FilmMapper {
     public static FilmDto mapToFilmDto(Film film) {
-        FilmDto filmDto = new FilmDto();
-        filmDto.setId(film.getId());
-        filmDto.setName(film.getName());
-        filmDto.setDescription(film.getDescription());
-        filmDto.setReleaseDate(film.getReleaseDate());
-        filmDto.setDuration(film.getDuration());
-        filmDto.setLikes(film.getLikes());
-        filmDto.setMpa(film.getMpa());
-        filmDto.setGenres(film.getGenres());
-        return filmDto;
+        return FilmDto.builder()
+                .id(film.getId())
+                .name(film.getName())
+                .description(film.getDescription())
+                .releaseDate(film.getReleaseDate())
+                .duration(film.getDuration())
+                .likes(film.getLikes())
+                .mpa(film.getMpa())
+                .genres(film.getGenres())
+                .build();
     }
 }

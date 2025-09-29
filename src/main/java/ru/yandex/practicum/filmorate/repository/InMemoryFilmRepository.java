@@ -11,7 +11,7 @@ import ru.yandex.practicum.filmorate.service.UserService;
 import java.util.*;
 import java.util.stream.Collectors;
 
-@Repository("InMemoryFilmRepository")
+@Repository
 @AllArgsConstructor
 
 public class InMemoryFilmRepository implements FilmRepository {
@@ -126,7 +126,6 @@ public class InMemoryFilmRepository implements FilmRepository {
                 .collect(Collectors.toList());
     }
 
-    @Override
     public Collection<Genre> getGenres() {
         return genreMap.values()
                 .stream()
@@ -134,13 +133,11 @@ public class InMemoryFilmRepository implements FilmRepository {
                 .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
-    @Override
     public Genre getGenresById(Long id) {
         checkGenreId(id);
         return genreMap.get(id);
     }
 
-    @Override
     public Collection<Mpa> getMpas() {
         return mpaLevel.values()
                 .stream()
@@ -148,7 +145,6 @@ public class InMemoryFilmRepository implements FilmRepository {
                 .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
-    @Override
     public Mpa getMpaById(Long id) {
         checkMpaId(id);
         return mpaLevel.get(id);

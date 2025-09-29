@@ -15,7 +15,7 @@ import java.util.Collection;
 @RequestMapping("/mpa")
 @AllArgsConstructor
 public class MpaController {
-    FilmService filmService;
+    private FilmService filmService;
 
     @GetMapping
     public Collection<Mpa> getMpas() {

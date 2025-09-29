@@ -8,7 +8,9 @@ import ru.yandex.practicum.filmorate.mapper.FilmMapper;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
+import ru.yandex.practicum.filmorate.repository.DbGenreRepository;
 import ru.yandex.practicum.filmorate.repository.FilmRepository;
+import ru.yandex.practicum.filmorate.repository.DbMpaRepository;
 import ru.yandex.practicum.filmorate.repository.UserRepository;
 
 import java.util.Collection;
@@ -19,6 +21,8 @@ import java.util.stream.Collectors;
 public class FilmService {
     public final FilmRepository filmRepository;
     public final UserRepository userRepository;
+    public final DbMpaRepository dbMpaRepository;
+    public final DbGenreRepository dbGenreRepository;
 
     public Collection<FilmDto> getAllFilms() {
         return filmRepository.getAllFilms()
@@ -59,19 +63,19 @@ public class FilmService {
     }
 
     public Collection<Genre> getGenres() {
-        return filmRepository.getGenres();
+        return dbGenreRepository.getGenres();
     }
 
     public Genre getGenresById(Long id) {
-        return filmRepository.getGenresById(id);
+        return dbGenreRepository.getGenresById(id);
     }
 
     public Collection<Mpa> getMpas() {
-        return filmRepository.getMpas();
+        return dbMpaRepository.getMpas();
     }
 
     public Mpa getMpaById(Long id) {
-        return filmRepository.getMpaById(id);
+        return dbMpaRepository.getMpaById(id);
     }
 
 }

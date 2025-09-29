@@ -15,7 +15,7 @@ import java.util.Collection;
 @AllArgsConstructor
 @RequestMapping("/genres")
 public class GenreController {
-    public final FilmService filmService;
+    private final FilmService filmService;
 
     @GetMapping
     public Collection<Genre> getGenres() {

@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 
 public class InMemoryUserRepository implements UserRepository {
 
-    Map<Long, User> users = new HashMap<>();
+    private Map<Long, User> users = new HashMap<>();
 
     @Override
     public Collection<User> getAllUsers() {
