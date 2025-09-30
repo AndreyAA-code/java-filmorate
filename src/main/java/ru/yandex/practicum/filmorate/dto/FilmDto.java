@@ -2,7 +2,7 @@ package ru.yandex.practicum.filmorate.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Value;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
 
@@ -10,7 +10,7 @@ import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 
-@Data
+@Value
 @Builder
 public class FilmDto {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
@@ -19,8 +19,10 @@ public class FilmDto {
     private String description;
     private LocalDate releaseDate;
     private Long duration;
-    private Set<Long> likes = new HashSet<>();
     private Mpa mpa;
+    @Builder.Default
+    private Set<Long> likes = new HashSet<>();
+    @Builder.Default
     private Set<Genre> genres = new HashSet<>();
 
 }
