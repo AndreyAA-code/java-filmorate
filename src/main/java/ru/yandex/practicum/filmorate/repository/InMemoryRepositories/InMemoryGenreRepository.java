@@ -19,6 +19,7 @@ public class InMemoryGenreRepository implements GenreRepository {
             5L, new Genre(5L, "Документальный"),
             6L, new Genre(6L, "Боевик")
     );
+
    @Override
     public Collection<Genre> getGenres() {
         return genreMap.values()
