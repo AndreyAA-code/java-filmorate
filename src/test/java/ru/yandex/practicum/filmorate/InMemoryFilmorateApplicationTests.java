@@ -12,6 +12,10 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.repository.*;
+import ru.yandex.practicum.filmorate.repository.InMemoryRepositories.InMemoryFilmRepository;
+import ru.yandex.practicum.filmorate.repository.InMemoryRepositories.InMemoryGenreRepository;
+import ru.yandex.practicum.filmorate.repository.InMemoryRepositories.InMemoryMpaRepository;
+import ru.yandex.practicum.filmorate.repository.InMemoryRepositories.InMemoryUserRepository;
 import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.service.UserService;
 
