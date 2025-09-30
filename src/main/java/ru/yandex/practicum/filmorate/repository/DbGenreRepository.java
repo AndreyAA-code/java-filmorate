@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.repository;
 
 import lombok.AllArgsConstructor;
+import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
@@ -15,7 +16,8 @@ import java.util.Set;
 
 @Repository
 @AllArgsConstructor
-public class DbGenreRepository {
+@Primary
+public class DbGenreRepository implements GenreRepository {
 
     private final JdbcTemplate jdbc;
     private final GenreRowMapper genreRowMapper;
@@ -26,17 +28,20 @@ public class DbGenreRepository {
     private static final String GET_GENRES_FOR_FILM_QUERY = "SELECT * FROM genres JOIN genres_films" +
             " ON genres.id = genres_films.genre_id WHERE film_id = ? ORDER BY genres.id ASC";
 
+    @Override
     public Collection<Genre> getGenres() {
         List<Genre> genres = jdbc.query(GET_ALL_GENRES_QUERY, genreRowMapper);
         return genres;
     }
 
+    @Override
     public Genre getGenresById(Long id) {
         checkGenreId(id);
         Genre genre = jdbc.queryForObject(GET_GENRE_BY_ID_QUERY, genreRowMapper, id);
         return genre;
     }
 
+    @Override
     public void checkGenreId(Long id) {
         if (jdbc.queryForObject(IF_GENRE_EXISTS_QUERY, Integer.class, id) == 0 || jdbc.queryForObject(IF_GENRE_EXISTS_QUERY, Integer.class, id) == null) {
             throw new NotFoundException("Genre with id " + id + " not found");

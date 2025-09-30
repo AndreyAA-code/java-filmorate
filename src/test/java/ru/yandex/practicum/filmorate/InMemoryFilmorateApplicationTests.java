@@ -11,10 +11,7 @@ import ru.yandex.practicum.filmorate.mapper.UserMapper;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.repository.FilmRepository;
-import ru.yandex.practicum.filmorate.repository.InMemoryFilmRepository;
-import ru.yandex.practicum.filmorate.repository.InMemoryUserRepository;
-import ru.yandex.practicum.filmorate.repository.UserRepository;
+import ru.yandex.practicum.filmorate.repository.*;
 import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.service.UserService;
 
@@ -28,9 +25,11 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class InMemoryFilmorateApplicationTests {
 
+
     private static Validator validator;
     private FilmController filmController;
     private UserController userController;
+
 
     @BeforeAll
     static void setUpValidator() {
@@ -40,8 +39,11 @@ class InMemoryFilmorateApplicationTests {
 
     void setUpControllers() {
         UserRepository userRepository = new InMemoryUserRepository();
-        FilmRepository filmRepository = new InMemoryFilmRepository(new UserService(userRepository));
-        FilmService filmService = new FilmService(filmRepository,userRepository);
+        MpaRepository mpaRepository = new InMemoryMpaRepository();
+        GenreRepository genreRepository = new InMemoryGenreRepository();
+        FilmRepository filmRepository = new InMemoryFilmRepository(new UserService(userRepository),new InMemoryMpaRepository(), new InMemoryGenreRepository());
+
+        FilmService filmService = new FilmService(filmRepository,userRepository,mpaRepository, genreRepository);
         UserService userService = new UserService(userRepository);
         filmController = new FilmController(filmService);
         userController = new UserController(userService);
@@ -231,6 +233,7 @@ class InMemoryFilmorateApplicationTests {
         validates.stream()
                 .map(v -> v.getMessage())
                 .forEach(System.out::println);
-    }
+
+                }
 
 }

@@ -18,10 +18,7 @@ import ru.yandex.practicum.filmorate.mapper.UserMapper;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.repository.DbFilmRepository;
-import ru.yandex.practicum.filmorate.repository.DbUserRepository;
-import ru.yandex.practicum.filmorate.repository.FilmRepository;
-import ru.yandex.practicum.filmorate.repository.UserRepository;
+import ru.yandex.practicum.filmorate.repository.*;
 import ru.yandex.practicum.filmorate.repository.mappers.FilmRowMapper;
 import ru.yandex.practicum.filmorate.repository.mappers.GenreRowMapper;
 import ru.yandex.practicum.filmorate.repository.mappers.MpaRowMapper;
@@ -41,7 +38,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @JdbcTest
 @AutoConfigureTestDatabase
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
-@Import({DbUserRepository.class, DbFilmRepository.class, UserRowMapper.class,
+@Import({DbUserRepository.class, DbFilmRepository.class, DbMpaRepository.class, DbGenreRepository.class, UserRowMapper.class,
         FilmRowMapper.class, GenreRowMapper.class, MpaRowMapper.class})
 class FilmorateApplicationTests {
 
@@ -65,9 +62,11 @@ class FilmorateApplicationTests {
         final GenreRowMapper genreRowMapper = new GenreRowMapper();
         final MpaRowMapper mpaRowMapper = new MpaRowMapper();
 
+        DbMpaRepository dbMpaRepository = new DbMpaRepository(jdbcTemplate, mpaRowMapper);
+        DbGenreRepository dbGenreRepository = new DbGenreRepository(jdbcTemplate, genreRowMapper);
         UserRepository userRepository = new DbUserRepository(jdbcTemplate, userRowMapper);
-        FilmRepository filmRepository = new DbFilmRepository(jdbcTemplate, filmRowMapper, genreRowMapper, mpaRowMapper, userRowMapper);
-        FilmService filmService = new FilmService(filmRepository, userRepository);
+        FilmRepository filmRepository = new DbFilmRepository(jdbcTemplate, filmRowMapper, userRowMapper,dbMpaRepository, dbGenreRepository);
+        FilmService filmService = new FilmService(filmRepository, userRepository,dbMpaRepository, dbGenreRepository);
         UserService userService = new UserService(userRepository);
         filmController = new FilmController(filmService);
         userController = new UserController(userService);

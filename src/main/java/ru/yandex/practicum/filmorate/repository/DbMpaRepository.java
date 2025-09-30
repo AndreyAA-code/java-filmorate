@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.repository;
 
 import lombok.AllArgsConstructor;
+import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
@@ -10,9 +11,11 @@ import ru.yandex.practicum.filmorate.repository.mappers.MpaRowMapper;
 import java.util.Collection;
 import java.util.List;
 
+
 @Repository
 @AllArgsConstructor
-public class DbMpaRepository {
+@Primary
+public class DbMpaRepository implements MpaRepository {
 
     private final JdbcTemplate jdbc;
     private final MpaRowMapper mpaRowMapper;
@@ -21,17 +24,20 @@ public class DbMpaRepository {
     private static final String GET_MPA_BY_ID_QUERY = "SELECT * FROM mpa WHERE id = ?;";
     private static final String IF_MPA_EXISTS_QUERY = "SELECT COUNT(*) FROM mpa where id=?;";
 
+    @Override
     public Collection<Mpa> getMpas() {
         List<Mpa> mpas = jdbc.query(GET_ALL_MPA_QUERY, mpaRowMapper);
         return mpas;
     }
 
+    @Override
     public Mpa getMpaById(Long id) {
         checkMpaId(id);
         Mpa mpa = jdbc.queryForObject(GET_MPA_BY_ID_QUERY, mpaRowMapper, id);
         return mpa;
     }
 
+    @Override
     public void checkMpaId(Long id) {
         if (jdbc.queryForObject(IF_MPA_EXISTS_QUERY, Integer.class, id) == 0) {
             throw new NotFoundException("Mpa with id " + id + " not found");
