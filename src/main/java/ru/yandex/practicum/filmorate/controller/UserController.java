@@ -1,86 +1,66 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
+import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.dal.UserRepository;
-import ru.yandex.practicum.filmorate.dto.NewUserRequest;
-import ru.yandex.practicum.filmorate.dto.UpdateUserRequest;
 import ru.yandex.practicum.filmorate.dto.UserDto;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
-@RequiredArgsConstructor
-@Slf4j
-@RestController
+@RestController()
+@AllArgsConstructor
 @RequestMapping("/users")
 public class UserController {
+
     private final UserService userService;
 
     @GetMapping
-    public List<UserDto> getUsers() {
-        return userService.findAll();
+    public Collection<UserDto> getAllUsers() {
+        return userService.getAllUsers();
     }
 
-    @GetMapping("/{userId}")
-    @ResponseStatus(HttpStatus.OK)
-    public UserDto getUserById(@PathVariable("userId") long userId) {
-        return userService.getUserById(userId);
-    }
-
-    @PostMapping
-    public UserDto createUser(@RequestBody NewUserRequest userRequest) {
-        return userService.createUser(userRequest);
-    }
-
-    @PutMapping("/{userId}")
-    public UserDto updateUser(@PathVariable("userId") long userId, @RequestBody UpdateUserRequest request) {
-       log.debug("АААААААААА Update user {} with request {}", userId, request);
-        return userService.updateUser(userId, request);
-    }
-
-}
- /*
-    private final UserService userService;
-
-    @GetMapping
-    public Collection<User> findAll() {
-        return userService.findAll();
-    }
-
-    @PostMapping
-    public User create(@Valid @RequestBody final User user) {
-        return userService.create(user);
-    }
-
-    @PutMapping
-    public User update(@Valid @RequestBody final User newUser) {
-        return userService.update(newUser);
-    }
-
-    @PutMapping("/{id}/friends/{friendId}")
-    public List<User> addFriend(@PathVariable Long id, @PathVariable Long friendId) {
-        return userService.addFriend(id, friendId);
-    }
-
-    @DeleteMapping("/{id}/friends/{friendId}")
-    public void removeFriend(@PathVariable Long id, @PathVariable Long friendId) {
-        userService.removeFriend(id, friendId);
+    @GetMapping("/{id}")
+    public UserDto getUserById(@Valid @PathVariable Long id) {
+        return userService.getUserById(id);
     }
 
     @GetMapping("/{id}/friends")
-    public List<User> getAllFriends(@PathVariable Long id) {
-        return userService.getAllFriends(id);
+    public List<UserDto> getUserFriends(@Valid @PathVariable Long id) {
+        return userService.getUserFriends(id);
+    }
+
+    @PostMapping
+    public UserDto createUser(@Valid @RequestBody User user) {
+        return userService.createUser(user);
+    }
+
+    @PutMapping
+    public UserDto updateUser(@Valid @RequestBody User user) {
+        return userService.updateUser(user);
+    }
+
+    @PutMapping("/{id}/friends/{friendId}")
+    public List<UserDto> updateUserFriends(@Valid @PathVariable Long id, @Valid @PathVariable Long friendId) {
+        return userService.updateUserFriends(id, friendId);
+    }
+
+    @DeleteMapping("/{id}")
+    public void deleteUser(@Valid @RequestBody Long id) {
+        userService.deleteUser(id);
+    }
+
+    @DeleteMapping("/{id}/friends/{friendId}")
+    public List<UserDto> deleteUserFriends(@Valid @PathVariable Long id, @Valid @PathVariable Long friendId) {
+        return userService.deleteUserFriends(id, friendId);
     }
 
     @GetMapping("/{id}/friends/common/{otherId}")
-    public List<User> getCommonFriends(@PathVariable Long id, @PathVariable Long otherId) {
+    public Set<UserDto> getCommonFriends(@Valid @PathVariable Long id, @Valid @PathVariable Long otherId) {
         return userService.getCommonFriends(id, otherId);
     }
 
-} */
+}

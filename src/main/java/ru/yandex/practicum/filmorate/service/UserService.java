@@ -1,103 +1,70 @@
 package ru.yandex.practicum.filmorate.service;
-
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.dal.UserRepository;
-import ru.yandex.practicum.filmorate.dto.NewUserRequest;
-import ru.yandex.practicum.filmorate.dto.UpdateUserRequest;
 import ru.yandex.practicum.filmorate.dto.UserDto;
-import ru.yandex.practicum.filmorate.exception.InternalServerException;
-import ru.yandex.practicum.filmorate.exception.NotFoundException;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.mapper.UserMapper;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.repository.UserRepository;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
-
 @Service
-@RequiredArgsConstructor
-@Slf4j
+@AllArgsConstructor
 public class UserService {
-    private final UserRepository userRepository;
 
-    public List<UserDto> findAll() {
-        return userRepository.findAll()
+    public final UserRepository userRepository;
+
+    public Collection<UserDto> getAllUsers() {
+        return userRepository.getAllUsers()
                 .stream()
                 .map(UserMapper::mapToUserDto)
                 .collect(Collectors.toList());
     }
 
-    public UserDto createUser(NewUserRequest request) {
-        if (request.getEmail() == null || request.getEmail().isEmpty()) {
-            throw new ValidationException("Email должен быть указан");
-        }
-        Optional<User> alreadyExistUser = userRepository.findByEmail(request.getEmail());
-        if (alreadyExistUser.isPresent()) {
-            throw new ValidationException("Такой Email уже есть");
-        }
-
-        User user = UserMapper.mapToUser(request);
-        user = userRepository.save(user);
-        return UserMapper.mapToUserDto(user);
+    public UserDto getUserById(Long id) {
+        return UserMapper.mapToUserDto(userRepository.getUserById(id));
     }
 
-    public UserDto getUserById(long userId) {
-        return userRepository.findById(userId)
+    public UserDto createUser(User user) {
+        return UserMapper.mapToUserDto(userRepository.createUser(user));
+    }
+
+    public UserDto updateUser(User user) {
+        return UserMapper.mapToUserDto(userRepository.updateUser(user));
+    }
+
+    public void deleteUser(Long id) {
+        userRepository.deleteUser(id);
+    }
+
+    public List<UserDto> getUserFriends(Long id) {
+        return userRepository.getUserFriends(id)
+                .stream()
                 .map(UserMapper::mapToUserDto)
-                .orElseThrow(() -> new NotFoundException("Пользователь не найден с ID: " + userId));
+                .collect(Collectors.toList());
     }
 
-    public UserDto updateUser(long userId, UpdateUserRequest request) {
-        log.debug("Updating user ID: {} with data: {}", userId, request);
-        User updatedUser = userRepository.findById(userId)
-                .map(user ->{
-                    log.debug("Found user: {}", user);
-                    User updated = UserMapper.updateUserFields(user, request);
-                    return updated;
-                })
-                .orElseThrow(() -> new NotFoundException("Пользователь не найден"));
-        updatedUser = userRepository.update(updatedUser);
-        log.debug("User saved successfully: {}", updatedUser);
-        return UserMapper.mapToUserDto(updatedUser);
+    public List<UserDto> updateUserFriends(Long id, Long friendId) {
+        return userRepository.updateUserFriends(id, friendId)
+                .stream()
+                .map(UserMapper::mapToUserDto)
+                .collect(Collectors.toList());
+    }
+
+    public List<UserDto> deleteUserFriends(Long id, Long friendId) {
+        return userRepository.deleteUserFriends(id, friendId)
+                .stream()
+                .map(UserMapper::mapToUserDto)
+                .collect(Collectors.toList());
+    }
+
+    public Set<UserDto> getCommonFriends(Long id, Long otherId) {
+        return userRepository.getCommonFriends(id, otherId)
+                .stream()
+                .map(UserMapper::mapToUserDto)
+                .collect(Collectors.toSet());
     }
 }
-
-
-
-    /*private final UserStorage userStorage;
-
-    private static final Logger log = LoggerFactory.getLogger(UserController.class);
-
-    public Collection<User> findAll() {
-        return userStorage.findAll();
-    }
-
-    public User create(User user) {
-        return userStorage.create(user);
-    }
-
-    public User update(User newUser) {
-        return userStorage.update(newUser);
-    }
-
-    public List<User> addFriend(Long id, Long friendId) {
-        return userStorage.addFriend(id, friendId);
-    }
-
-    public void removeFriend(Long id, Long friendId) {
-        userStorage.removeFriend(id, friendId);
-    }
-
-    public List<User> getAllFriends(Long id) {
-        return userStorage.getAllFriends(id);
-    }
-
-    public List<User> getCommonFriends(Long id, Long otherId) {
-        return userStorage.getCommonFriends(id, otherId);
-    }
-
-}
-*/

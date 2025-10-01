@@ -1,42 +1,78 @@
 package ru.yandex.practicum.filmorate.service;
 
-import lombok.RequiredArgsConstructor;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.PathVariable;
+import ru.yandex.practicum.filmorate.dto.FilmDto;
+import ru.yandex.practicum.filmorate.mapper.FilmMapper;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.storage.FilmStorage;
+import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.model.Mpa;
+import ru.yandex.practicum.filmorate.repository.*;
 
 import java.util.Collection;
-import java.util.Set;
+import java.util.stream.Collectors;
 
-@RequiredArgsConstructor
 @Service
+@AllArgsConstructor
 public class FilmService {
+    public final FilmRepository filmRepository;
+    public final UserRepository userRepository;
+    public final MpaRepository mpaRepository;
+    public final GenreRepository genreRepository;
 
-    private final FilmStorage filmStorage;
-
-
-    public Collection<Film> findAll() {
-        return filmStorage.findAll();
+    public Collection<FilmDto> getAllFilms() {
+        return filmRepository.getAllFilms()
+                .stream()
+                .map(FilmMapper::mapToFilmDto)
+                .collect(Collectors.toList());
     }
 
-    public Film createFilm(Film film) {
-        return filmStorage.createFilm(film);
+    public FilmDto addFilm(Film film) {
+        return FilmMapper.mapToFilmDto(filmRepository.addFilm(film));
     }
 
-    public Film updateFilm(Film newFilm) {
-        return filmStorage.updateFilm(newFilm);
+    public FilmDto updateFilm(Film film) {
+        return FilmMapper.mapToFilmDto(filmRepository.updateFilm(film));
     }
 
-    public Set<Long> addLike(Long id, Long userId) {
-        return filmStorage.addLike(id, userId);
+    public FilmDto getFilmById(Long id) {
+        return FilmMapper.mapToFilmDto(filmRepository.getFilmById(id));
     }
 
-    public Film removeLike(Long id, Long userId) {
-        return filmStorage.removeLike(id, userId);
+    public FilmDto deleteFilmById(Long id) {
+        return FilmMapper.mapToFilmDto(filmRepository.deleteFilmById(id));
     }
 
-    public Collection<Film> getPopularFilms(int count) {
-        return filmStorage.getPopularFilms(count);
+    public FilmDto likeFilmById(Long filmId, Long userId) {
+        return FilmMapper.mapToFilmDto(filmRepository.likeFilmById(filmId, userId));
+    }
+
+    public FilmDto deleteLikeUser(@PathVariable Long filmId, @PathVariable Long userId) {
+        return FilmMapper.mapToFilmDto(filmRepository.deleteLikeUser(filmId, userId));
+    }
+
+    public Collection<FilmDto> getPopularFilms(Long count) {
+        return filmRepository.getPopularFilms(count)
+                .stream()
+                .map(FilmMapper::mapToFilmDto)
+                .collect(Collectors.toList());
+    }
+
+    public Collection<Genre> getGenres() {
+        return genreRepository.getGenres();
+    }
+
+    public Genre getGenresById(Long id) {
+        return genreRepository.getGenresById(id);
+    }
+
+    public Collection<Mpa> getMpas() {
+        return mpaRepository.getMpas();
+    }
+
+    public Mpa getMpaById(Long id) {
+        return mpaRepository.getMpaById(id);
     }
 
 }

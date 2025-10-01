@@ -5,7 +5,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 import ru.yandex.practicum.filmorate.validation.DataBeginFilmEra;
-import java.sql.Date;
+
+import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -14,16 +15,13 @@ public class Film {
     private Long id;
     @NotBlank
     private String name;
-    @Size(min = 0, max = 200)
+    @Size(max = 200)
     private String description;
     @DataBeginFilmEra
-    private Date releaseDate;
+    private LocalDate releaseDate;
     @Min(0)
-    private Integer duration;
-    private final Set<Long> likes = new HashSet<>();
-    private final Set<Long> genres = new HashSet<>();
-
-    public int getLikesSize() {
-        return likes.size();
-    }
+    private Long duration;
+    private Set<Long> likes = new HashSet<>();
+    private Mpa mpa;
+    private Set<Genre> genres = new HashSet<>();
 }

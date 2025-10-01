@@ -1,0 +1,18 @@
+# Для работы проекта с Postgres DB
+services:
+  db:
+    image: postgres:17.6
+    container_name: postgres-filmorate
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./volumes/postgres:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_DB=filmorate
+      - POSTGRES_USER=sa
+      - POSTGRES_PASSWORD=password
+    healthcheck:
+      test: pg_isready -q -d $$POSTGRES_DB -U $$POSTGRES_USER
+      timeout: 5s
+      interval: 5s
+      retries: 10
