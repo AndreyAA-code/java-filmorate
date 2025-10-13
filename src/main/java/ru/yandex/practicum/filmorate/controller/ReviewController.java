@@ -50,12 +50,12 @@ public class ReviewController {
     }
 
     @DeleteMapping("/{id}/dislike/{userId}")
-    public Review deleteLikeReview(@PathVariable Long id, @PathVariable Long userId) {
-        return filmService.deleteLikeReview(id, userId);
+    public Review deleteDislikeReview(@PathVariable Long id, @PathVariable Long userId) {
+        return filmService.deleteDislikeReview(id, userId);
     }
 
-    @DeleteMapping("/{id}/dislike/{userId}")
-    public Review deleteDisikeReview(@PathVariable Long id, @PathVariable Long userId) {
+    @DeleteMapping("/{id}/like/{userId}")
+    public Review deleteLikeReview(@PathVariable Long id, @PathVariable Long userId) {
         return filmService.deleteLikeReview(id, userId);
     }
 
