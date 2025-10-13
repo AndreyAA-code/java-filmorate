@@ -8,6 +8,7 @@ import ru.yandex.practicum.filmorate.mapper.FilmMapper;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
+import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.repository.*;
 
 import java.util.Collection;
@@ -73,6 +74,10 @@ public class FilmService {
 
     public Mpa getMpaById(Long id) {
         return mpaRepository.getMpaById(id);
+    }
+
+    public Review createReview(Review review) {
+        return review;
     }
 
 }
