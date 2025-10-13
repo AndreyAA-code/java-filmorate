@@ -12,6 +12,7 @@ import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.repository.*;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
@@ -78,6 +79,41 @@ public class FilmService {
 
     public Review createReview(Review review) {
         return review;
+    }
+
+    public Review updateReview(Review review) {
+        return null;
+    }
+
+    public Review deleteReview(Review review) {
+        return null;
+    }
+
+    public Review getReviewById(Long id) {
+        return null;
+    }
+
+    public List<Review> getReviews() {
+        return null;
+    }
+
+    public List<Review> getReviews(Long filmId, Long count) {
+        return null;
+    }
+
+    public Review addLikeReview(Long id, Long userId) {
+        return null;
+    }
+
+    public Review addDislikeReview(Long id, Long userId) {
+        return null;
+    }
+
+    public Review deleteLikeReview(Long id, Long userId) {
+        return null;
+    }
+    public Review deleteDislikeReview(Long id, Long userId) {
+        return null;
     }
 
 }

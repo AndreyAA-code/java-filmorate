@@ -1,12 +1,11 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import lombok.AllArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.service.FilmService;
+
+import java.util.List;
 
 @RestController
 @AllArgsConstructor
@@ -15,35 +14,49 @@ import ru.yandex.practicum.filmorate.service.FilmService;
 public class ReviewController {
     private final FilmService filmService;
 
+    @GetMapping
+    public List<Review> getReviews(@RequestParam(defaultValue = "10") Long filmId, @RequestParam(defaultValue = "10") Long count) {
+        return filmService.getReviews(filmId, count);
+    }
+
+    @GetMapping("/{id}")
+    public Review getReviewById(@PathVariable Long id) {
+        return filmService.getReviewById(id);
+    }
+
     @PostMapping
     public Review createReview(@RequestBody Review review) {
         return filmService.createReview(review);
     }
 
+    @PutMapping
+    public Review updateReview(@RequestBody Review review) {
+        return filmService.updateReview(review);
+    }
 
-  /*  p
-    POST /reviews
+    @DeleteMapping
+    public void deleteReview(@RequestBody Review review) {
+        filmService.deleteReview(review);
+    }
 
-    Добавление нового отзыва.
+    @PutMapping("/{id}/like/{userId}")
+    public Review likeReview(@PathVariable Long id, @PathVariable Long userId) {
+        return filmService.addLikeReview(id, userId);
+    }
 
-            PUT /reviews
+    @PutMapping("/{id}/dislike/{userId}")
+    public Review dislikeReview(@PathVariable Long id, @PathVariable Long userId) {
+        return filmService.addDislikeReview(id, userId);
+    }
 
-    Редактирование уже имеющегося отзыва.
+    @DeleteMapping("/{id}/dislike/{userId}")
+    public Review deleteLikeReview(@PathVariable Long id, @PathVariable Long userId) {
+        return filmService.deleteLikeReview(id, userId);
+    }
 
-    DELETE /reviews/{id}
+    @DeleteMapping("/{id}/dislike/{userId}")
+    public Review deleteDisikeReview(@PathVariable Long id, @PathVariable Long userId) {
+        return filmService.deleteLikeReview(id, userId);
+    }
 
-    Удаление уже имеющегося отзыва.
-
-    GET /reviews/{id}
-
-    Получение отзыва по идентификатору.
-
-    GET /reviews?filmId={filmId}&count={count}
-    Получение всех отзывов по идентификатору фильма, если фильм не указан то все. Если кол-во не указано то 10.
-
-    PUT /reviews/{id}/like/{userId} — пользователь ставит лайк отзыву.
-    PUT /reviews/{id}/dislike/{userId} — пользователь ставит дизлайк отзыву.
-    DELETE /reviews/{id}/like/{userId} — пользователь удаляет лайк/дизлайк отзыву.
-    DELETE /reviews/{id}/dislike/{userId} — пользователь удаляет дизлайк отзыву.
-*/
 }
