@@ -108,19 +108,24 @@ public class FilmService {
         return reviewRepository.getReviews(filmId, count);
     }
 
-    public Review addLikeReview(Long id, Long userId) {
-        return null;
+    public Review addLikeReview(Long reviewId, Long userId) {
+        userRepository.getUserById(userId);
+        return reviewRepository.addLikeReview(reviewId, userId);
     }
 
-    public Review addDislikeReview(Long id, Long userId) {
-        return null;
+    public Review addDislikeReview(Long reviewId, Long userId) {
+        userRepository.getUserById(userId);
+        return reviewRepository.addDislikeReview(reviewId, userId);
     }
 
-    public Review deleteLikeReview(Long id, Long userId) {
-        return null;
+    public Review deleteLikeReview(Long reviewId, Long userId) {
+        userRepository.getUserById(userId);
+        return reviewRepository.deleteLikeReview(reviewId, userId);
     }
-    public Review deleteDislikeReview(Long id, Long userId) {
-        return null;
+
+    public Review deleteDislikeReview(Long reviewId, Long userId) {
+        userRepository.getUserById(userId);
+        return reviewRepository.deleteDislikeReview(reviewId, userId);
     }
 
 }

@@ -17,4 +17,11 @@ public interface ReviewRepository {
 
     List<Review> getReviews(Optional<Long> filmId, Long count);
 
+    Review addLikeReview(Long reviewId, Long userId);
+
+    Review addDislikeReview(Long reviewId, Long userId);
+
+    Review deleteLikeReview(Long reviewId, Long userId);
+
+    Review deleteDislikeReview(Long reviewId, Long userId);
 }

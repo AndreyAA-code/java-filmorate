@@ -31,11 +31,15 @@ public class DbReviewRepository implements ReviewRepository {
     private static final String GET_REVIEWS_BY_FILM_ID_QUERY = "SELECT * FROM reviews WHERE film_id = ? LIMIT ?";
     private static final String GET_REVIEWS_FOR_ALL_FILMS = "SELECT * FROM reviews WHERE review_id = ? LIMIT ?";
     private static final String IF_REVIEW_EXISTS_QUERY = "SELECT COUNT(*) FROM reviews WHERE review_id = ?";
+    private static final String ADD_LIKE_DISLIKE_TO_REVIEW_QUERY = "INSERT INTO reviews_users (review_id, user_id, isUseful) VALUES (?, ?, ?)";
+    private static final String DELETE_LIKE_DISLIKE_FOR_REVIEW_QUERY  = "DELETE FROM reviews_users WHERE review_id = ? AND user_id = ?";
+    private static final String GET_USEFUL_FOR_REVIEW = "SELECT COUNT(isUseful) FROM reviews_users WHERE review_id = ?";
 
     @Override
     public Review getReviewsById(Long id) {
         checkReviewId(id);
         Review review = jdbc.queryForObject(FIND_REVIEW_BY_ID_QUERY, mapper, id);
+
         return review;
     }
 
@@ -76,12 +80,45 @@ public class DbReviewRepository implements ReviewRepository {
         List<Review> reviews;
 
         if (filmId.isPresent()) {
-        reviews = jdbc.query(GET_REVIEWS_BY_FILM_ID_QUERY, mapper, filmId.get(), count);
-        }
-        else {
+            reviews = jdbc.query(GET_REVIEWS_BY_FILM_ID_QUERY, mapper, filmId.get(), count);
+        } else {
             reviews = jdbc.query(GET_REVIEWS_FOR_ALL_FILMS, mapper, count);
         }
         return reviews;
+    }
+
+    @Override
+    public Review addLikeReview(Long reviewId, Long userId) {
+        checkReviewId(reviewId);
+        jdbc.update(ADD_LIKE_DISLIKE_TO_REVIEW_QUERY, reviewId, userId, 1);
+        Review review = getReviewsById(reviewId);
+        review.setUseful(jdbc.queryForObject(GET_USEFUL_FOR_REVIEW,Long.class,reviewId));
+        return review;
+    }
+
+    @Override
+    public Review addDislikeReview(Long reviewId, Long userId) {
+        checkReviewId(reviewId);
+        jdbc.update(ADD_LIKE_DISLIKE_TO_REVIEW_QUERY, reviewId, userId, -1);
+        Review review = getReviewsById(reviewId);
+        review.setUseful(jdbc.queryForObject(GET_USEFUL_FOR_REVIEW,Long.class,reviewId));
+        return review;
+    }
+
+    @Override
+    public Review deleteLikeReview(Long reviewId, Long userId) {
+        jdbc.update(DELETE_LIKE_DISLIKE_FOR_REVIEW_QUERY, reviewId, userId);
+        Review review = getReviewsById(reviewId);
+        review.setUseful(jdbc.queryForObject(GET_USEFUL_FOR_REVIEW,Long.class,reviewId));
+        return review;
+    }
+
+    @Override
+    public Review deleteDislikeReview(Long reviewId, Long userId) {
+        checkReviewId(reviewId);
+        Review review = getReviewsById(reviewId);
+        review.setUseful(jdbc.queryForObject(GET_USEFUL_FOR_REVIEW,Long.class,reviewId));
+        return review;
     }
 
     private void checkReviewId(Long reviewId) {
