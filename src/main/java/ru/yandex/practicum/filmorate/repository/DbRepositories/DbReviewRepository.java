@@ -6,12 +6,15 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
+import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.repository.ReviewRepository;
 import ru.yandex.practicum.filmorate.repository.mappers.ReviewRowMapper;
 
-import java.sql.Date;
 import java.sql.PreparedStatement;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 @Repository
 @AllArgsConstructor
@@ -24,10 +27,15 @@ public class DbReviewRepository implements ReviewRepository {
     private static final String FIND_REVIEW_BY_ID_QUERY = "SELECT * FROM reviews WHERE review_id = ?";
     private static final String CREATE_REVIEW_QUERY = "INSERT INTO reviews (content, isPositive, user_id, film_id) VALUES (?, ?, ?, ?)";
     private static final String UPDATE_REVIEW_QUERY = "UPDATE reviews SET content = ?, isPositive = ?, user_id = ?, film_id = ? WHERE review_id =?";
+    private static final String DELETE_REVIEW_QUERY = "DELETE FROM reviews WHERE review_id = ?";
+    private static final String GET_REVIEWS_BY_FILM_ID_QUERY = "SELECT * FROM reviews WHERE film_id = ? LIMIT ?";
+    private static final String GET_REVIEWS_FOR_ALL_FILMS = "SELECT * FROM reviews WHERE review_id = ? LIMIT ?";
+    private static final String IF_REVIEW_EXISTS_QUERY = "SELECT COUNT(*) FROM reviews WHERE review_id = ?";
 
     @Override
-    public Review getReviewsById(Long id){
-        Review review = jdbc.queryForObject(FIND_REVIEW_BY_ID_QUERY,mapper,id);
+    public Review getReviewsById(Long id) {
+        checkReviewId(id);
+        Review review = jdbc.queryForObject(FIND_REVIEW_BY_ID_QUERY, mapper, id);
         return review;
     }
 
@@ -57,4 +65,28 @@ public class DbReviewRepository implements ReviewRepository {
         return newReview;
     }
 
+    @Override
+    public void deleteReview(Long reviewId) {
+        checkReviewId(reviewId);
+        jdbc.update(DELETE_REVIEW_QUERY, reviewId);
+    }
+
+    @Override
+    public List<Review> getReviews(Optional<Long> filmId, Long count) {
+        List<Review> reviews;
+
+        if (filmId.isPresent()) {
+        reviews = jdbc.query(GET_REVIEWS_BY_FILM_ID_QUERY, mapper, filmId.get(), count);
+        }
+        else {
+            reviews = jdbc.query(GET_REVIEWS_FOR_ALL_FILMS, mapper, count);
+        }
+        return reviews;
+    }
+
+    private void checkReviewId(Long reviewId) {
+        if (jdbc.queryForObject(IF_REVIEW_EXISTS_QUERY, Integer.class, reviewId) == 0) {
+            throw new NotFoundException("Review with id " + reviewId + " not found");
+        }
+    }
 }

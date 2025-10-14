@@ -7,6 +7,7 @@ import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @AllArgsConstructor
@@ -16,7 +17,8 @@ public class ReviewController {
     private final FilmService filmService;
 
     @GetMapping
-    public List<Review> getReviews(@RequestParam(defaultValue = "10") Long filmId, @RequestParam(defaultValue = "10") Long count) {
+    public List<Review> getReviews(@RequestParam Optional<Long> filmId,
+                                   @RequestParam(defaultValue = "10") Long count) {
         return filmService.getReviews(filmId, count);
     }
 
@@ -31,13 +33,13 @@ public class ReviewController {
     }
 
     @PutMapping
-    public Review updateReview(@RequestBody Review review) {
+    public Review updateReview(@Valid @RequestBody Review review) {
         return filmService.updateReview(review);
     }
 
-    @DeleteMapping
-    public void deleteReview(@RequestBody Review review) {
-        filmService.deleteReview(review);
+    @DeleteMapping("/{id}")
+    public void deleteReview(@PathVariable Long id) {
+        filmService.deleteReview(id);
     }
 
     @PutMapping("/{id}/like/{userId}")
