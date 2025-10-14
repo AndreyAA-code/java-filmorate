@@ -9,7 +9,8 @@ public class Review {
     @Size(max = 200)
     private String content;
     private Boolean isPositive;
-    private Integer useful;
+    private Long useful;
     private Long userId;
     private Long filmId;
+
 }

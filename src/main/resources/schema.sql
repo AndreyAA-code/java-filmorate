@@ -43,3 +43,11 @@ CREATE TABLE IF NOT EXISTS friends (
     friend_id BIGINT NOT NULL REFERENCES users(id),
     PRIMARY KEY (user_id, friend_id)
     );
+
+CREATE TABLE IF NOT EXISTS reviews (
+    review_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    content VARCHAR(200),
+    isPositive BOOL,
+    user_id BIGINT NOT NULL REFERENCES users(id),
+    film_id BIGINT NOT NULL REFERENCES films(id)
+);

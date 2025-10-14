@@ -22,6 +22,7 @@ public class FilmService {
     public final UserRepository userRepository;
     public final MpaRepository mpaRepository;
     public final GenreRepository genreRepository;
+    public final ReviewRepository reviewRepository;
 
     public Collection<FilmDto> getAllFilms() {
         return filmRepository.getAllFilms()
@@ -78,7 +79,7 @@ public class FilmService {
     }
 
     public Review createReview(Review review) {
-        return review;
+        return reviewRepository.createReview(review);
     }
 
     public Review updateReview(Review review) {
@@ -90,7 +91,7 @@ public class FilmService {
     }
 
     public Review getReviewById(Long id) {
-        return null;
+        return reviewRepository.getReviewsById(id);
     }
 
     public List<Review> getReviews() {
