@@ -33,7 +33,10 @@ public class DbReviewRepository implements ReviewRepository {
     private static final String IF_REVIEW_EXISTS_QUERY = "SELECT COUNT(*) FROM reviews WHERE review_id = ?";
     private static final String ADD_LIKE_DISLIKE_TO_REVIEW_QUERY = "INSERT INTO reviews_users (review_id, user_id, isUseful) VALUES (?, ?, ?)";
     private static final String DELETE_LIKE_DISLIKE_FOR_REVIEW_QUERY  = "DELETE FROM reviews_users WHERE review_id = ? AND user_id = ?";
-    private static final String GET_USEFUL_FOR_REVIEW = "SELECT COUNT(isUseful) FROM reviews_users WHERE review_id = ?";
+    private static final String GET_USEFUL_FOR_REVIEW = "SELECT SUM(isUseful) FROM reviews_users WHERE review_id = ?";
+    private static final String DELETE_ALL_LIKES_DISLIKES_FOR_REVIEW = "DELETE FROM reviews_users WHERE review_id = ?";
+    private static final String IF_LIKE_DISLIKE_EXISTS_QUERY = "SELECT COUNT(*) FROM reviews_users WHERE review_id = ? AND user_id = ?";
+    private static final String UPDATE_LIKE_DISLIKE_QUERY = "UPDATE reviews_users SET isUseful = ? WHERE review_id =? AND user_id = ?";
 
     @Override
     public Review getReviewsById(Long id) {
@@ -66,6 +69,7 @@ public class DbReviewRepository implements ReviewRepository {
     public Review updateReview(Review newReview) {
         jdbc.update(UPDATE_REVIEW_QUERY, newReview.getContent(), newReview.getIsPositive(), newReview.getUserId(),
                 newReview.getFilmId(), newReview.getReviewId());
+        jdbc.update(DELETE_ALL_LIKES_DISLIKES_FOR_REVIEW, newReview.getReviewId());
         return newReview;
     }
 
@@ -73,6 +77,7 @@ public class DbReviewRepository implements ReviewRepository {
     public void deleteReview(Long reviewId) {
         checkReviewId(reviewId);
         jdbc.update(DELETE_REVIEW_QUERY, reviewId);
+        jdbc.update(DELETE_ALL_LIKES_DISLIKES_FOR_REVIEW, reviewId);
     }
 
     @Override
@@ -84,22 +89,41 @@ public class DbReviewRepository implements ReviewRepository {
         } else {
             reviews = jdbc.query(GET_REVIEWS_FOR_ALL_FILMS, mapper, count);
         }
+        for (Review review : reviews) {
+            review.setUseful(jdbc.queryForObject(GET_USEFUL_FOR_REVIEW,Long.class,review.getReviewId()));
+            if (review.getUseful() == null) {
+                review.setUseful(0L);
+            }
+        }
         return reviews;
     }
 
     @Override
     public Review addLikeReview(Long reviewId, Long userId) {
         checkReviewId(reviewId);
-        jdbc.update(ADD_LIKE_DISLIKE_TO_REVIEW_QUERY, reviewId, userId, 1);
+        if (checkIfLikeOrdislikeExists(reviewId, userId) == false) {
+            jdbc.update(ADD_LIKE_DISLIKE_TO_REVIEW_QUERY, reviewId, userId, 1);
+        } else {
+            jdbc.update(UPDATE_LIKE_DISLIKE_QUERY, 1, reviewId, userId);
+        }
         Review review = getReviewsById(reviewId);
         review.setUseful(jdbc.queryForObject(GET_USEFUL_FOR_REVIEW,Long.class,reviewId));
         return review;
     }
 
+    private boolean checkIfLikeOrdislikeExists(Long reviewId, Long userId) {
+        return jdbc.queryForObject(IF_LIKE_DISLIKE_EXISTS_QUERY, Boolean.class, reviewId, userId);
+    }
+
     @Override
     public Review addDislikeReview(Long reviewId, Long userId) {
         checkReviewId(reviewId);
-        jdbc.update(ADD_LIKE_DISLIKE_TO_REVIEW_QUERY, reviewId, userId, -1);
+        if (checkIfLikeOrdislikeExists(reviewId, userId) == false) {
+            jdbc.update(ADD_LIKE_DISLIKE_TO_REVIEW_QUERY, reviewId, userId, -1);
+        } else {
+            jdbc.update(UPDATE_LIKE_DISLIKE_QUERY, -1, reviewId, userId);
+        }
+
         Review review = getReviewsById(reviewId);
         review.setUseful(jdbc.queryForObject(GET_USEFUL_FOR_REVIEW,Long.class,reviewId));
         return review;
@@ -110,6 +134,9 @@ public class DbReviewRepository implements ReviewRepository {
         jdbc.update(DELETE_LIKE_DISLIKE_FOR_REVIEW_QUERY, reviewId, userId);
         Review review = getReviewsById(reviewId);
         review.setUseful(jdbc.queryForObject(GET_USEFUL_FOR_REVIEW,Long.class,reviewId));
+        if (review.getUseful() == null) {
+            review.setUseful(0L);
+        }
         return review;
     }
 

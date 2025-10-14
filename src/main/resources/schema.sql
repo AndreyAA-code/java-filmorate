@@ -1,21 +1,21 @@
 
-drop table FILMS_LIKES;
+drop table FILMS_LIKES IF EXISTS;
 
-drop table FRIENDS;
+drop table FRIENDS IF EXISTS;
 
-drop table GENRES_FILMS;
+drop table GENRES_FILMS IF EXISTS;
 
-drop table GENRES;
+drop table GENRES IF EXISTS;
 
-drop table REVIEWS_USERS;
+drop table REVIEWS_USERS IF EXISTS;
 
-drop table REVIEWS;
+drop table REVIEWS IF EXISTS;
 
-drop table FILMS;
+drop table FILMS IF EXISTS;
 
-drop table MPA;
+drop table MPA IF EXISTS;
 
-drop table USERS;
+drop table USERS IF EXISTS;
 
 CREATE TABLE IF NOT EXISTS mpa (
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
@@ -73,5 +73,6 @@ CREATE TABLE IF NOT EXISTS reviews (
 CREATE TABLE IF NOT EXISTS reviews_users (
     review_id BIGINT NOT NULL REFERENCES reviews(review_id),
     user_id BIGINT NOT NULL REFERENCES users(id),
-    isUseful BIGINT
+    isUseful BIGINT,
+    PRIMARY KEY (review_id, user_id)
 );
