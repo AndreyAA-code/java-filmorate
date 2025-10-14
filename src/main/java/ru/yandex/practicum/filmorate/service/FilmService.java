@@ -79,11 +79,15 @@ public class FilmService {
     }
 
     public Review createReview(Review review) {
+        userRepository.getUserById(review.getUserId());
+        filmRepository.getFilmById(review.getFilmId());
         return reviewRepository.createReview(review);
     }
 
     public Review updateReview(Review review) {
-        return null;
+        userRepository.getUserById(review.getUserId());
+        filmRepository.getFilmById(review.getFilmId());
+        return reviewRepository.updateReview(review);
     }
 
     public Review deleteReview(Review review) {

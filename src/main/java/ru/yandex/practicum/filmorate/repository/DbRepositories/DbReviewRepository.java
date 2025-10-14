@@ -23,6 +23,7 @@ public class DbReviewRepository implements ReviewRepository {
 
     private static final String FIND_REVIEW_BY_ID_QUERY = "SELECT * FROM reviews WHERE review_id = ?";
     private static final String CREATE_REVIEW_QUERY = "INSERT INTO reviews (content, isPositive, user_id, film_id) VALUES (?, ?, ?, ?)";
+    private static final String UPDATE_REVIEW_QUERY = "UPDATE reviews SET content = ?, isPositive = ?, user_id = ?, film_id = ? WHERE review_id =?";
 
     @Override
     public Review getReviewsById(Long id){
@@ -44,8 +45,16 @@ public class DbReviewRepository implements ReviewRepository {
             return ps;
         }, keyHolder);
         Long generatedId = keyHolder.getKey().longValue();
-        review.setId(generatedId);
+        review.setReviewId(generatedId);
+        review.setUseful(0L);
         return review;
+    }
+
+    @Override
+    public Review updateReview(Review newReview) {
+        jdbc.update(UPDATE_REVIEW_QUERY, newReview.getContent(), newReview.getIsPositive(), newReview.getUserId(),
+                newReview.getFilmId(), newReview.getReviewId());
+        return newReview;
     }
 
 }

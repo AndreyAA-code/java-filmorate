@@ -7,4 +7,6 @@ public interface ReviewRepository {
     Review getReviewsById(Long id);
 
     Review createReview(Review review);
+
+    Review updateReview(Review review);
 }
