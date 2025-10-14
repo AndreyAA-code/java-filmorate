@@ -12,7 +12,6 @@ import ru.yandex.practicum.filmorate.repository.ReviewRepository;
 import ru.yandex.practicum.filmorate.repository.mappers.ReviewRowMapper;
 
 import java.sql.PreparedStatement;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -31,12 +30,12 @@ public class DbReviewRepository implements ReviewRepository {
     private static final String GET_REVIEWS_BY_FILM_ID_QUERY = "SELECT * FROM reviews WHERE film_id = ? LIMIT ?";
     private static final String GET_REVIEWS_FOR_ALL_FILMS = "SELECT * FROM reviews WHERE review_id = ? LIMIT ?";
     private static final String IF_REVIEW_EXISTS_QUERY = "SELECT COUNT(*) FROM reviews WHERE review_id = ?";
-    private static final String ADD_LIKE_DISLIKE_TO_REVIEW_QUERY = "INSERT INTO reviews_users (review_id, user_id, isUseful) VALUES (?, ?, ?)";
+    private static final String ADD_LIKE_DISLIKE_TO_REVIEW_QUERY = "INSERT INTO reviews_users (review_id, user_id, useful) VALUES (?, ?, ?)";
     private static final String DELETE_LIKE_DISLIKE_FOR_REVIEW_QUERY  = "DELETE FROM reviews_users WHERE review_id = ? AND user_id = ?";
-    private static final String GET_USEFUL_FOR_REVIEW = "SELECT SUM(isUseful) FROM reviews_users WHERE review_id = ?";
+    private static final String GET_USEFUL_FOR_REVIEW = "SELECT SUM(useful) FROM reviews_users WHERE review_id = ?";
     private static final String DELETE_ALL_LIKES_DISLIKES_FOR_REVIEW = "DELETE FROM reviews_users WHERE review_id = ?";
     private static final String IF_LIKE_DISLIKE_EXISTS_QUERY = "SELECT COUNT(*) FROM reviews_users WHERE review_id = ? AND user_id = ?";
-    private static final String UPDATE_LIKE_DISLIKE_QUERY = "UPDATE reviews_users SET isUseful = ? WHERE review_id =? AND user_id = ?";
+    private static final String UPDATE_LIKE_DISLIKE_QUERY = "UPDATE reviews_users SET useful = ? WHERE review_id =? AND user_id = ?";
 
     @Override
     public Review getReviewsById(Long id) {

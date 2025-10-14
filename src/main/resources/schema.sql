@@ -73,6 +73,6 @@ CREATE TABLE IF NOT EXISTS reviews (
 CREATE TABLE IF NOT EXISTS reviews_users (
     review_id BIGINT NOT NULL REFERENCES reviews(review_id),
     user_id BIGINT NOT NULL REFERENCES users(id),
-    isUseful BIGINT,
+    useful BIGINT,
     PRIMARY KEY (review_id, user_id)
 );
