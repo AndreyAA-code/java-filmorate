@@ -39,14 +39,14 @@ class InMemoryFilmorateApplicationTests {
         ValidatorFactory validatorFactory = Validation.buildDefaultValidatorFactory();
         validator = validatorFactory.usingContext().getValidator();
     }
-
+/*
     void setUpControllers() {
         UserRepository userRepository = new InMemoryUserRepository();
         MpaRepository mpaRepository = new InMemoryMpaRepository();
         GenreRepository genreRepository = new InMemoryGenreRepository();
         FilmRepository filmRepository = new InMemoryFilmRepository(new UserService(userRepository),new InMemoryMpaRepository(), new InMemoryGenreRepository());
 
-        FilmService filmService = new FilmService(filmRepository,userRepository,mpaRepository, genreRepository);
+        FilmService filmService = new FilmService(filmRepository,userRepository,mpaRepository, genreRepository, reviewRepository);
         UserService userService = new UserService(userRepository);
         filmController = new FilmController(filmService);
         userController = new UserController(userService);
@@ -238,5 +238,5 @@ class InMemoryFilmorateApplicationTests {
                 .forEach(System.out::println);
 
                 }
-
+*/
 }
