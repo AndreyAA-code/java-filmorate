@@ -141,7 +141,7 @@ public class DbUserRepository implements UserRepository {
         return commonFriends;
     }
 
-    private void checkUserId(Long userId) {
+    public void checkUserId(Long userId) {
 
         if (jdbc.queryForObject(IF_USER_EXISTS_QUERY, Integer.class, userId) == 0) {
             throw new NotFoundException("User with id " + userId + " not found");

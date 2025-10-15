@@ -1,4 +1,22 @@
 
+DROP table IF EXISTS FILMS_LIKES;
+
+DROP table IF EXISTS FRIENDS;
+
+DROP table IF EXISTS GENRES_FILMS;
+
+DROP table IF EXISTS GENRES;
+
+DROP table IF EXISTS REVIEWS_USERS;
+
+DROP table IF EXISTS REVIEWS;
+
+DROP table IF EXISTS FILMS;
+
+DROP table IF EXISTS MPA;
+
+DROP table IF EXISTS USERS;
+
 CREATE TABLE IF NOT EXISTS mpa (
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     name VARCHAR(40) NOT NULL UNIQUE
@@ -43,3 +61,18 @@ CREATE TABLE IF NOT EXISTS friends (
     friend_id BIGINT NOT NULL REFERENCES users(id),
     PRIMARY KEY (user_id, friend_id)
     );
+
+CREATE TABLE IF NOT EXISTS reviews (
+    review_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    content VARCHAR(200),
+    isPositive BOOL,
+    user_id BIGINT NOT NULL REFERENCES users(id),
+    film_id BIGINT NOT NULL REFERENCES films(id)
+);
+
+CREATE TABLE IF NOT EXISTS reviews_users (
+    review_id BIGINT NOT NULL REFERENCES reviews(review_id),
+    user_id BIGINT NOT NULL REFERENCES users(id),
+    useful BIGINT,
+    PRIMARY KEY (review_id, user_id)
+);

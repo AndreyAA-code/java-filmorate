@@ -2,15 +2,17 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PathVariable;
 import ru.yandex.practicum.filmorate.dto.FilmDto;
 import ru.yandex.practicum.filmorate.mapper.FilmMapper;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
+import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.repository.*;
 
 import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -20,6 +22,7 @@ public class FilmService {
     public final UserRepository userRepository;
     public final MpaRepository mpaRepository;
     public final GenreRepository genreRepository;
+    public final ReviewRepository reviewRepository;
 
     public Collection<FilmDto> getAllFilms() {
         return filmRepository.getAllFilms()
@@ -48,7 +51,7 @@ public class FilmService {
         return FilmMapper.mapToFilmDto(filmRepository.likeFilmById(filmId, userId));
     }
 
-    public FilmDto deleteLikeUser(@PathVariable Long filmId, @PathVariable Long userId) {
+    public FilmDto deleteLikeUser(Long filmId, Long userId) {
         return FilmMapper.mapToFilmDto(filmRepository.deleteLikeUser(filmId, userId));
     }
 
@@ -73,6 +76,56 @@ public class FilmService {
 
     public Mpa getMpaById(Long id) {
         return mpaRepository.getMpaById(id);
+    }
+
+    public Review createReview(Review review) {
+        userRepository.getUserById(review.getUserId());
+        filmRepository.getFilmById(review.getFilmId());
+        return reviewRepository.createReview(review);
+    }
+
+    public Review updateReview(Review review) {
+        userRepository.getUserById(review.getUserId());
+        filmRepository.getFilmById(review.getFilmId());
+        return reviewRepository.updateReview(review);
+    }
+
+    public void deleteReview(Long reviewId) {
+        reviewRepository.deleteReview(reviewId);
+    }
+
+    public Review getReviewById(Long id) {
+        return reviewRepository.getReviewsById(id);
+    }
+
+    public List<Review> getReviews(Optional<Long> filmId, Long count) {
+        if (filmId.isPresent()) {
+        filmRepository.getFilmById(filmId.get());
+        }
+        if (count < 0) {
+            throw new IllegalArgumentException("count is negative");
+        }
+        return reviewRepository.getReviews(filmId, count);
+    }
+
+    public Review addLikeReview(Long reviewId, Long userId) {
+        userRepository.getUserById(userId);
+        return reviewRepository.addLikeReview(reviewId, userId);
+    }
+
+    public Review addDislikeReview(Long reviewId, Long userId) {
+        userRepository.getUserById(userId);
+        return reviewRepository.addDislikeReview(reviewId, userId);
+    }
+
+    public Review deleteLikeReview(Long reviewId, Long userId) {
+        userRepository.getUserById(userId);
+        return reviewRepository.deleteLikeReview(reviewId, userId);
+    }
+
+    public Review deleteDislikeReview(Long reviewId, Long userId) {
+        userRepository.getUserById(userId);
+        return reviewRepository.deleteDislikeReview(reviewId, userId);
     }
 
 }

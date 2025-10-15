@@ -96,7 +96,7 @@ public class DbFilmRepository implements FilmRepository {
 
     @Override
     public Film updateFilm(Film newFilm) {
-        Film film = new Film();
+        //Film film = new Film();
         checkFilmId(newFilm.getId());
         jdbc.update(UPDATE_FILM_QUERY, newFilm.getName(), newFilm.getDescription(), newFilm.getReleaseDate(), newFilm.getDuration(), newFilm.getId());
         newFilm.setGenres(dbGenreRepository.loadGenres(newFilm));

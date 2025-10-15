@@ -1,4 +1,4 @@
-MERGE INTO mpa (name) KEY (name)
+MERGE INTO mpa(name) KEY (name)
 VALUES
     ('G'),
     ('PG'),
