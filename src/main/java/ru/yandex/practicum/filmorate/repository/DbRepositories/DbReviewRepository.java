@@ -100,7 +100,7 @@ public class DbReviewRepository implements ReviewRepository {
     @Override
     public Review addLikeReview(Long reviewId, Long userId) {
         checkReviewId(reviewId);
-        if (checkIfLikeOrdislikeExists(reviewId, userId) == false) {
+        if (checkIfLikeOrDislikeExists(reviewId, userId) == false) {
             jdbc.update(ADD_LIKE_DISLIKE_TO_REVIEW_QUERY, reviewId, userId, 1);
         } else {
             jdbc.update(UPDATE_LIKE_DISLIKE_QUERY, 1, reviewId, userId);
@@ -110,14 +110,14 @@ public class DbReviewRepository implements ReviewRepository {
         return review;
     }
 
-    private boolean checkIfLikeOrdislikeExists(Long reviewId, Long userId) {
+    private boolean checkIfLikeOrDislikeExists(Long reviewId, Long userId) {
         return jdbc.queryForObject(IF_LIKE_DISLIKE_EXISTS_QUERY, Boolean.class, reviewId, userId);
     }
 
     @Override
     public Review addDislikeReview(Long reviewId, Long userId) {
         checkReviewId(reviewId);
-        if (checkIfLikeOrdislikeExists(reviewId, userId) == false) {
+        if (checkIfLikeOrDislikeExists(reviewId, userId) == false) {
             jdbc.update(ADD_LIKE_DISLIKE_TO_REVIEW_QUERY, reviewId, userId, -1);
         } else {
             jdbc.update(UPDATE_LIKE_DISLIKE_QUERY, -1, reviewId, userId);
