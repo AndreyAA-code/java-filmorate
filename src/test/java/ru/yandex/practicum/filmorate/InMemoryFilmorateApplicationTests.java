@@ -2,29 +2,8 @@ package ru.yandex.practicum.filmorate;
 
 import jakarta.validation.*;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.filmorate.controller.FilmController;
 import ru.yandex.practicum.filmorate.controller.UserController;
-import ru.yandex.practicum.filmorate.dto.FilmDto;
-import ru.yandex.practicum.filmorate.dto.UserDto;
-import ru.yandex.practicum.filmorate.mapper.UserMapper;
-import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.Mpa;
-import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.repository.*;
-import ru.yandex.practicum.filmorate.repository.InMemoryRepositories.InMemoryFilmRepository;
-import ru.yandex.practicum.filmorate.repository.InMemoryRepositories.InMemoryGenreRepository;
-import ru.yandex.practicum.filmorate.repository.InMemoryRepositories.InMemoryMpaRepository;
-import ru.yandex.practicum.filmorate.repository.InMemoryRepositories.InMemoryUserRepository;
-import ru.yandex.practicum.filmorate.service.FilmService;
-import ru.yandex.practicum.filmorate.service.UserService;
-
-import java.sql.Date;
-import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.Set;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 class InMemoryFilmorateApplicationTests {
 
