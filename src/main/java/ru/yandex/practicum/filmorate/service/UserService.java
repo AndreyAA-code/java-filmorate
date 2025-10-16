@@ -6,6 +6,7 @@ import ru.yandex.practicum.filmorate.dto.UserDto;
 import ru.yandex.practicum.filmorate.mapper.UserMapper;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.model.UserEvent;
+import ru.yandex.practicum.filmorate.repository.FeedRepository;
 import ru.yandex.practicum.filmorate.repository.UserRepository;
 
 import java.util.Collection;
@@ -18,6 +19,7 @@ import java.util.stream.Collectors;
 public class UserService {
 
     public final UserRepository userRepository;
+    public final FeedRepository feedRepository;
 
     public Collection<UserDto> getAllUsers() {
         return userRepository.getAllUsers()
@@ -70,7 +72,8 @@ public class UserService {
                 .collect(Collectors.toSet());
     }
 
-    public List<UserEvent> getUserFeeds(@Valid Long id) {
-        return null;
+    public List<UserEvent> getUserFeeds(Long id) {
+        userRepository.getUserById(id);
+        return feedRepository.getFeedForUser(id);
     }
 }

@@ -76,3 +76,12 @@ CREATE TABLE IF NOT EXISTS reviews_users (
     useful BIGINT,
     PRIMARY KEY (review_id, user_id)
 );
+
+CREATE TABLE IF NOT EXISTS user_events (
+    eventId BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    userId BIGINT NOT NULL,
+    entityId BIGINT NOT NULL,
+    eventType ENUM ('LIKE', 'REVIEW', 'FRIEND'),
+    operation ENUM ('REMOVE', 'ADD', 'UPDATE'),
+    timestamp BIGINT NOT NULL
+);
