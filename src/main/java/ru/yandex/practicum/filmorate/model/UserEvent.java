@@ -12,5 +12,5 @@ public class UserEvent {
     private Long userId;
     private EventType eventType;
     private Operation operation;
-    private Timestamp timestamp;
+    private Long timestamp;
 }

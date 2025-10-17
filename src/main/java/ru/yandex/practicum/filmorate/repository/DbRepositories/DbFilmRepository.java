@@ -31,6 +31,7 @@ public class DbFilmRepository implements FilmRepository {
     private final UserRowMapper userRowMapper;
     private final DbMpaRepository dbMpaRepository;
     private final DbGenreRepository dbGenreRepository;
+    private final DbFeedRepository dbFeedRepository;
 
     private static final String FIND_ALL_FILMS_QUERY = "SELECT films.*, mpa.name as mpa_name FROM films" +
             " LEFT JOIN mpa ON films.mpa_id = mpa.id ORDER BY films.id ASC;";
@@ -133,6 +134,7 @@ public class DbFilmRepository implements FilmRepository {
 
         jdbc.update(ADD_LIKE_TO_FILM_QUERY, userId, filmId);
         Film film = jdbc.queryForObject(FIND_FILM_BY_ID_QUERY, filmRowMapper, filmId);
+        dbFeedRepository.createUserEvent (userId,filmId,"LIKE","ADD");
         film.setLikes(loadLikes(filmId)
                 .stream()
                 .map(User::getId)
@@ -146,6 +148,7 @@ public class DbFilmRepository implements FilmRepository {
         checkUserId(userId);
         jdbc.update(DELETE_LIKE_FROM_FILM_QUERY, userId, filmId);
         Film film = jdbc.queryForObject(FIND_FILM_BY_ID_QUERY, filmRowMapper, filmId);
+        dbFeedRepository.createUserEvent (userId,filmId,"LIKE","REMOVE");
         film.setLikes(loadLikes(filmId)
                 .stream()
                 .map(User::getId)

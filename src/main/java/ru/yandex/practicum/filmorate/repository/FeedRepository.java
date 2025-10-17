@@ -7,4 +7,6 @@ import java.util.List;
 public interface FeedRepository {
 
     List<UserEvent> getFeedForUser(Long id);
+
+    void createUserEvent(Long id, Long friendId, String eventType, String operation);
 }
