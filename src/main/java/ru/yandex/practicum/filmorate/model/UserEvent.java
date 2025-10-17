@@ -1,9 +1,6 @@
 package ru.yandex.practicum.filmorate.model;
 
 import lombok.Data;
-import ru.yandex.practicum.filmorate.dto.FilmDto;
-
-import java.sql.Timestamp;
 
 @Data
 public class UserEvent {

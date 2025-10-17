@@ -13,6 +13,7 @@ import java.sql.SQLException;
 @AllArgsConstructor
 @Component
 public class UserEventRowMapper implements RowMapper<UserEvent> {
+
     @Override
     public UserEvent mapRow(ResultSet rs, int rowNum) throws SQLException {
         UserEvent userEvent = new UserEvent();
