@@ -63,7 +63,7 @@ public class DbReviewRepository implements ReviewRepository {
         Long generatedId = keyHolder.getKey().longValue();
         review.setReviewId(generatedId);
         review.setUseful(0L);
-        dbFeedRepository.createUserEvent (review.getUserId(),review.getFilmId(),"REVIEW","ADD");
+        dbFeedRepository.createUserEvent (review.getUserId(),review.getReviewId(),"REVIEW","ADD");
         return review;
     }
 
@@ -72,7 +72,7 @@ public class DbReviewRepository implements ReviewRepository {
         jdbc.update(UPDATE_REVIEW_QUERY, newReview.getContent(), newReview.getIsPositive(), newReview.getUserId(),
                 newReview.getFilmId(), newReview.getReviewId());
         jdbc.update(DELETE_ALL_LIKES_DISLIKES_FOR_REVIEW, newReview.getReviewId());
-        dbFeedRepository.createUserEvent (newReview.getUserId(),newReview.getFilmId(),"REVIEW","UPDATE");
+        dbFeedRepository.createUserEvent (newReview.getUserId(),newReview.getReviewId(),"REVIEW","UPDATE");
         return newReview;
     }
 
@@ -80,9 +80,9 @@ public class DbReviewRepository implements ReviewRepository {
     public void deleteReview(Long reviewId) {
         checkReviewId(reviewId);
         Review review = jdbc.queryForObject(FIND_REVIEW_BY_ID_QUERY, mapper, reviewId);
+        dbFeedRepository.createUserEvent (review.getUserId(),review.getReviewId(),"REVIEW","REMOVE");
         jdbc.update(DELETE_REVIEW_QUERY, reviewId);
         jdbc.update(DELETE_ALL_LIKES_DISLIKES_FOR_REVIEW, reviewId);
-        dbFeedRepository.createUserEvent (review.getUserId(),review.getFilmId(),"REVIEW","REMOVE");
     }
 
     @Override
@@ -106,7 +106,7 @@ public class DbReviewRepository implements ReviewRepository {
     @Override
     public Review addLikeReview(Long reviewId, Long userId) {
         checkReviewId(reviewId);
-        if (checkIfLikeOrDislikeExists(reviewId, userId) == false) {
+        if (!checkIfLikeOrDislikeExists(reviewId, userId)) {
             jdbc.update(ADD_LIKE_DISLIKE_TO_REVIEW_QUERY, reviewId, userId, 1);
         } else {
             jdbc.update(UPDATE_LIKE_DISLIKE_QUERY, 1, reviewId, userId);
@@ -123,7 +123,7 @@ public class DbReviewRepository implements ReviewRepository {
     @Override
     public Review addDislikeReview(Long reviewId, Long userId) {
         checkReviewId(reviewId);
-        if (checkIfLikeOrDislikeExists(reviewId, userId) == false) {
+        if (!checkIfLikeOrDislikeExists(reviewId, userId)) {
             jdbc.update(ADD_LIKE_DISLIKE_TO_REVIEW_QUERY, reviewId, userId, -1);
         } else {
             jdbc.update(UPDATE_LIKE_DISLIKE_QUERY, -1, reviewId, userId);

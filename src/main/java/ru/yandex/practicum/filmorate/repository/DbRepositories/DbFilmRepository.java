@@ -123,7 +123,9 @@ public class DbFilmRepository implements FilmRepository {
     @Override
     public Film deleteFilmById(Long id) {
         checkFilmId(id);
-        Film film = jdbc.queryForObject(DELETE_FILM_QUERY, filmRowMapper, id);
+        Film film = jdbc.queryForObject(FIND_FILM_BY_ID_QUERY, filmRowMapper, id);
+        jdbc.update(DELETE_FILM_QUERY, id);
+
         return film;
     }
 
@@ -134,11 +136,11 @@ public class DbFilmRepository implements FilmRepository {
 
         jdbc.update(ADD_LIKE_TO_FILM_QUERY, userId, filmId);
         Film film = jdbc.queryForObject(FIND_FILM_BY_ID_QUERY, filmRowMapper, filmId);
-        dbFeedRepository.createUserEvent (userId,filmId,"LIKE","ADD");
         film.setLikes(loadLikes(filmId)
                 .stream()
                 .map(User::getId)
                 .collect(Collectors.toSet()));
+        dbFeedRepository.createUserEvent (userId,filmId,"LIKE","ADD");
         return film;
     }
 
@@ -146,9 +148,9 @@ public class DbFilmRepository implements FilmRepository {
     public Film deleteLikeUser(Long filmId, Long userId) {
         checkFilmId(filmId);
         checkUserId(userId);
+        dbFeedRepository.createUserEvent (userId,filmId,"LIKE","REMOVE");
         jdbc.update(DELETE_LIKE_FROM_FILM_QUERY, userId, filmId);
         Film film = jdbc.queryForObject(FIND_FILM_BY_ID_QUERY, filmRowMapper, filmId);
-        dbFeedRepository.createUserEvent (userId,filmId,"LIKE","REMOVE");
         film.setLikes(loadLikes(filmId)
                 .stream()
                 .map(User::getId)

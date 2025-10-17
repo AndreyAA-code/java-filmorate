@@ -42,8 +42,10 @@ public class DbFeedRepository implements FeedRepository {
             return ps;
         }, keyHolder);
         Long generatedId = keyHolder.getKey().longValue();
-      //  userEvent.setEventId(generatedId);
-       // return userEvent;
+        System.out.println("Creating event - userId: " + userId +
+                ", entityId: " + entityId +
+                ", type: " + eventType +
+                ", operation: " + operation);
     }
 
 }
