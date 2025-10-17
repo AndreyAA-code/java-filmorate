@@ -17,6 +17,7 @@ public class FilmMapper {
                 .likes(film.getLikes())
                 .mpa(film.getMpa())
                 .genres(film.getGenres())
+                .directors(film.getDirectors())
                 .build();
     }
 }

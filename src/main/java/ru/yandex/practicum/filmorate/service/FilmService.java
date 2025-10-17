@@ -4,10 +4,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dto.FilmDto;
 import ru.yandex.practicum.filmorate.mapper.FilmMapper;
-import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.Genre;
-import ru.yandex.practicum.filmorate.model.Mpa;
-import ru.yandex.practicum.filmorate.model.Review;
+import ru.yandex.practicum.filmorate.model.*;
 import ru.yandex.practicum.filmorate.repository.*;
 
 import java.util.Collection;
@@ -23,6 +20,7 @@ public class FilmService {
     public final MpaRepository mpaRepository;
     public final GenreRepository genreRepository;
     public final ReviewRepository reviewRepository;
+    public final DirectorRepository directorRepository;
 
     public Collection<FilmDto> getAllFilms() {
         return filmRepository.getAllFilms()
@@ -100,7 +98,7 @@ public class FilmService {
 
     public List<Review> getReviews(Optional<Long> filmId, Long count) {
         if (filmId.isPresent()) {
-        filmRepository.getFilmById(filmId.get());
+            filmRepository.getFilmById(filmId.get());
         }
         if (count < 0) {
             throw new IllegalArgumentException("count is negative");
@@ -126,6 +124,33 @@ public class FilmService {
     public Review deleteDislikeReview(Long reviewId, Long userId) {
         userRepository.getUserById(userId);
         return reviewRepository.deleteDislikeReview(reviewId, userId);
+    }
+
+    public Collection<Director> getDirectors() {
+        return directorRepository.getDirectors();
+    }
+
+    public Director getDirectorById(Long id) {
+        return directorRepository.getDirectorById(id);
+    }
+
+    public Director createDirector(Director director) {
+        return directorRepository.createDirector(director);
+    }
+
+    public Director updateDirector(Director director) {
+        return directorRepository.updateDirector(director);
+    }
+
+    public void deleteDirector(Long id) {
+        directorRepository.deleteDirector(id);
+    }
+
+    public Collection<FilmDto> getFilmsByDirector(Long directorId, String sortBy) {
+          return directorRepository.getFilmsByDirector(directorId, sortBy)
+                .stream()
+                .map(FilmMapper::mapToFilmDto)
+                .collect(Collectors.toList());
     }
 
 }
