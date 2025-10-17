@@ -1,5 +1,4 @@
 package ru.yandex.practicum.filmorate.service;
-import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dto.UserDto;
