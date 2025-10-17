@@ -144,7 +144,7 @@ public class DbFilmRepository implements FilmRepository {
                 .stream()
                 .map(User::getId)
                 .collect(Collectors.toSet()));
-        dbFeedRepository.createUserEvent (userId,filmId,LIKE,ADD);
+        dbFeedRepository.createUserEvent(userId,filmId,LIKE,ADD);
         return film;
     }
 
@@ -152,7 +152,7 @@ public class DbFilmRepository implements FilmRepository {
     public Film deleteLikeUser(Long filmId, Long userId) {
         checkFilmId(filmId);
         checkUserId(userId);
-        dbFeedRepository.createUserEvent (userId,filmId,LIKE,REMOVE);
+        dbFeedRepository.createUserEvent(userId,filmId,LIKE,REMOVE);
         jdbc.update(DELETE_LIKE_FROM_FILM_QUERY, userId, filmId);
         Film film = jdbc.queryForObject(FIND_FILM_BY_ID_QUERY, filmRowMapper, filmId);
         film.setLikes(loadLikes(filmId)
