@@ -22,11 +22,9 @@ import static ru.yandex.practicum.filmorate.model.Operation.*;
 @AllArgsConstructor
 @Primary
 public class DbReviewRepository implements ReviewRepository {
-
-    DbFeedRepository dbFeedRepository;
-
     private final JdbcTemplate jdbc;
     private final ReviewRowMapper mapper;
+    DbFeedRepository dbFeedRepository;
 
     private static final String FIND_REVIEW_BY_ID_QUERY = "SELECT * FROM reviews WHERE review_id = ?";
     private static final String CREATE_REVIEW_QUERY = "INSERT INTO reviews (content, isPositive, user_id, film_id) VALUES (?, ?, ?, ?)";
