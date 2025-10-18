@@ -74,7 +74,6 @@ class FilmorateApplicationTests {
         FilmRepository filmRepository = new DbFilmRepository(jdbcTemplate, filmRowMapper, userRowMapper, dbMpaRepository, dbGenreRepository, dbDirectorRepository, dbFeedRepository);
         FilmService filmService = new FilmService(filmRepository, userRepository, dbMpaRepository, dbGenreRepository, dbReviewRepository, dbDirectorRepository, dbFeedRepository);
         UserService userService = new UserService(userRepository, dbFeedRepository);
-      
         filmController = new FilmController(filmService);
         userController = new UserController(userService);
     }
