@@ -111,7 +111,10 @@ public class InMemoryFilmRepository implements FilmRepository {
                 .collect(Collectors.toList());
     }
 
-
+    @Override
+    public Collection<Film> getFilmsByDirector(Long directorId, String sortBy) {
+        return List.of();
+    }
 
     public Long getNextId() {
         long maxID = films.keySet()

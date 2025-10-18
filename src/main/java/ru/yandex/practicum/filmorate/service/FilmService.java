@@ -147,7 +147,7 @@ public class FilmService {
     }
 
     public Collection<FilmDto> getFilmsByDirector(Long directorId, String sortBy) {
-          return directorRepository.getFilmsByDirector(directorId, sortBy)
+        return filmRepository.getFilmsByDirector(directorId, sortBy)
                 .stream()
                 .map(FilmMapper::mapToFilmDto)
                 .collect(Collectors.toList());

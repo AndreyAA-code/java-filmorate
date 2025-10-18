@@ -7,12 +7,14 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
+import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.repository.FilmRepository;
 import ru.yandex.practicum.filmorate.repository.mappers.FilmRowMapper;
 import ru.yandex.practicum.filmorate.repository.mappers.UserRowMapper;
+
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.util.Collection;
@@ -31,6 +33,7 @@ public class DbFilmRepository implements FilmRepository {
     private final UserRowMapper userRowMapper;
     private final DbMpaRepository dbMpaRepository;
     private final DbGenreRepository dbGenreRepository;
+    private final DbDirectorRepository dbDirectorRepository;
 
     private static final String FIND_ALL_FILMS_QUERY = "SELECT films.*, mpa.name as mpa_name FROM films" +
             " LEFT JOIN mpa ON films.mpa_id = mpa.id ORDER BY films.id ASC;";
@@ -51,7 +54,17 @@ public class DbFilmRepository implements FilmRepository {
     private static final String ADD_FILM_QUERY = "INSERT INTO films (name, description, release_date, duration, mpa_id)" +
             " VALUES (?, ?, ?, ?, ?)";
     private static final String ADD_GENRES_TO_FILM_QUERY = "INSERT INTO genres_films (genre_id, film_id) VALUES (?, ?)";
-
+    private static final String ADD_DIRECTORS_TO_FILM_QUERY = "INSERT INTO directors_films (director_id, film_id) VALUES (?, ?)";
+    private static final String DELETE_FILM_DIRECTORS_QUERY = "DELETE FROM directors_films WHERE film_id = ?";
+    private static final String GET_FILMS_BY_DIRECTOR_QUERY_YEAR_SORTED = "SELECT f.*, m.name as mpa_name " +
+            "FROM films f LEFT JOIN mpa m ON f.mpa_id = m.id " +
+            "JOIN directors_films df ON f.id = df.film_id " +
+            "WHERE df.director_id = ? ORDER BY f.release_date";
+    private static final String GET_FILMS_BY_DIRECTOR_QUERY_LIKES_SORTED = "SELECT f.*, m.name as mpa_name " +
+            "FROM films f LEFT JOIN mpa m ON f.mpa_id = m.id " +
+            "LEFT JOIN films_likes fl ON f.id = fl.film_id " +
+            "JOIN directors_films df ON f.id = df.film_id " +
+            "WHERE df.director_id = ? GROUP BY f.id ORDER BY COUNT(fl.user_id) DESC";
 
     @Override
     public Film addFilm(Film film) {
@@ -78,6 +91,13 @@ public class DbFilmRepository implements FilmRepository {
         if (!(film.getMpa() == null)) {
             film.setMpa(dbMpaRepository.getMpaById(film.getMpa().getId()));
         }
+        if (!(film.getDirectors() == null)) {
+            for (Director director : film.getDirectors()) {
+                dbDirectorRepository.checkDirectorId(director.getId());
+                jdbc.update(ADD_DIRECTORS_TO_FILM_QUERY, director.getId(), film.getId());
+            }
+            film.setDirectors(dbDirectorRepository.loadDirectors(film.getId()));
+        }
         return film;
     }
 
@@ -86,6 +106,7 @@ public class DbFilmRepository implements FilmRepository {
         List<Film> films = jdbc.query(FIND_ALL_FILMS_QUERY, filmRowMapper);
         for (Film film : films) {
             film.setGenres(dbGenreRepository.loadGenres(film));
+            film.setDirectors(dbDirectorRepository.loadDirectors(film.getId()));
             film.setLikes(loadLikes(film.getId())
                     .stream()
                     .map(user -> user.getId())
@@ -96,10 +117,18 @@ public class DbFilmRepository implements FilmRepository {
 
     @Override
     public Film updateFilm(Film newFilm) {
-        //Film film = new Film();
         checkFilmId(newFilm.getId());
         jdbc.update(UPDATE_FILM_QUERY, newFilm.getName(), newFilm.getDescription(), newFilm.getReleaseDate(), newFilm.getDuration(), newFilm.getId());
+        if (!(newFilm.getDirectors() == null)) {
+            jdbc.update(DELETE_FILM_DIRECTORS_QUERY, newFilm.getId());
+            for (Director director : newFilm.getDirectors()) {
+                dbDirectorRepository.checkDirectorId(director.getId());
+                jdbc.update(ADD_DIRECTORS_TO_FILM_QUERY, director.getId(), newFilm.getId());
+            }
+            newFilm.setDirectors(dbDirectorRepository.loadDirectors(newFilm.getId()));
+        }
         newFilm.setGenres(dbGenreRepository.loadGenres(newFilm));
+        newFilm.setDirectors(dbDirectorRepository.loadDirectors(newFilm.getId()));
         newFilm.setMpa(dbMpaRepository.getMpaById(newFilm.getMpa().getId()));
         newFilm.setLikes(loadLikes(newFilm.getId()).stream().map(user -> user.getId()).collect(Collectors.toSet()));
         return newFilm;
@@ -112,6 +141,7 @@ public class DbFilmRepository implements FilmRepository {
         if (!(dbGenreRepository.loadGenres(film).size() == 0)) {
             film.setGenres(dbGenreRepository.loadGenres(film));
         }
+        film.setDirectors(dbDirectorRepository.loadDirectors(id));
         film.setLikes(loadLikes(id)
                 .stream()
                 .map(User::getId)
@@ -157,6 +187,28 @@ public class DbFilmRepository implements FilmRepository {
     public Collection<Film> getPopularFilms(Long count) {
         List<Film> popularFilms = jdbc.query(GET_POPULAR_FILMS_QUERY, filmRowMapper, count);
         return popularFilms;
+    }
+
+    @Override
+    public Collection<Film> getFilmsByDirector(Long directorId, String sortBy) {
+        dbDirectorRepository.checkDirectorId(directorId);
+        List<Film> filmsByDirector;
+        switch (sortBy) {
+            case "year" ->
+                    filmsByDirector = jdbc.query(GET_FILMS_BY_DIRECTOR_QUERY_YEAR_SORTED, filmRowMapper, directorId);
+            case "likes" ->
+                    filmsByDirector = jdbc.query(GET_FILMS_BY_DIRECTOR_QUERY_LIKES_SORTED, filmRowMapper, directorId);
+            default -> throw new NotFoundException("unknown request parameter");
+        }
+        for (Film film : filmsByDirector) {
+            film.setGenres(dbGenreRepository.loadGenres(film));
+            film.setDirectors(dbDirectorRepository.loadDirectors(film.getId()));
+            film.setLikes(loadLikes(film.getId())
+                    .stream()
+                    .map(User::getId)
+                    .collect(Collectors.toSet()));
+        }
+        return filmsByDirector;
     }
 
     private void checkFilmId(Long id) {
