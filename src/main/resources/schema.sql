@@ -17,6 +17,8 @@ DROP table IF EXISTS MPA;
 
 DROP table IF EXISTS USERS;
 
+DROP table IF EXISTS user_events;
+
 CREATE TABLE IF NOT EXISTS mpa (
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     name VARCHAR(40) NOT NULL UNIQUE
@@ -75,4 +77,13 @@ CREATE TABLE IF NOT EXISTS reviews_users (
     user_id BIGINT NOT NULL REFERENCES users(id),
     useful BIGINT,
     PRIMARY KEY (review_id, user_id)
+);
+
+CREATE TABLE IF NOT EXISTS user_events (
+    eventId BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    userId BIGINT NOT NULL,
+    entityId BIGINT NOT NULL,
+    eventType ENUM ('LIKE', 'REVIEW', 'FRIEND'),
+    operation ENUM ('REMOVE', 'ADD', 'UPDATE'),
+    timestamp BIGINT NOT NULL
 );

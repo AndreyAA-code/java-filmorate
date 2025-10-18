@@ -19,12 +19,17 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static ru.yandex.practicum.filmorate.model.EventType.FRIEND;
+import static ru.yandex.practicum.filmorate.model.Operation.ADD;
+import static ru.yandex.practicum.filmorate.model.Operation.REMOVE;
+
 @Repository
 @AllArgsConstructor
 @Primary
 public class DbUserRepository implements UserRepository {
     private JdbcTemplate jdbc;
     private final UserRowMapper mapper;
+    private final DbFeedRepository dbFeedRepository;
 
     private static final String FIND_ALL_USERS_QUERY = "SELECT * FROM users ORDER BY id ASC";
     private static final String FIND_USERS_BY_ID_QUERY = "SELECT * FROM users WHERE id = ?";
@@ -115,6 +120,7 @@ public class DbUserRepository implements UserRepository {
         checkUserId(friendId);
 
         jdbc.update(ADD_USER_FRIEND_QUERY, id, friendId);
+        dbFeedRepository.createUserEvent(id,friendId,FRIEND,ADD);
         List<User> users = jdbc.query(FIND_USERS_BY_ID_QUERY, mapper, id);
         return users;
     }
@@ -125,6 +131,7 @@ public class DbUserRepository implements UserRepository {
         checkUserId(friendId);
 
         jdbc.update(DELETE_USER_FRIEND_QUERY, id, friendId);
+        dbFeedRepository.createUserEvent(id,friendId,FRIEND,REMOVE);
         List<User> users = jdbc.query(FIND_USER_FRIENDS_QUERY, mapper, id);
         return users;
     }
