@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.repository;
 
 import ru.yandex.practicum.filmorate.model.Film;
+
 import java.util.Collection;
 
 public interface FilmRepository {
@@ -20,5 +21,7 @@ public interface FilmRepository {
     Film deleteLikeUser(Long filmId, Long userId);
 
     Collection<Film> getPopularFilms(Long count);
+
+    Collection<Film> getFilmsByDirector(Long directorId, String sortBy);
 
 }
