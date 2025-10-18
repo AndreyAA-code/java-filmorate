@@ -23,6 +23,10 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static ru.yandex.practicum.filmorate.model.EventType.LIKE;
+import static ru.yandex.practicum.filmorate.model.Operation.ADD;
+import static ru.yandex.practicum.filmorate.model.Operation.REMOVE;
+
 @Repository
 @AllArgsConstructor
 @Primary
@@ -34,6 +38,7 @@ public class DbFilmRepository implements FilmRepository {
     private final DbMpaRepository dbMpaRepository;
     private final DbGenreRepository dbGenreRepository;
     private final DbDirectorRepository dbDirectorRepository;
+    private final DbFeedRepository dbFeedRepository;
 
     private static final String FIND_ALL_FILMS_QUERY = "SELECT films.*, mpa.name as mpa_name FROM films" +
             " LEFT JOIN mpa ON films.mpa_id = mpa.id ORDER BY films.id ASC;";
@@ -152,7 +157,9 @@ public class DbFilmRepository implements FilmRepository {
     @Override
     public Film deleteFilmById(Long id) {
         checkFilmId(id);
-        Film film = jdbc.queryForObject(DELETE_FILM_QUERY, filmRowMapper, id);
+        Film film = jdbc.queryForObject(FIND_FILM_BY_ID_QUERY, filmRowMapper, id);
+        jdbc.update(DELETE_FILM_QUERY, id);
+
         return film;
     }
 
@@ -167,6 +174,7 @@ public class DbFilmRepository implements FilmRepository {
                 .stream()
                 .map(User::getId)
                 .collect(Collectors.toSet()));
+        dbFeedRepository.createUserEvent(userId,filmId,LIKE,ADD);
         return film;
     }
 
@@ -174,6 +182,7 @@ public class DbFilmRepository implements FilmRepository {
     public Film deleteLikeUser(Long filmId, Long userId) {
         checkFilmId(filmId);
         checkUserId(userId);
+        dbFeedRepository.createUserEvent(userId,filmId,LIKE,REMOVE);
         jdbc.update(DELETE_LIKE_FROM_FILM_QUERY, userId, filmId);
         Film film = jdbc.queryForObject(FIND_FILM_BY_ID_QUERY, filmRowMapper, filmId);
         film.setLikes(loadLikes(filmId)

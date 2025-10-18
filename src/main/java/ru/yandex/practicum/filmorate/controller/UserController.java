@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.dto.UserDto;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.model.UserEvent;
 import ru.yandex.practicum.filmorate.service.UserService;
 
 import java.util.Collection;
@@ -63,4 +64,8 @@ public class UserController {
         return userService.getCommonFriends(id, otherId);
     }
 
+    @GetMapping ("/{id}/feed")
+    public List<UserEvent> getUserFeeds(@Valid @PathVariable Long id) {
+        return userService.getUserFeeds(id);
+    }
 }

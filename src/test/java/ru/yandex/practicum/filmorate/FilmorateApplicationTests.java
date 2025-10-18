@@ -38,8 +38,8 @@ import static org.junit.jupiter.api.Assertions.*;
 @JdbcTest
 @AutoConfigureTestDatabase
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
-@Import({DbUserRepository.class, DbFilmRepository.class, DbMpaRepository.class, DbGenreRepository.class, UserRowMapper.class,
-        FilmRowMapper.class, GenreRowMapper.class, MpaRowMapper.class, DirectorRowMapper.class, DbDirectorRepository.class})
+@Import({DbUserRepository.class, DbFilmRepository.class, DbMpaRepository.class, DbGenreRepository.class, DbFeedRepository.class, DbReviewRepository.class, UserRowMapper.class,
+        FilmRowMapper.class, GenreRowMapper.class, MpaRowMapper.class, DirectorRowMapper.class, DbDirectorRepository.class, ReviewRowMapper.class, UserEventRowMapper.class})
 class FilmorateApplicationTests {
 
     private final DbUserRepository dbUserRepository;
@@ -63,15 +63,18 @@ class FilmorateApplicationTests {
         final MpaRowMapper mpaRowMapper = new MpaRowMapper();
         final ReviewRowMapper reviewRowMapper = new ReviewRowMapper();
         final DirectorRowMapper directorRowMapper = new DirectorRowMapper();
+        final UserEventRowMapper userEventRowMapper = new UserEventRowMapper();
 
         DbMpaRepository dbMpaRepository = new DbMpaRepository(jdbcTemplate, mpaRowMapper);
         DbGenreRepository dbGenreRepository = new DbGenreRepository(jdbcTemplate, genreRowMapper);
         DbDirectorRepository dbDirectorRepository = new DbDirectorRepository(jdbcTemplate, directorRowMapper);
-        UserRepository userRepository = new DbUserRepository(jdbcTemplate, userRowMapper);
-        ReviewRepository dbReviewRepository = new DbReviewRepository(jdbcTemplate, reviewRowMapper);
-        FilmRepository filmRepository = new DbFilmRepository(jdbcTemplate, filmRowMapper, userRowMapper, dbMpaRepository, dbGenreRepository, dbDirectorRepository);
-        FilmService filmService = new FilmService(filmRepository, userRepository, dbMpaRepository, dbGenreRepository, dbReviewRepository, dbDirectorRepository);
-        UserService userService = new UserService(userRepository);
+        DbFeedRepository dbFeedRepository = new DbFeedRepository(jdbcTemplate, userEventRowMapper);
+        UserRepository userRepository = new DbUserRepository(jdbcTemplate, userRowMapper, dbFeedRepository));
+        ReviewRepository dbReviewRepository = new DbReviewRepository(jdbcTemplate, reviewRowMapper, dbFeedRepository);
+        FilmRepository filmRepository = new DbFilmRepository(jdbcTemplate, filmRowMapper, userRowMapper, dbMpaRepository, dbGenreRepository, dbDirectorRepository, dbFeedRepository);
+        FilmService filmService = new FilmService(filmRepository, userRepository, dbMpaRepository, dbGenreRepository, dbReviewRepository, dbDirectorRepository, dbFeedRepository);
+        UserService userService = new UserService(userRepository, dbFeedRepository);
+      
         filmController = new FilmController(filmService);
         userController = new UserController(userService);
     }
