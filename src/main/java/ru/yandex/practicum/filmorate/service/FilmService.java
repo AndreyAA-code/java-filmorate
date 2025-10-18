@@ -21,6 +21,7 @@ public class FilmService {
     public final GenreRepository genreRepository;
     public final ReviewRepository reviewRepository;
     public final DirectorRepository directorRepository;
+public final FeedRepository feedRepository;
 
     public Collection<FilmDto> getAllFilms() {
         return filmRepository.getAllFilms()
