@@ -10,6 +10,7 @@ import ru.yandex.practicum.filmorate.service.UserService;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Repository
 @AllArgsConstructor
@@ -114,6 +115,40 @@ public class InMemoryFilmRepository implements FilmRepository {
     @Override
     public Collection<Film> getFilmsByDirector(Long directorId, String sortBy) {
         return List.of();
+    }
+
+    @Override
+    public Collection<Film> getFilmsBySearch(String query, String by) {
+        if (query == null) query = "";
+        if (by == null) by = "";
+        String normBy = by.trim().toLowerCase();
+
+        if (!normBy.equals("title") && !normBy.equals("director") && !normBy.equals("title,director")) {
+            return List.of();
+        }
+
+        final String q = query.toLowerCase();
+
+        Stream<Film> stream = films.values().stream();
+        if (normBy.equals("title")) {
+            stream = stream.filter(f -> f.getName() != null && f.getName().toLowerCase().contains(q));
+        } else if (normBy.equals("director")) {
+            stream = stream.filter(f ->
+                    f.getDirectors() != null &&
+                            f.getDirectors().stream().anyMatch(d -> d.getName() != null && d.getName().toLowerCase().contains(q))
+            );
+        } else {
+            stream = stream.filter(f -> {
+                boolean byTitle = f.getName() != null && f.getName().toLowerCase().contains(q);
+                boolean byDirector = f.getDirectors() != null &&
+                        f.getDirectors().stream().anyMatch(d -> d.getName() != null && d.getName().toLowerCase().contains(q));
+                return byTitle || byDirector;
+            });
+        }
+
+        return stream
+                .sorted(Comparator.comparingInt((Film f) -> f.getLikes() != null ? f.getLikes().size() : 0).reversed())
+                .collect(Collectors.toList());
     }
 
     public Long getNextId() {

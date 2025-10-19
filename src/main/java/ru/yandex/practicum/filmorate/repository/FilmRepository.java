@@ -10,6 +10,7 @@ public interface FilmRepository {
 
     Collection<Film> getAllFilms();
 
+
     Film updateFilm(Film film);
 
     Film getFilmById(Long id);
@@ -23,5 +24,7 @@ public interface FilmRepository {
     Collection<Film> getPopularFilms(Long count);
 
     Collection<Film> getFilmsByDirector(Long directorId, String sortBy);
+
+    Collection<Film> getFilmsBySearch(String query, String by);
 
 }
