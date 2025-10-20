@@ -56,6 +56,7 @@ public class DbFilmRepository implements FilmRepository {
     private static final String ADD_FILM_QUERY = "INSERT INTO films (name, description, release_date, duration, mpa_id)" +
             " VALUES (?, ?, ?, ?, ?)";
     private static final String ADD_GENRES_TO_FILM_QUERY = "INSERT INTO genres_films (genre_id, film_id) VALUES (?, ?)";
+    private static final String DELETE_FILM_GENRES_QUERY = "DELETE FROM genres_films WHERE film_id = ?;";
     private static final String ADD_DIRECTORS_TO_FILM_QUERY = "INSERT INTO directors_films (director_id, film_id) VALUES (?, ?)";
     private static final String DELETE_FILM_DIRECTORS_QUERY = "DELETE FROM directors_films WHERE film_id = ?";
     private static final String GET_FILMS_BY_DIRECTOR_QUERY_YEAR_SORTED = "SELECT f.*, m.name as mpa_name " +
@@ -148,6 +149,13 @@ public class DbFilmRepository implements FilmRepository {
                 jdbc.update(ADD_DIRECTORS_TO_FILM_QUERY, director.getId(), newFilm.getId());
             }
             newFilm.setDirectors(dbDirectorRepository.loadDirectors(newFilm.getId()));
+        }
+        if (!(newFilm.getGenres() == null)) {
+            jdbc.update(DELETE_FILM_GENRES_QUERY, newFilm.getId());
+            for (Genre genre : newFilm.getGenres()) {
+                dbGenreRepository.checkGenreId(genre.getId());
+                jdbc.update(ADD_GENRES_TO_FILM_QUERY, genre.getId(), newFilm.getId());
+            }
         }
         newFilm.setGenres(dbGenreRepository.loadGenres(newFilm));
         newFilm.setDirectors(dbDirectorRepository.loadDirectors(newFilm.getId()));
