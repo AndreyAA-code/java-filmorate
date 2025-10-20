@@ -17,10 +17,7 @@ import ru.yandex.practicum.filmorate.repository.mappers.UserRowMapper;
 
 import java.sql.Date;
 import java.sql.PreparedStatement;
-import java.util.Collection;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static ru.yandex.practicum.filmorate.model.EventType.LIKE;
@@ -70,6 +67,26 @@ public class DbFilmRepository implements FilmRepository {
             "LEFT JOIN films_likes fl ON f.id = fl.film_id " +
             "JOIN directors_films df ON f.id = df.film_id " +
             "WHERE df.director_id = ? GROUP BY f.id ORDER BY COUNT(fl.user_id) DESC";
+
+    private static final String BASE_SEARCH_SQL =
+            "SELECT f.*, m.name AS mpa_name, COUNT(fl.film_id) AS likes_count " +
+                    "FROM films f " +
+                    "LEFT JOIN films_likes fl ON f.id = fl.film_id " +
+                    "LEFT JOIN mpa m ON m.id = f.mpa_id " +
+                    "LEFT JOIN directors_films df ON f.id = df.film_id " +
+                    "LEFT JOIN directors d ON df.director_id = d.id ";
+
+    private static final String LOAD_GENRES_BY_FILM_IDS_SQL_PREFIX =
+            "SELECT gf.film_id, g.id, g.name " +
+                    "FROM genres_films gf " +
+                    "JOIN genres g ON g.id = gf.genre_id " +
+                    "WHERE gf.film_id IN (";
+
+    private static final String LOAD_DIRECTORS_BY_FILM_IDS_SQL_PREFIX =
+            "SELECT df.film_id, d.id, d.name " +
+                    "FROM directors_films df " +
+                    "JOIN directors d ON d.id = df.director_id " +
+                    "WHERE df.film_id IN (";
 
     @Override
     public Film addFilm(Film film) {
@@ -174,7 +191,7 @@ public class DbFilmRepository implements FilmRepository {
                 .stream()
                 .map(User::getId)
                 .collect(Collectors.toSet()));
-        dbFeedRepository.createUserEvent(userId,filmId,LIKE,ADD);
+        dbFeedRepository.createUserEvent(userId, filmId, LIKE, ADD);
         return film;
     }
 
@@ -182,7 +199,7 @@ public class DbFilmRepository implements FilmRepository {
     public Film deleteLikeUser(Long filmId, Long userId) {
         checkFilmId(filmId);
         checkUserId(userId);
-        dbFeedRepository.createUserEvent(userId,filmId,LIKE,REMOVE);
+        dbFeedRepository.createUserEvent(userId, filmId, LIKE, REMOVE);
         jdbc.update(DELETE_LIKE_FROM_FILM_QUERY, userId, filmId);
         Film film = jdbc.queryForObject(FIND_FILM_BY_ID_QUERY, filmRowMapper, filmId);
         film.setLikes(loadLikes(filmId)
@@ -218,6 +235,83 @@ public class DbFilmRepository implements FilmRepository {
                     .collect(Collectors.toSet()));
         }
         return filmsByDirector;
+    }
+
+    @Override
+    public Collection<Film> getFilmsBySearch(String query, String by) {
+        if (query == null) query = "";
+        if (by == null) by = "";
+        String normBy = by.trim().toLowerCase();
+
+        if (!normBy.equals("title") && !normBy.equals("director") && !normBy.equals("title,director")) {
+            return List.of();
+        }
+
+        StringBuilder sql = new StringBuilder(BASE_SEARCH_SQL);
+
+        List<Object> params = new ArrayList<>();
+        if (normBy.equals("title")) {
+            sql.append("WHERE LOWER(f.name) LIKE LOWER(?) ");
+            params.add("%" + query + "%");
+        } else if (normBy.equals("director")) {
+            sql.append("WHERE LOWER(d.name) LIKE LOWER(?) ");
+            params.add("%" + query + "%");
+        } else {
+            sql.append("WHERE LOWER(f.name) LIKE LOWER(?) OR LOWER(d.name) LIKE LOWER(?) ");
+            params.add("%" + query + "%");
+            params.add("%" + query + "%");
+        }
+
+        sql.append("GROUP BY f.id, m.id, m.name ")
+                .append("ORDER BY likes_count DESC ");
+
+        List<Film> films = jdbc.query(sql.toString(), params.toArray(), filmRowMapper);
+
+        if (films.isEmpty()) return films;
+
+        List<Long> ids = films.stream().map(Film::getId).collect(Collectors.toList());
+        Map<Long, List<Genre>> genresByFilm = loadGenresByFilmIds(ids);
+        Map<Long, List<Director>> directorsByFilm = loadDirectorsByFilmIds(ids);
+
+        for (Film f : films) {
+            List<Genre> gList = genresByFilm.get(f.getId());
+            List<Director> dList = directorsByFilm.get(f.getId());
+
+            f.setGenres(gList == null ? Collections.emptySet() : new LinkedHashSet<>(gList));
+            f.setDirectors(dList == null ? Collections.emptySet() : new LinkedHashSet<>(dList));
+        }
+
+        return films;
+    }
+
+    private Map<Long, List<Genre>> loadGenresByFilmIds(List<Long> ids) {
+        String inSql = ids.stream().map(id -> "?").collect(Collectors.joining(","));
+        String sql = LOAD_GENRES_BY_FILM_IDS_SQL_PREFIX + inSql + ")";
+        List<Object> params = new ArrayList<>(ids);
+        return jdbc.query(sql, params.toArray(), rs -> {
+            Map<Long, List<Genre>> map = new HashMap<>();
+            while (rs.next()) {
+                long filmId = rs.getLong("film_id");
+                Genre g = new Genre(rs.getLong("id"), rs.getString("name"));
+                map.computeIfAbsent(filmId, k -> new ArrayList<>()).add(g);
+            }
+            return map;
+        });
+    }
+
+    private Map<Long, List<Director>> loadDirectorsByFilmIds(List<Long> ids) {
+        String inSql = ids.stream().map(id -> "?").collect(Collectors.joining(","));
+        String sql = LOAD_DIRECTORS_BY_FILM_IDS_SQL_PREFIX + inSql + ")";
+        List<Object> params = new ArrayList<>(ids);
+        return jdbc.query(sql, params.toArray(), rs -> {
+            Map<Long, List<Director>> map = new HashMap<>();
+            while (rs.next()) {
+                long filmId = rs.getLong("film_id");
+                Director d = new Director(rs.getLong("id"), rs.getString("name"));
+                map.computeIfAbsent(filmId, k -> new ArrayList<>()).add(d);
+            }
+            return map;
+        });
     }
 
     private void checkFilmId(Long id) {

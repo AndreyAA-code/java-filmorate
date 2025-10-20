@@ -21,7 +21,7 @@ public class FilmService {
     public final GenreRepository genreRepository;
     public final ReviewRepository reviewRepository;
     public final DirectorRepository directorRepository;
-public final FeedRepository feedRepository;
+    public final FeedRepository feedRepository;
 
     public Collection<FilmDto> getAllFilms() {
         return filmRepository.getAllFilms()
@@ -154,4 +154,10 @@ public final FeedRepository feedRepository;
                 .collect(Collectors.toList());
     }
 
+    public Collection<FilmDto> getFilmsBySearch(String query, String by) {
+        return filmRepository.getFilmsBySearch(query, by)
+                .stream()
+                .map(FilmMapper::mapToFilmDto)
+                .collect(Collectors.toList());
+    }
 }
