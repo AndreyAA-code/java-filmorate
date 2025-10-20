@@ -39,7 +39,7 @@ public class DbFilmRepository implements FilmRepository {
 
     private static final String FIND_ALL_FILMS_QUERY = "SELECT films.*, mpa.name as mpa_name FROM films" +
             " LEFT JOIN mpa ON films.mpa_id = mpa.id ORDER BY films.id ASC;";
-    private static final String UPDATE_FILM_QUERY = "UPDATE films SET name = ?, description = ?, release_date = ?, duration = ? WHERE id =?";
+    private static final String UPDATE_FILM_QUERY = "UPDATE films SET name = ?, description = ?, release_date = ?, duration = ?, mpa_id =? WHERE id =?";
     private static final String FIND_FILM_BY_ID_QUERY = "SELECT films.*, mpa.name as mpa_name FROM films" +
             " LEFT JOIN mpa ON films.mpa_id = mpa.id WHERE films.id = ?;";
     private static final String DELETE_FILM_QUERY = "DELETE FROM films WHERE id =?;";
@@ -140,7 +140,7 @@ public class DbFilmRepository implements FilmRepository {
     @Override
     public Film updateFilm(Film newFilm) {
         checkFilmId(newFilm.getId());
-        jdbc.update(UPDATE_FILM_QUERY, newFilm.getName(), newFilm.getDescription(), newFilm.getReleaseDate(), newFilm.getDuration(), newFilm.getId());
+        jdbc.update(UPDATE_FILM_QUERY, newFilm.getName(), newFilm.getDescription(), newFilm.getReleaseDate(), newFilm.getDuration(), newFilm.getMpa().getId(), newFilm.getId());
         if (!(newFilm.getDirectors() == null)) {
             jdbc.update(DELETE_FILM_DIRECTORS_QUERY, newFilm.getId());
             for (Director director : newFilm.getDirectors()) {
