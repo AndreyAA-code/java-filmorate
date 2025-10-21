@@ -82,14 +82,14 @@ CREATE TABLE IF NOT EXISTS reviews (
 );
 
 CREATE TABLE IF NOT EXISTS reviews_users (
-    review_id BIGINT NOT NULL REFERENCES reviews(review_id),
+    review_id BIGINT NOT NULL REFERENCES reviews(review_id) ON DELETE CASCADE,
     user_id BIGINT NOT NULL REFERENCES users(id),
     useful BIGINT,
     PRIMARY KEY (review_id, user_id)
 );
 
 CREATE TABLE IF NOT EXISTS directors_films (
-    director_id BIGINT NOT NULL REFERENCES directors(id),
+    director_id BIGINT NOT NULL REFERENCES directors(id) ON DELETE CASCADE,
     film_id BIGINT NOT NULL REFERENCES films(id),
     PRIMARY KEY (director_id, film_id)
 );

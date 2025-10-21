@@ -31,7 +31,7 @@ public class DbReviewRepository implements ReviewRepository {
     private static final String UPDATE_REVIEW_QUERY = "UPDATE reviews SET content = ?, isPositive = ?, user_id = ?, film_id = ? WHERE review_id =?";
     private static final String DELETE_REVIEW_QUERY = "DELETE FROM reviews WHERE review_id = ?";
     private static final String GET_REVIEWS_BY_FILM_ID_QUERY = "SELECT * FROM reviews WHERE film_id = ? LIMIT ?";
-    private static final String GET_REVIEWS_FOR_ALL_FILMS = "SELECT * FROM reviews WHERE review_id = ? LIMIT ?";
+    private static final String GET_REVIEWS_FOR_ALL_FILMS = "SELECT * FROM reviews LIMIT ?";
     private static final String IF_REVIEW_EXISTS_QUERY = "SELECT COUNT(*) FROM reviews WHERE review_id = ?";
     private static final String ADD_LIKE_DISLIKE_TO_REVIEW_QUERY = "INSERT INTO reviews_users (review_id, user_id, useful) VALUES (?, ?, ?)";
     private static final String DELETE_LIKE_DISLIKE_FOR_REVIEW_QUERY  = "DELETE FROM reviews_users WHERE review_id = ? AND user_id = ?";
