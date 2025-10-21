@@ -81,37 +81,57 @@ public class DbFilmRepository implements FilmRepository {
             "SELECT f.*, mpa.name as mpa_name " +
                     "FROM films f " +
                     "LEFT JOIN mpa ON f.mpa_id = mpa.id " +
-                    "WHERE f.id IN  " +
+
+                    "WHERE f.id IN " +
                     "( " +
+                    // Отбираем только те фильмы, которые лайкнуты другими пользователями
                     "SELECT film_id " +
                     "FROM films_likes " +
-                    "WHERE user_id IN  " +
+                    "WHERE user_id IN " +
                     "( " +
+                    // Находим пользователей, у которых максимальное количество общих лайков
                     "SELECT user_id " +
-                    "FROM  " +
+                    "FROM films_likes " +
+                    "WHERE film_id IN " +
                     "( " +
-                    "SELECT user_id," +
-                    "COUNT(film_id) AS cnt, " +
-                    "RANK() OVER (ORDER BY COUNT(film_id) DESC) AS rnk " +
+                    // Список фильмов, которые лайкнул наш пользователь
+                    "SELECT film_id " +
+                    "FROM films_likes " +
+                    "WHERE user_id = ? " +
+                    ") " +
+                    // Исключаем нашего пользователя из этого списка
+                    "AND user_id != ? " +
+
+                    "GROUP BY user_id " +
+                    // Отбираем пользователей, у которых максимальное количество совпадений
+                    "HAVING COUNT(film_id) = " +
+                    "( " +
+                    "SELECT MAX(tc.cn) " +
+                    "FROM " +
+                    "( " +
+                    // Считаем количество совпадений лайков с нашим пользователем
+                    "SELECT COUNT(film_id) AS cn " +
                     "FROM films_likes " +
                     "WHERE film_id IN " +
                     "( " +
                     "SELECT film_id " +
-                    " FROM films_likes " +
+                    "FROM films_likes " +
                     "WHERE user_id = ? " +
                     ") " +
                     "AND user_id != ? " +
                     "GROUP BY user_id " +
-                    ")  " +
-                    "WHERE rnk = 1 " +
-                    " ) " +
-                    "AND film_id NOT IN  " +
-                    " ( " +
+                    ") AS tc " +
+                    ") " +
+                    ") " +
+                    // Исключаем фильмы, которые уже лайкнул наш пользователь
+                    "AND film_id NOT IN " +
+                    "( " +
                     "SELECT film_id " +
                     "FROM films_likes " +
-                    "WHERE user_id = ?  " +
+                    "WHERE user_id = ? " +
                     ") " +
-                    ") ";
+                    ")";
+
     private final JdbcTemplate jdbc;
     private final FilmRowMapper filmRowMapper;
     private final UserRowMapper userRowMapper;
@@ -325,15 +345,7 @@ public class DbFilmRepository implements FilmRepository {
 
     @Override
     public List<Film> getFilmsRecommendations(Long id) {
-        List<Film> films = jdbc.query(FIND_FILMS_RECOMMENDATIONS, filmRowMapper, id, id, id);
-        for (Film film : films) {
-            film.setGenres(dbGenreRepository.loadGenres(film));
-            film.setDirectors(dbDirectorRepository.loadDirectors(film.getId()));
-            film.setLikes(loadLikes(film.getId())
-                    .stream()
-                    .map(user -> user.getId())
-                    .collect(Collectors.toSet()));
-        }
+        List<Film> films = jdbc.query(FIND_FILMS_RECOMMENDATIONS, filmRowMapper, id, id, id, id, id);
         return films;
     }
 
