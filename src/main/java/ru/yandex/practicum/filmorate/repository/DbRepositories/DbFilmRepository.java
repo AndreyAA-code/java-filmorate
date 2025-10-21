@@ -42,7 +42,13 @@ public class DbFilmRepository implements FilmRepository {
     private static final String UPDATE_FILM_QUERY = "UPDATE films SET name = ?, description = ?, release_date = ?, duration = ?, mpa_id =? WHERE id =?";
     private static final String FIND_FILM_BY_ID_QUERY = "SELECT films.*, mpa.name as mpa_name FROM films" +
             " LEFT JOIN mpa ON films.mpa_id = mpa.id WHERE films.id = ?;";
+
+    private static final String DELETE_FILM_GENRES_QUERY = "DELETE FROM genres_films WHERE film_id = ?;";
+    private static final String DELETE_LIKES_BY_FILM_ID = "DELETE FROM films_likes WHERE film_id = ?;";
+    private static final String DELETE_DIRECTORS_BY_FILM_ID = "DELETE FROM directors_films WHERE film_id = ?;";
+    private static final String DELETE_REVIEWS_BY_FILM_ID = "DELETE FROM reviews WHERE film_id = ?;";
     private static final String DELETE_FILM_QUERY = "DELETE FROM films WHERE id =?;";
+
     private static final String ADD_LIKE_TO_FILM_QUERY = "INSERT INTO films_likes (user_id, film_id) VALUES (?, ?);";
     private static final String DELETE_LIKE_FROM_FILM_QUERY = "DELETE FROM films_likes where user_id =? AND film_id = ?;";
     private static final String GET_POPULAR_FILMS_QUERY = "SELECT films.*, mpa.name as mpa_name, COUNT(films_likes.user_id) as likes_count FROM films " +
@@ -56,7 +62,6 @@ public class DbFilmRepository implements FilmRepository {
     private static final String ADD_FILM_QUERY = "INSERT INTO films (name, description, release_date, duration, mpa_id)" +
             " VALUES (?, ?, ?, ?, ?)";
     private static final String ADD_GENRES_TO_FILM_QUERY = "INSERT INTO genres_films (genre_id, film_id) VALUES (?, ?)";
-    private static final String DELETE_FILM_GENRES_QUERY = "DELETE FROM genres_films WHERE film_id = ?;";
     private static final String ADD_DIRECTORS_TO_FILM_QUERY = "INSERT INTO directors_films (director_id, film_id) VALUES (?, ?)";
     private static final String DELETE_FILM_DIRECTORS_QUERY = "DELETE FROM directors_films WHERE film_id = ?";
     private static final String GET_FILMS_BY_DIRECTOR_QUERY_YEAR_SORTED = "SELECT f.*, m.name as mpa_name " +
@@ -183,6 +188,13 @@ public class DbFilmRepository implements FilmRepository {
     public Film deleteFilmById(Long id) {
         checkFilmId(id);
         Film film = jdbc.queryForObject(FIND_FILM_BY_ID_QUERY, filmRowMapper, id);
+
+        // Удаление зависимостей
+        jdbc.update(DELETE_FILM_GENRES_QUERY, id);
+        jdbc.update(DELETE_DIRECTORS_BY_FILM_ID, id);
+        jdbc.update(DELETE_LIKES_BY_FILM_ID, id);
+        jdbc.update(DELETE_REVIEWS_BY_FILM_ID, id);
+
         jdbc.update(DELETE_FILM_QUERY, id);
 
         return film;
