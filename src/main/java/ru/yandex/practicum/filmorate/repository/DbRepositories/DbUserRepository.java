@@ -171,6 +171,7 @@ public class DbUserRepository implements UserRepository {
         return filmRepository.getFilmsRecommendations(id);
     }
 
+    @Override
     public void checkUserId(Long userId) {
 
         if (jdbc.queryForObject(IF_USER_EXISTS_QUERY, Integer.class, userId) == 0) {

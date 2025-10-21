@@ -28,4 +28,6 @@ public interface UserRepository {
     Set<User> getCommonFriends(Long id, Long otherId);
 
     List<Film> getFilmsRecommendations(Long id);
+
+    void checkUserId(Long userId);
 }

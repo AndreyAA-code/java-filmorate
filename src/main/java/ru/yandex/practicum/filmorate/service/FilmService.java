@@ -160,4 +160,13 @@ public class FilmService {
                 .map(FilmMapper::mapToFilmDto)
                 .collect(Collectors.toList());
     }
+
+    public Collection<FilmDto> getCommonFilms(Long userId, Long friendId) {
+        userRepository.checkUserId(userId);
+        userRepository.checkUserId(friendId);
+        return filmRepository.getCommonFilms(userId, friendId)
+                .stream()
+                .map(FilmMapper::mapToFilmDto)
+                .collect(Collectors.toList());
+    }
 }
