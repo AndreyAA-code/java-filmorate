@@ -1,7 +1,11 @@
 package ru.yandex.practicum.filmorate.service;
+
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.dto.FilmDto;
 import ru.yandex.practicum.filmorate.dto.UserDto;
+import ru.yandex.practicum.filmorate.mapper.FilmMapper;
 import ru.yandex.practicum.filmorate.mapper.UserMapper;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.model.UserEvent;
@@ -19,6 +23,7 @@ public class UserService {
 
     public final UserRepository userRepository;
     public final FeedRepository feedRepository;
+
 
     public Collection<UserDto> getAllUsers() {
         return userRepository.getAllUsers()
@@ -74,5 +79,12 @@ public class UserService {
     public List<UserEvent> getUserFeeds(Long id) {
         userRepository.getUserById(id);
         return feedRepository.getFeedForUser(id);
+    }
+
+    public List<FilmDto> getFilmsRecommendations(@Valid Long id) {
+        return userRepository.getFilmsRecommendations(id)
+                .stream()
+                .map(FilmMapper::mapToFilmDto)
+                .collect(Collectors.toList());
     }
 }

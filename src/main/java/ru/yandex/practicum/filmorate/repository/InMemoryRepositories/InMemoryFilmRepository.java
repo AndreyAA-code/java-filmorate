@@ -151,6 +151,12 @@ public class InMemoryFilmRepository implements FilmRepository {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public List<Film> getFilmsRecommendations(Long id) {
+        return List.of();
+    }
+
+
     public Long getNextId() {
         long maxID = films.keySet()
                 .stream()

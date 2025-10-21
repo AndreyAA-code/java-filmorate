@@ -29,14 +29,6 @@ import static ru.yandex.practicum.filmorate.model.Operation.REMOVE;
 @Primary
 public class DbFilmRepository implements FilmRepository {
 
-    private final JdbcTemplate jdbc;
-    private final FilmRowMapper filmRowMapper;
-    private final UserRowMapper userRowMapper;
-    private final DbMpaRepository dbMpaRepository;
-    private final DbGenreRepository dbGenreRepository;
-    private final DbDirectorRepository dbDirectorRepository;
-    private final DbFeedRepository dbFeedRepository;
-
     private static final String FIND_ALL_FILMS_QUERY = "SELECT films.*, mpa.name as mpa_name FROM films" +
             " LEFT JOIN mpa ON films.mpa_id = mpa.id ORDER BY films.id ASC;";
     private static final String UPDATE_FILM_QUERY = "UPDATE films SET name = ?, description = ?, release_date = ?, duration = ?, mpa_id =? WHERE id =?";
@@ -68,7 +60,6 @@ public class DbFilmRepository implements FilmRepository {
             "LEFT JOIN films_likes fl ON f.id = fl.film_id " +
             "JOIN directors_films df ON f.id = df.film_id " +
             "WHERE df.director_id = ? GROUP BY f.id ORDER BY COUNT(fl.user_id) DESC";
-
     private static final String BASE_SEARCH_SQL =
             "SELECT f.*, m.name AS mpa_name, COUNT(fl.film_id) AS likes_count " +
                     "FROM films f " +
@@ -76,18 +67,58 @@ public class DbFilmRepository implements FilmRepository {
                     "LEFT JOIN mpa m ON m.id = f.mpa_id " +
                     "LEFT JOIN directors_films df ON f.id = df.film_id " +
                     "LEFT JOIN directors d ON df.director_id = d.id ";
-
     private static final String LOAD_GENRES_BY_FILM_IDS_SQL_PREFIX =
             "SELECT gf.film_id, g.id, g.name " +
                     "FROM genres_films gf " +
                     "JOIN genres g ON g.id = gf.genre_id " +
                     "WHERE gf.film_id IN (";
-
     private static final String LOAD_DIRECTORS_BY_FILM_IDS_SQL_PREFIX =
             "SELECT df.film_id, d.id, d.name " +
                     "FROM directors_films df " +
                     "JOIN directors d ON d.id = df.director_id " +
                     "WHERE df.film_id IN (";
+    private static final String FIND_FILMS_RECOMMENDATIONS =
+            "SELECT f.*, mpa.name as mpa_name " +
+                    "FROM films f " +
+                    "LEFT JOIN mpa ON f.mpa_id = mpa.id " +
+                    "WHERE f.id IN  " +
+                    "( " +
+                    "SELECT film_id " +
+                    "FROM films_likes " +
+                    "WHERE user_id IN  " +
+                    "( " +
+                    "SELECT user_id " +
+                    "FROM  " +
+                    "( " +
+                    "SELECT user_id," +
+                    "COUNT(film_id) AS cnt, " +
+                    "RANK() OVER (ORDER BY COUNT(film_id) DESC) AS rnk " +
+                    "FROM films_likes " +
+                    "WHERE film_id IN " +
+                    "( " +
+                    "SELECT film_id " +
+                    " FROM films_likes " +
+                    "WHERE user_id = ? " +
+                    ") " +
+                    "AND user_id != ? " +
+                    "GROUP BY user_id " +
+                    ")  " +
+                    "WHERE rnk = 1 " +
+                    " ) " +
+                    "AND film_id NOT IN  " +
+                    " ( " +
+                    "SELECT film_id " +
+                    "FROM films_likes " +
+                    "WHERE user_id = ?  " +
+                    ") " +
+                    ") ";
+    private final JdbcTemplate jdbc;
+    private final FilmRowMapper filmRowMapper;
+    private final UserRowMapper userRowMapper;
+    private final DbMpaRepository dbMpaRepository;
+    private final DbGenreRepository dbGenreRepository;
+    private final DbDirectorRepository dbDirectorRepository;
+    private final DbFeedRepository dbFeedRepository;
 
     @Override
     public Film addFilm(Film film) {
@@ -289,6 +320,20 @@ public class DbFilmRepository implements FilmRepository {
             f.setDirectors(dList == null ? Collections.emptySet() : new LinkedHashSet<>(dList));
         }
 
+        return films;
+    }
+
+    @Override
+    public List<Film> getFilmsRecommendations(Long id) {
+        List<Film> films = jdbc.query(FIND_FILMS_RECOMMENDATIONS, filmRowMapper, id, id, id);
+        for (Film film : films) {
+            film.setGenres(dbGenreRepository.loadGenres(film));
+            film.setDirectors(dbDirectorRepository.loadDirectors(film.getId()));
+            film.setLikes(loadLikes(film.getId())
+                    .stream()
+                    .map(user -> user.getId())
+                    .collect(Collectors.toSet()));
+        }
         return films;
     }
 
