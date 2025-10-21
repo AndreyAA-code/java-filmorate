@@ -131,6 +131,30 @@ public class DbFilmRepository implements FilmRepository {
                     "WHERE user_id = ? " +
                     ") " +
                     ")";
+    private static final String FIND_COMMON_FILMS =
+            "SELECT f.*, mpa.name AS mpa_name " +
+                    "FROM films f " +
+                    "LEFT JOIN mpa ON f.mpa_id = mpa.id " +
+                    "WHERE f.id IN ( " +
+                    "SELECT film_id " +
+                    "FROM films_likes " +
+                    "WHERE film_id IN ( " +
+                    "SELECT film_id " +
+                    "FROM films_likes " +
+                    "WHERE user_id = ? " +
+                    " ) " +
+                    "AND film_id IN ( " +
+                    "SELECT film_id " +
+                    "FROM films_likes " +
+                    "WHERE user_id = ? " +
+                    " ) " +
+                    "GROUP BY film_id " +
+                    " ) " +
+                    "ORDER BY ( " +
+                    "SELECT COUNT(user_id) " +
+                    "FROM films_likes fl2 " +
+                    "WHERE fl2.film_id = f.id " +
+                    ") DESC ";
     private final JdbcTemplate jdbc;
     private final FilmRowMapper filmRowMapper;
     private final UserRowMapper userRowMapper;
@@ -353,6 +377,21 @@ public class DbFilmRepository implements FilmRepository {
                     .map(user -> user.getId())
                     .collect(Collectors.toSet()));
         }
+        return films;
+    }
+
+    @Override
+    public List<Film> getCommonFilms(Long userId, Long friendId) {
+        List<Film> films = jdbc.query(FIND_COMMON_FILMS, filmRowMapper, userId, friendId);
+        for (Film film : films) {
+            film.setGenres(dbGenreRepository.loadGenres(film));
+            film.setDirectors(dbDirectorRepository.loadDirectors(film.getId()));
+            film.setLikes(loadLikes(film.getId())
+                    .stream()
+                    .map(user -> user.getId())
+                    .collect(Collectors.toSet()));
+        }
+        System.out.println(films);
         return films;
     }
 

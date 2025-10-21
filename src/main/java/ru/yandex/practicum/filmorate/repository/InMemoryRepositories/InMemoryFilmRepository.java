@@ -156,6 +156,11 @@ public class InMemoryFilmRepository implements FilmRepository {
         return List.of();
     }
 
+    @Override
+    public List<Film> getCommonFilms(Long userId, Long friendId) {
+        return List.of();
+    }
+
 
     public Long getNextId() {
         long maxID = films.keySet()
