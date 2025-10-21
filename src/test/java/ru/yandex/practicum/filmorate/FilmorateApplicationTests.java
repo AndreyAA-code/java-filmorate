@@ -42,16 +42,17 @@ import static org.junit.jupiter.api.Assertions.*;
         FilmRowMapper.class, GenreRowMapper.class, MpaRowMapper.class, DirectorRowMapper.class, DbDirectorRepository.class, ReviewRowMapper.class, UserEventRowMapper.class})
 class FilmorateApplicationTests {
 
-    private final DbUserRepository dbUserRepository;
-    private final JdbcTemplate jdbcTemplate;
-    private FilmController filmController;
-    private UserController userController;
     private static Validator validator;
 
     static {
         ValidatorFactory validatorFactory = Validation.buildDefaultValidatorFactory();
         validator = validatorFactory.getValidator();
     }
+
+    private final DbUserRepository dbUserRepository;
+    private final JdbcTemplate jdbcTemplate;
+    private FilmController filmController;
+    private UserController userController;
 
     @BeforeEach
     @Sql(scripts = "/testData.sql")
@@ -65,13 +66,14 @@ class FilmorateApplicationTests {
         final DirectorRowMapper directorRowMapper = new DirectorRowMapper();
         final UserEventRowMapper userEventRowMapper = new UserEventRowMapper();
 
+
         DbMpaRepository dbMpaRepository = new DbMpaRepository(jdbcTemplate, mpaRowMapper);
         DbGenreRepository dbGenreRepository = new DbGenreRepository(jdbcTemplate, genreRowMapper);
         DbDirectorRepository dbDirectorRepository = new DbDirectorRepository(jdbcTemplate, directorRowMapper);
         DbFeedRepository dbFeedRepository = new DbFeedRepository(jdbcTemplate, userEventRowMapper);
-        UserRepository userRepository = new DbUserRepository(jdbcTemplate, userRowMapper, dbFeedRepository);
         ReviewRepository dbReviewRepository = new DbReviewRepository(jdbcTemplate, reviewRowMapper, dbFeedRepository);
         FilmRepository filmRepository = new DbFilmRepository(jdbcTemplate, filmRowMapper, userRowMapper, dbMpaRepository, dbGenreRepository, dbDirectorRepository, dbFeedRepository);
+        UserRepository userRepository = new DbUserRepository(userRowMapper, dbFeedRepository, filmRepository, jdbcTemplate);
         FilmService filmService = new FilmService(filmRepository, userRepository, dbMpaRepository, dbGenreRepository, dbReviewRepository, dbDirectorRepository, dbFeedRepository);
         UserService userService = new UserService(userRepository, dbFeedRepository);
         filmController = new FilmController(filmService);
