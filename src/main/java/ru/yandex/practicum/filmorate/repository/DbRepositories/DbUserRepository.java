@@ -7,7 +7,9 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.repository.FilmRepository;
 import ru.yandex.practicum.filmorate.repository.UserRepository;
 import ru.yandex.practicum.filmorate.repository.mappers.UserRowMapper;
 
@@ -27,10 +29,6 @@ import static ru.yandex.practicum.filmorate.model.Operation.REMOVE;
 @AllArgsConstructor
 @Primary
 public class DbUserRepository implements UserRepository {
-    private JdbcTemplate jdbc;
-    private final UserRowMapper mapper;
-    private final DbFeedRepository dbFeedRepository;
-
     private static final String FIND_ALL_USERS_QUERY = "SELECT * FROM users ORDER BY id ASC";
     private static final String FIND_USERS_BY_ID_QUERY = "SELECT * FROM users WHERE id = ?";
     private static final String FIND_USER_FRIENDS_QUERY = "SELECT users.* FROM friends JOIN users " +
@@ -51,6 +49,10 @@ public class DbUserRepository implements UserRepository {
             "ON f1.friend_id = f2.friend_id JOIN users ON f1.friend_id = USERs.id " +
             "WHERE f1.user_Id = ? AND f2.user_Id = ?;";
     private static final String IF_USER_EXISTS_QUERY = "SELECT COUNT(*) FROM users WHERE id = ?";
+    private final UserRowMapper mapper;
+    private final DbFeedRepository dbFeedRepository;
+    private final FilmRepository filmRepository;
+    private JdbcTemplate jdbc;
 
     @Override
     public Collection<User> getAllUsers() {
@@ -135,7 +137,7 @@ public class DbUserRepository implements UserRepository {
         checkUserId(friendId);
 
         jdbc.update(ADD_USER_FRIEND_QUERY, id, friendId);
-        dbFeedRepository.createUserEvent(id,friendId,FRIEND,ADD);
+        dbFeedRepository.createUserEvent(id, friendId, FRIEND, ADD);
         List<User> users = jdbc.query(FIND_USERS_BY_ID_QUERY, mapper, id);
         return users;
     }
@@ -146,7 +148,7 @@ public class DbUserRepository implements UserRepository {
         checkUserId(friendId);
 
         jdbc.update(DELETE_USER_FRIEND_QUERY, id, friendId);
-        dbFeedRepository.createUserEvent(id,friendId,FRIEND,REMOVE);
+        dbFeedRepository.createUserEvent(id, friendId, FRIEND, REMOVE);
         List<User> users = jdbc.query(FIND_USER_FRIENDS_QUERY, mapper, id);
         return users;
     }
@@ -161,6 +163,12 @@ public class DbUserRepository implements UserRepository {
         Set<User> commonFriends = new LinkedHashSet<>(users);
 
         return commonFriends;
+    }
+
+    @Override
+    public List<Film> getFilmsRecommendations(Long id) {
+        checkUserId(id);
+        return filmRepository.getFilmsRecommendations(id);
     }
 
     public void checkUserId(Long userId) {

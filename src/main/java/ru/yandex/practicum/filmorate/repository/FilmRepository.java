@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.repository;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.util.Collection;
+import java.util.List;
 
 public interface FilmRepository {
 
@@ -27,4 +28,5 @@ public interface FilmRepository {
 
     Collection<Film> getFilmsBySearch(String query, String by);
 
+    List<Film> getFilmsRecommendations(Long id);
 }
