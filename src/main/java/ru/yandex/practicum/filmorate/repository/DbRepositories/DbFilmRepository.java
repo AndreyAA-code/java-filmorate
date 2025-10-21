@@ -77,11 +77,11 @@ public class DbFilmRepository implements FilmRepository {
                     "FROM directors_films df " +
                     "JOIN directors d ON d.id = df.director_id " +
                     "WHERE df.film_id IN (";
+
     private static final String FIND_FILMS_RECOMMENDATIONS =
             "SELECT f.*, mpa.name as mpa_name " +
                     "FROM films f " +
                     "LEFT JOIN mpa ON f.mpa_id = mpa.id " +
-
                     "WHERE f.id IN " +
                     "( " +
                     // Отбираем только те фильмы, которые лайкнуты другими пользователями
@@ -131,7 +131,6 @@ public class DbFilmRepository implements FilmRepository {
                     "WHERE user_id = ? " +
                     ") " +
                     ")";
-
     private final JdbcTemplate jdbc;
     private final FilmRowMapper filmRowMapper;
     private final UserRowMapper userRowMapper;
@@ -346,6 +345,14 @@ public class DbFilmRepository implements FilmRepository {
     @Override
     public List<Film> getFilmsRecommendations(Long id) {
         List<Film> films = jdbc.query(FIND_FILMS_RECOMMENDATIONS, filmRowMapper, id, id, id, id, id);
+        for (Film film : films) {
+            film.setGenres(dbGenreRepository.loadGenres(film));
+            film.setDirectors(dbDirectorRepository.loadDirectors(film.getId()));
+            film.setLikes(loadLikes(film.getId())
+                    .stream()
+                    .map(user -> user.getId())
+                    .collect(Collectors.toSet()));
+        }
         return films;
     }
 

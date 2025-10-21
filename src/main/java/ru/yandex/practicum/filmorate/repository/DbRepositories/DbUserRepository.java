@@ -153,8 +153,7 @@ public class DbUserRepository implements UserRepository {
     @Override
     public List<Film> getFilmsRecommendations(Long id) {
         checkUserId(id);
-        filmRepository.getFilmsRecommendations(id);
-        return List.of();
+        return filmRepository.getFilmsRecommendations(id);
     }
 
     public void checkUserId(Long userId) {
