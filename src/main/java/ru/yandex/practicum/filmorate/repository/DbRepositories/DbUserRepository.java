@@ -7,7 +7,6 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
-import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.repository.FilmRepository;
 import ru.yandex.practicum.filmorate.repository.UserRepository;
@@ -44,7 +43,6 @@ public class DbUserRepository implements UserRepository {
     private static final String IF_USER_EXISTS_QUERY = "SELECT COUNT(*) FROM users WHERE id = ?";
     private final UserRowMapper mapper;
     private final DbFeedRepository dbFeedRepository;
-    private final FilmRepository filmRepository;
     private JdbcTemplate jdbc;
 
     @Override
@@ -150,14 +148,9 @@ public class DbUserRepository implements UserRepository {
         return commonFriends;
     }
 
+
     @Override
-    public List<Film> getFilmsRecommendations(Long id) {
-        checkUserId(id);
-        return filmRepository.getFilmsRecommendations(id);
-    }
-
     public void checkUserId(Long userId) {
-
         if (jdbc.queryForObject(IF_USER_EXISTS_QUERY, Integer.class, userId) == 0) {
             throw new NotFoundException("User with id " + userId + " not found");
         }

@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.repository;
 
-import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.Collection;
@@ -27,5 +26,5 @@ public interface UserRepository {
 
     Set<User> getCommonFriends(Long id, Long otherId);
 
-    List<Film> getFilmsRecommendations(Long id);
+    void checkUserId(Long userId);
 }

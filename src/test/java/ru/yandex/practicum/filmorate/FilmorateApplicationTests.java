@@ -73,9 +73,9 @@ class FilmorateApplicationTests {
         DbFeedRepository dbFeedRepository = new DbFeedRepository(jdbcTemplate, userEventRowMapper);
         ReviewRepository dbReviewRepository = new DbReviewRepository(jdbcTemplate, reviewRowMapper, dbFeedRepository);
         FilmRepository filmRepository = new DbFilmRepository(jdbcTemplate, filmRowMapper, userRowMapper, dbMpaRepository, dbGenreRepository, dbDirectorRepository, dbFeedRepository);
-        UserRepository userRepository = new DbUserRepository(userRowMapper, dbFeedRepository, filmRepository, jdbcTemplate);
+        UserRepository userRepository = new DbUserRepository(userRowMapper, dbFeedRepository, jdbcTemplate);
         FilmService filmService = new FilmService(filmRepository, userRepository, dbMpaRepository, dbGenreRepository, dbReviewRepository, dbDirectorRepository, dbFeedRepository);
-        UserService userService = new UserService(userRepository, dbFeedRepository);
+        UserService userService = new UserService(userRepository, dbFeedRepository, filmRepository);
         filmController = new FilmController(filmService);
         userController = new UserController(userService);
     }
