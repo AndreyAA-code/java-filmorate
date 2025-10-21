@@ -37,7 +37,14 @@ public class DbUserRepository implements UserRepository {
             "ON friends.friend_id = users.id WHERE friends.user_id = ?";
     private static final String CREATE_USER_QUERY = "INSERT INTO users (email, login, name, birthday) VALUES (?, ?, ?, ?)";
     private static final String UPDATE_USER_QUERY = "UPDATE users SET email = ?, login = ?, name = ?, birthday = ? WHERE id =?";
+
     private static final String DELETE_USER_QUERY = "DELETE FROM users WHERE id = ?";
+    private static final String DELETE_FILM_LIKES_QUERY = "DELETE FROM films_likes WHERE user_id = ?";
+    private static final String DELETE_REVIEWS_USERS_QUERY = "DELETE FROM reviews_users WHERE user_id = ?";
+    private static final String DELETE_REVIEWS_QUERY = "DELETE FROM reviews WHERE user_id = ?";
+    private static final String DELETE_FRIENDS_USER_ID_QUERY = "DELETE FROM friends WHERE user_id = ?";
+    private static final String DELETE_FRIENDS_FRIEND_ID_QUERY = "DELETE FROM friends WHERE friend_id = ?";
+
     private static final String ADD_USER_FRIEND_QUERY = "INSERT INTO friends (user_id, friend_id) VALUES (?, ?)";
     private static final String DELETE_USER_FRIEND_QUERY = "DELETE FROM friends WHERE user_id = ? AND friend_id = ?";
     private static final String FIND_COMMON_FRIENDS_QUERY = "SELECT users.* FROM friends AS f1 JOIN friends AS f2 \n" +
@@ -111,6 +118,14 @@ public class DbUserRepository implements UserRepository {
     @Override
     public void deleteUser(Long id) {
         checkUserId(id);
+
+        // Удаление зависимостей
+        jdbc.update(DELETE_FILM_LIKES_QUERY, id);
+        jdbc.update(DELETE_REVIEWS_USERS_QUERY, id);
+        jdbc.update(DELETE_REVIEWS_QUERY, id);
+        jdbc.update(DELETE_FRIENDS_USER_ID_QUERY, id);
+        jdbc.update(DELETE_FRIENDS_FRIEND_ID_QUERY, id);
+
         jdbc.update(DELETE_USER_QUERY, id);
     }
 

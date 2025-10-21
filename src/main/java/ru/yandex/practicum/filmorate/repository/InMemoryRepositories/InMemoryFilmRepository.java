@@ -14,7 +14,6 @@ import java.util.stream.Stream;
 
 @Repository
 @AllArgsConstructor
-
 public class InMemoryFilmRepository implements FilmRepository {
 
     private final HashMap<Long, Film> films = new HashMap<>();

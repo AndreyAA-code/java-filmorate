@@ -12,7 +12,6 @@ import java.util.stream.Collectors;
 
 @Repository
 @Slf4j
-
 public class InMemoryUserRepository implements UserRepository {
 
     private Map<Long, User> users = new HashMap<>();
