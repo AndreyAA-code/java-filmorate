@@ -103,7 +103,7 @@ public class InMemoryFilmRepository implements FilmRepository {
     }
 
     @Override
-    public Collection<Film> getPopularFilms(Long count) {
+    public Collection<Film> getPopularFilms(Long count, Long genreId, Integer year) {
         return films.values()
                 .stream()
                 .sorted(Comparator.comparing((Film film) -> film.getLikes().size()).reversed())
