@@ -77,7 +77,7 @@ public class DbReviewRepository implements ReviewRepository {
     public Review updateReview(Review newReview) {
         jdbc.update(UPDATE_REVIEW_QUERY, newReview.getContent(), newReview.getIsPositive(), newReview.getReviewId());
         jdbc.update(DELETE_ALL_LIKES_DISLIKES_FOR_REVIEW, newReview.getReviewId());
-        Long reviewUserId = jdbc.queryForObject(FIND_USERID_FROM_REVIEW_QUERY, Long.class, newReview.getReviewId()  );
+        Long reviewUserId = jdbc.queryForObject(FIND_USERID_FROM_REVIEW_QUERY, Long.class, newReview.getReviewId());
         dbFeedRepository.createUserEvent(reviewUserId,newReview.getReviewId(),REVIEW,UPDATE);
         Review review = jdbc.queryForObject(FIND_REVIEW_BY_ID_QUERY, mapper, newReview.getReviewId());
         return review;
