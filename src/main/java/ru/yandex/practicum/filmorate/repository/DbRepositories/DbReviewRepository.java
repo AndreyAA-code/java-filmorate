@@ -29,7 +29,6 @@ public class DbReviewRepository implements ReviewRepository {
     private static final String FIND_REVIEW_BY_ID_QUERY = "SELECT * FROM reviews WHERE review_id = ?";
     private static final String FIND_USERID_FROM_REVIEW_QUERY = "SELECT user_id FROM reviews WHERE review_id = ?";
     private static final String CREATE_REVIEW_QUERY = "INSERT INTO reviews (content, isPositive, user_id, film_id) VALUES (?, ?, ?, ?)";
-//  private static final String UPDATE_REVIEW_QUERY = "UPDATE reviews SET content = ?, isPositive = ?, user_id = ?, film_id = ? WHERE review_id =?";
     private static final String UPDATE_REVIEW_QUERY = "UPDATE reviews SET content = ?, isPositive = ? WHERE review_id =?";
     private static final String DELETE_REVIEW_QUERY = "DELETE FROM reviews WHERE review_id = ?";
     private static final String GET_REVIEWS_BY_FILM_ID_QUERY = "SELECT reviews.*, COALESCE(SUM(reviews_users.useful),0) AS useful_sum\n" +
@@ -76,8 +75,6 @@ public class DbReviewRepository implements ReviewRepository {
 
     @Override
     public Review updateReview(Review newReview) {
-        //jdbc.update(UPDATE_REVIEW_QUERY, newReview.getContent(), newReview.getIsPositive(), newReview.getUserId(),
-        //        newReview.getFilmId(), newReview.getReviewId());
         jdbc.update(UPDATE_REVIEW_QUERY, newReview.getContent(), newReview.getIsPositive(), newReview.getReviewId());
         jdbc.update(DELETE_ALL_LIKES_DISLIKES_FOR_REVIEW, newReview.getReviewId());
         Long reviewUserId = jdbc.queryForObject(FIND_USERID_FROM_REVIEW_QUERY, Long.class, newReview.getReviewId()  );
