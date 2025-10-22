@@ -32,8 +32,10 @@ public class DbReviewRepository implements ReviewRepository {
 //  private static final String UPDATE_REVIEW_QUERY = "UPDATE reviews SET content = ?, isPositive = ?, user_id = ?, film_id = ? WHERE review_id =?";
     private static final String UPDATE_REVIEW_QUERY = "UPDATE reviews SET content = ?, isPositive = ? WHERE review_id =?";
     private static final String DELETE_REVIEW_QUERY = "DELETE FROM reviews WHERE review_id = ?";
-    private static final String GET_REVIEWS_BY_FILM_ID_QUERY = "SELECT * FROM reviews WHERE film_id = ? LIMIT ?";
-    private static final String GET_REVIEWS_FOR_ALL_FILMS = "SELECT reviews.*, SUM(reviews_users.useful) AS useful_sum\n" +
+    private static final String GET_REVIEWS_BY_FILM_ID_QUERY = "SELECT reviews.*, COALESCE(SUM(reviews_users.useful),0) AS useful_sum\n" +
+            "FROM reviews LEFT JOIN reviews_users ON reviews.review_id = reviews_users.review_id\n" +
+            "WHERE film_id =? GROUP BY reviews.review_id ORDER BY useful_sum DESC LIMIT ?";
+    private static final String GET_REVIEWS_FOR_ALL_FILMS = "SELECT reviews.*, COALESCE(SUM(reviews_users.useful),0) AS useful_sum\n" +
             "FROM reviews LEFT JOIN reviews_users ON reviews.review_id = reviews_users.review_id\n" +
             "GROUP BY reviews.review_id ORDER BY useful_sum DESC LIMIT ?";
     private static final String IF_REVIEW_EXISTS_QUERY = "SELECT COUNT(*) FROM reviews WHERE review_id = ?";
