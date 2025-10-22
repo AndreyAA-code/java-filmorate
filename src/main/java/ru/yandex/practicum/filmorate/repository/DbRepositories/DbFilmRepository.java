@@ -56,6 +56,7 @@ public class DbFilmRepository implements FilmRepository {
     private static final String IF_USER_EXISTS_QUERY = "SELECT COUNT(*) FROM users where id=?;";
     private static final String GET_LIKES_FOR_FILM_QUERY = "SELECT users.* FROM films_likes JOIN users ON films_likes.user_id = users.id" +
             " WHERE films_likes.film_id = ?;";
+    private static final String IF_LIKE_EXISTS_QUERY = "SELECT COUNT(*) FROM films_likes WHERE film_id = ? AND user_id = ?;";
     private static final String ADD_FILM_QUERY = "INSERT INTO films (name, description, release_date, duration, mpa_id)" +
             " VALUES (?, ?, ?, ?, ?)";
     private static final String ADD_GENRES_TO_FILM_QUERY = "INSERT INTO genres_films (genre_id, film_id) VALUES (?, ?)";
@@ -283,8 +284,9 @@ public class DbFilmRepository implements FilmRepository {
     public Film likeFilmById(Long filmId, Long userId) {
         checkFilmId(filmId);
         checkUserId(userId);
-
-        jdbc.update(ADD_LIKE_TO_FILM_QUERY, userId, filmId);
+        if (jdbc.queryForObject(IF_LIKE_EXISTS_QUERY, Integer.class, filmId, userId) == 0) {
+            jdbc.update(ADD_LIKE_TO_FILM_QUERY, userId, filmId);
+        }
         Film film = jdbc.queryForObject(FIND_FILM_BY_ID_QUERY, filmRowMapper, filmId);
         film.setLikes(loadLikes(filmId)
                 .stream()

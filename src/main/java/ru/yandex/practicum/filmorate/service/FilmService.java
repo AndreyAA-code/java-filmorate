@@ -84,8 +84,8 @@ public class FilmService {
     }
 
     public Review updateReview(Review review) {
-        userRepository.getUserById(review.getUserId());
-        filmRepository.getFilmById(review.getFilmId());
+        //userRepository.getUserById(review.getUserId());
+       // filmRepository.getFilmById(review.getFilmId());
         return reviewRepository.updateReview(review);
     }
 

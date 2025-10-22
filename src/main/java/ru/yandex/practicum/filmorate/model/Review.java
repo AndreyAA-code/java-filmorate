@@ -12,6 +12,7 @@ public class Review {
     @NotBlank
     @NotNull
     private String content;
+    @NotNull
     private Boolean isPositive;
     private Long useful = 0L;
     @NotNull

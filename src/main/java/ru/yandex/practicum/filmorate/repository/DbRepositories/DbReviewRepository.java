@@ -27,11 +27,15 @@ public class DbReviewRepository implements ReviewRepository {
     DbFeedRepository dbFeedRepository;
 
     private static final String FIND_REVIEW_BY_ID_QUERY = "SELECT * FROM reviews WHERE review_id = ?";
+    private static final String FIND_USERID_FROM_REVIEW_QUERY = "SELECT user_id FROM reviews WHERE review_id = ?";
     private static final String CREATE_REVIEW_QUERY = "INSERT INTO reviews (content, isPositive, user_id, film_id) VALUES (?, ?, ?, ?)";
-    private static final String UPDATE_REVIEW_QUERY = "UPDATE reviews SET content = ?, isPositive = ?, user_id = ?, film_id = ? WHERE review_id =?";
+//  private static final String UPDATE_REVIEW_QUERY = "UPDATE reviews SET content = ?, isPositive = ?, user_id = ?, film_id = ? WHERE review_id =?";
+    private static final String UPDATE_REVIEW_QUERY = "UPDATE reviews SET content = ?, isPositive = ? WHERE review_id =?";
     private static final String DELETE_REVIEW_QUERY = "DELETE FROM reviews WHERE review_id = ?";
     private static final String GET_REVIEWS_BY_FILM_ID_QUERY = "SELECT * FROM reviews WHERE film_id = ? LIMIT ?";
-    private static final String GET_REVIEWS_FOR_ALL_FILMS = "SELECT * FROM reviews LIMIT ?";
+    private static final String GET_REVIEWS_FOR_ALL_FILMS = "SELECT reviews.*, SUM(reviews_users.useful) AS useful_sum\n" +
+            "FROM reviews LEFT JOIN reviews_users ON reviews.review_id = reviews_users.review_id\n" +
+            "GROUP BY reviews.review_id ORDER BY useful_sum DESC LIMIT ?";
     private static final String IF_REVIEW_EXISTS_QUERY = "SELECT COUNT(*) FROM reviews WHERE review_id = ?";
     private static final String ADD_LIKE_DISLIKE_TO_REVIEW_QUERY = "INSERT INTO reviews_users (review_id, user_id, useful) VALUES (?, ?, ?)";
     private static final String DELETE_LIKE_DISLIKE_FOR_REVIEW_QUERY  = "DELETE FROM reviews_users WHERE review_id = ? AND user_id = ?";
@@ -70,11 +74,14 @@ public class DbReviewRepository implements ReviewRepository {
 
     @Override
     public Review updateReview(Review newReview) {
-        jdbc.update(UPDATE_REVIEW_QUERY, newReview.getContent(), newReview.getIsPositive(), newReview.getUserId(),
-                newReview.getFilmId(), newReview.getReviewId());
+        //jdbc.update(UPDATE_REVIEW_QUERY, newReview.getContent(), newReview.getIsPositive(), newReview.getUserId(),
+        //        newReview.getFilmId(), newReview.getReviewId());
+        jdbc.update(UPDATE_REVIEW_QUERY, newReview.getContent(), newReview.getIsPositive(), newReview.getReviewId());
         jdbc.update(DELETE_ALL_LIKES_DISLIKES_FOR_REVIEW, newReview.getReviewId());
-        dbFeedRepository.createUserEvent(newReview.getUserId(),newReview.getReviewId(),REVIEW,UPDATE);
-        return newReview;
+        Long reviewUserId = jdbc.queryForObject(FIND_USERID_FROM_REVIEW_QUERY, Long.class, newReview.getReviewId()  );
+        dbFeedRepository.createUserEvent(reviewUserId,newReview.getReviewId(),REVIEW,UPDATE);
+        Review review = jdbc.queryForObject(FIND_REVIEW_BY_ID_QUERY, mapper, newReview.getReviewId());
+        return review;
     }
 
     @Override
