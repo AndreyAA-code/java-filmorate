@@ -54,8 +54,8 @@ public class FilmService {
         return FilmMapper.mapToFilmDto(filmRepository.deleteLikeUser(filmId, userId));
     }
 
-    public Collection<FilmDto> getPopularFilms(Long count) {
-        return filmRepository.getPopularFilms(count)
+    public Collection<FilmDto> getPopularFilms(Long count, Long genreId, Integer year) {
+        return filmRepository.getPopularFilms(count, genreId, year)
                 .stream()
                 .map(FilmMapper::mapToFilmDto)
                 .collect(Collectors.toList());

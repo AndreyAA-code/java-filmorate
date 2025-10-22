@@ -43,10 +43,15 @@ public class DbFilmRepository implements FilmRepository {
 
     private static final String ADD_LIKE_TO_FILM_QUERY = "INSERT INTO films_likes (user_id, film_id) VALUES (?, ?);";
     private static final String DELETE_LIKE_FROM_FILM_QUERY = "DELETE FROM films_likes where user_id =? AND film_id = ?;";
-    private static final String GET_POPULAR_FILMS_QUERY = "SELECT films.*, mpa.name as mpa_name, COUNT(films_likes.user_id) as likes_count FROM films " +
-            "LEFT JOIN films_likes ON films.id = films_likes.film_id " +
-            "LEFT JOIN mpa ON films.mpa_id = mpa.id GROUP BY films.id, mpa.name " +
-            "ORDER BY COUNT(films_likes.user_id) DESC LIMIT ?";
+    private static final String GET_POPULAR_FILMS_QUERY_PREFIX = "SELECT f.*, mpa.name as mpa_name, " +
+            "COUNT(fl.user_id) as likes_count FROM films f " +
+            "LEFT JOIN films_likes fl ON f.id = fl.film_id " +
+            "LEFT JOIN mpa ON f.mpa_id = mpa.id " +
+            "LEFT JOIN genres_films gf ON f.id = gf.film_id " +
+            "LEFT JOIN genres g ON g.id = gf.genre_id " +
+            "WHERE 1=1 ";
+    private static final String GET_POPULAR_FILMS_QUERY_POSTFIX = "GROUP BY f.id " +
+            "ORDER BY COUNT(fl.user_id) DESC LIMIT ?";
     private static final String IF_FILM_EXISTS_QUERY = "SELECT COUNT(*) FROM films WHERE id = ?;";
     private static final String IF_USER_EXISTS_QUERY = "SELECT COUNT(*) FROM users where id=?;";
     private static final String GET_LIKES_FOR_FILM_QUERY = "SELECT users.* FROM films_likes JOIN users ON films_likes.user_id = users.id" +
@@ -304,8 +309,28 @@ public class DbFilmRepository implements FilmRepository {
     }
 
     @Override
-    public Collection<Film> getPopularFilms(Long count) {
-        List<Film> popularFilms = jdbc.query(GET_POPULAR_FILMS_QUERY, filmRowMapper, count);
+    public Collection<Film> getPopularFilms(Long count, Long genreId, Integer year) {
+        StringBuilder sql = new StringBuilder(GET_POPULAR_FILMS_QUERY_PREFIX);
+        List<Object> params = new ArrayList<>();
+        if (genreId != null) {
+            sql.append("AND f.id IN (SELECT gf.film_id FROM genres_films gf WHERE gf.genre_id = ?) ");
+            params.add(genreId);
+        }
+        if (year != null) {
+            sql.append("AND EXTRACT(YEAR FROM CAST(f.release_date AS DATE)) = ? ");
+            params.add(year);
+        }
+        params.add(count);
+        sql.append(GET_POPULAR_FILMS_QUERY_POSTFIX);
+        List<Film> popularFilms = jdbc.query(sql.toString(), filmRowMapper, params.toArray());
+        for (Film film : popularFilms) {
+            film.setGenres(dbGenreRepository.loadGenres(film));
+            film.setDirectors(dbDirectorRepository.loadDirectors(film.getId()));
+            film.setLikes(loadLikes(film.getId())
+                    .stream()
+                    .map(User::getId)
+                    .collect(Collectors.toSet()));
+        }
         return popularFilms;
     }
 

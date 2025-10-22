@@ -22,7 +22,7 @@ public interface FilmRepository {
 
     Film deleteLikeUser(Long filmId, Long userId);
 
-    Collection<Film> getPopularFilms(Long count);
+    Collection<Film> getPopularFilms(Long count, Long genreId, Integer year);
 
     Collection<Film> getFilmsByDirector(Long directorId, String sortBy);
 
