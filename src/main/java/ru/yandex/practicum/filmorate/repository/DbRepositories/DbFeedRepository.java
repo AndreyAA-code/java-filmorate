@@ -24,7 +24,6 @@ public class DbFeedRepository implements FeedRepository {
 
     private final JdbcTemplate jdbc;
     private final UserEventRowMapper userEventRowMapper;
-
     private static final String GET_FEED_FOR_USER_ID_QUERY = "SELECT * FROM user_events WHERE userId = ?";
     private static final String ADD_USER_EVENT_QUERY = "INSERT INTO user_events (userId, entityId, eventType, operation, timestamp) VALUES (?, ?, ?, ?, ?)";
 
