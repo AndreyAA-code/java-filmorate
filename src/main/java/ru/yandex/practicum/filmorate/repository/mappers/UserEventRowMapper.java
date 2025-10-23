@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.repository.mappers;
 
-import lombok.AllArgsConstructor;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.EventType;
