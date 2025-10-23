@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.repository.InMemoryRepositories;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.repository.UserRepository;
 
@@ -12,7 +13,6 @@ import java.util.stream.Collectors;
 
 @Repository
 @Slf4j
-
 public class InMemoryUserRepository implements UserRepository {
 
     private Map<Long, User> users = new HashMap<>();
@@ -128,5 +128,10 @@ public class InMemoryUserRepository implements UserRepository {
                 .collect(Collectors.toSet());
         friends1.retainAll(friends2);
         return friends1;
+    }
+
+    @Override
+    public List<Film> getFilmsRecommendations(Long id) {
+        return List.of();
     }
 }

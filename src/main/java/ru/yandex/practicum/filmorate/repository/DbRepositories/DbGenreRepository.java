@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.repository.DbRepositories;
 
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -15,6 +16,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+@Slf4j
 @Repository
 @AllArgsConstructor
 @Primary
@@ -31,12 +33,14 @@ public class DbGenreRepository implements GenreRepository {
 
     @Override
     public Collection<Genre> getGenres() {
+        log.info("Get genres");
         List<Genre> genres = jdbc.query(GET_ALL_GENRES_QUERY, genreRowMapper);
         return genres;
     }
 
     @Override
     public Genre getGenresById(Long id) {
+        log.info("Get genre by id {}", id);
         checkGenreId(id);
         Genre genre = jdbc.queryForObject(GET_GENRE_BY_ID_QUERY, genreRowMapper, id);
         return genre;
@@ -44,12 +48,14 @@ public class DbGenreRepository implements GenreRepository {
 
     @Override
     public void checkGenreId(Long id) {
+        log.info("Check genre id {}", id);
         if (jdbc.queryForObject(IF_GENRE_EXISTS_QUERY, Integer.class, id) == 0 || jdbc.queryForObject(IF_GENRE_EXISTS_QUERY, Integer.class, id) == null) {
             throw new NotFoundException("Genre with id " + id + " not found");
         }
     }
 
     public Set<Genre> loadGenres(Film film) {
+        log.info("Load genres");
         List<Genre> genres = jdbc.query(GET_GENRES_FOR_FILM_QUERY, genreRowMapper, film.getId());
         Set<Genre> genres1 = new LinkedHashSet<>(genres);
         return genres1;
