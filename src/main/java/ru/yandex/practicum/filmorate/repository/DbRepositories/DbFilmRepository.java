@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.repository.DbRepositories;
 
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -24,6 +25,7 @@ import static ru.yandex.practicum.filmorate.model.EventType.LIKE;
 import static ru.yandex.practicum.filmorate.model.Operation.ADD;
 import static ru.yandex.practicum.filmorate.model.Operation.REMOVE;
 
+@Slf4j
 @Repository
 @AllArgsConstructor
 @Primary
@@ -176,6 +178,7 @@ public class DbFilmRepository implements FilmRepository {
 
     @Override
     public Film addFilm(Film film) {
+        log.info("Add film: {}", film);
         dbMpaRepository.checkMpaId(film.getMpa().getId());
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbc.update(connection -> {
@@ -194,16 +197,19 @@ public class DbFilmRepository implements FilmRepository {
                 dbGenreRepository.checkGenreId(genre.getId());
                 jdbc.update(ADD_GENRES_TO_FILM_QUERY, genre.getId(), film.getId());
             }
+            log.info("Added genre: {}", film.getGenres());
             film.setGenres(dbGenreRepository.loadGenres(film));
         }
         if (!(film.getMpa() == null)) {
             film.setMpa(dbMpaRepository.getMpaById(film.getMpa().getId()));
+            log.info("Added mpa: {}", film.getMpa());
         }
         if (!(film.getDirectors() == null)) {
             for (Director director : film.getDirectors()) {
                 dbDirectorRepository.checkDirectorId(director.getId());
                 jdbc.update(ADD_DIRECTORS_TO_FILM_QUERY, director.getId(), film.getId());
             }
+            log.info("Added directors: {}", film.getDirectors());
             film.setDirectors(dbDirectorRepository.loadDirectors(film.getId()));
         }
         return film;
@@ -211,6 +217,7 @@ public class DbFilmRepository implements FilmRepository {
 
     @Override
     public Collection<Film> getAllFilms() {
+        log.info("Get all films");
         List<Film> films = jdbc.query(FIND_ALL_FILMS_QUERY, filmRowMapper);
         for (Film film : films) {
             film.setGenres(dbGenreRepository.loadGenres(film));
@@ -220,11 +227,13 @@ public class DbFilmRepository implements FilmRepository {
                     .map(user -> user.getId())
                     .collect(Collectors.toSet()));
         }
+        log.trace("All films: {}", films);
         return films;
     }
 
     @Override
     public Film updateFilm(Film newFilm) {
+        log.info("Update film: {}", newFilm);
         checkFilmId(newFilm.getId());
         jdbc.update(UPDATE_FILM_QUERY, newFilm.getName(), newFilm.getDescription(), newFilm.getReleaseDate(), newFilm.getDuration(), newFilm.getMpa().getId(), newFilm.getId());
         if (!(newFilm.getDirectors() == null)) {
@@ -233,7 +242,9 @@ public class DbFilmRepository implements FilmRepository {
                 dbDirectorRepository.checkDirectorId(director.getId());
                 jdbc.update(ADD_DIRECTORS_TO_FILM_QUERY, director.getId(), newFilm.getId());
             }
+            log.info("Updated directors: {}", newFilm.getDirectors());
             newFilm.setDirectors(dbDirectorRepository.loadDirectors(newFilm.getId()));
+            log.info("Updated directors: {}", newFilm.getDirectors());
         }
         if (!(newFilm.getGenres() == null)) {
             jdbc.update(DELETE_FILM_GENRES_QUERY, newFilm.getId());
@@ -241,21 +252,28 @@ public class DbFilmRepository implements FilmRepository {
                 dbGenreRepository.checkGenreId(genre.getId());
                 jdbc.update(ADD_GENRES_TO_FILM_QUERY, genre.getId(), newFilm.getId());
             }
+            log.info("Updated genres: {}", newFilm.getGenres());
         }
         newFilm.setGenres(dbGenreRepository.loadGenres(newFilm));
+        log.info("Updated genres: {}", newFilm.getGenres());
         newFilm.setDirectors(dbDirectorRepository.loadDirectors(newFilm.getId()));
+        log.info("Updated directors: {}", newFilm.getDirectors());
         newFilm.setMpa(dbMpaRepository.getMpaById(newFilm.getMpa().getId()));
+        log.info("Updated directors: {}", newFilm.getDirectors());
         newFilm.setLikes(loadLikes(newFilm.getId()).stream().map(user -> user.getId()).collect(Collectors.toSet()));
+        log.info("Updated likes: {}", newFilm.getLikes());
         return newFilm;
     }
 
     @Override
     public Film getFilmById(Long id) {
+        log.info("Get film by id: {}", id);
         checkFilmId(id);
         Film film = jdbc.queryForObject(FIND_FILM_BY_ID_QUERY, filmRowMapper, id);
         if (!(dbGenreRepository.loadGenres(film).size() == 0)) {
             film.setGenres(dbGenreRepository.loadGenres(film));
         }
+        log.trace("Get film: {}", film);
         film.setDirectors(dbDirectorRepository.loadDirectors(id));
         film.setLikes(loadLikes(id)
                 .stream()
@@ -266,6 +284,7 @@ public class DbFilmRepository implements FilmRepository {
 
     @Override
     public Film deleteFilmById(Long id) {
+        log.info("Delete film by id: {}", id);
         checkFilmId(id);
         Film film = jdbc.queryForObject(FIND_FILM_BY_ID_QUERY, filmRowMapper, id);
 
@@ -276,12 +295,13 @@ public class DbFilmRepository implements FilmRepository {
         jdbc.update(DELETE_REVIEWS_BY_FILM_ID, id);
 
         jdbc.update(DELETE_FILM_QUERY, id);
-
+        log.trace("Delete film: {}", film);
         return film;
     }
 
     @Override
     public Film likeFilmById(Long filmId, Long userId) {
+        log.info("Like film by id: {}", filmId);
         checkFilmId(filmId);
         checkUserId(userId);
         if (jdbc.queryForObject(IF_LIKE_EXISTS_QUERY, Integer.class, filmId, userId) == 0) {
@@ -293,11 +313,13 @@ public class DbFilmRepository implements FilmRepository {
                 .map(User::getId)
                 .collect(Collectors.toSet()));
         dbFeedRepository.createUserEvent(userId, filmId, LIKE, ADD);
+        log.trace("Like film: {}", film);
         return film;
     }
 
     @Override
     public Film deleteLikeUser(Long filmId, Long userId) {
+        log.info("Delete like user by id: {}", filmId);
         checkFilmId(filmId);
         checkUserId(userId);
         dbFeedRepository.createUserEvent(userId, filmId, LIKE, REMOVE);
@@ -307,11 +329,13 @@ public class DbFilmRepository implements FilmRepository {
                 .stream()
                 .map(User::getId)
                 .collect(Collectors.toSet()));
+        log.trace("Delete like user: {}", film);
         return film;
     }
 
     @Override
     public Collection<Film> getPopularFilms(Long count, Long genreId, Integer year) {
+        log.info("Get popular films by count: {}", count);
         StringBuilder sql = new StringBuilder(GET_POPULAR_FILMS_QUERY_PREFIX);
         List<Object> params = new ArrayList<>();
         if (genreId != null) {
@@ -323,6 +347,7 @@ public class DbFilmRepository implements FilmRepository {
             params.add(year);
         }
         params.add(count);
+        log.trace("Get popular films: {}", sql.toString());
         sql.append(GET_POPULAR_FILMS_QUERY_POSTFIX);
         List<Film> popularFilms = jdbc.query(sql.toString(), filmRowMapper, params.toArray());
         for (Film film : popularFilms) {
@@ -333,11 +358,13 @@ public class DbFilmRepository implements FilmRepository {
                     .map(User::getId)
                     .collect(Collectors.toSet()));
         }
+        log.trace("Get popular films: {}", popularFilms);
         return popularFilms;
     }
 
     @Override
     public Collection<Film> getFilmsByDirector(Long directorId, String sortBy) {
+        log.info("Get films by director: {}", directorId);
         dbDirectorRepository.checkDirectorId(directorId);
         List<Film> filmsByDirector;
         switch (sortBy) {
@@ -355,11 +382,13 @@ public class DbFilmRepository implements FilmRepository {
                     .map(User::getId)
                     .collect(Collectors.toSet()));
         }
+        log.trace("Get films by director: {}", filmsByDirector);
         return filmsByDirector;
     }
 
     @Override
     public Collection<Film> getFilmsBySearch(String query, String by) {
+        log.info("Get films by query: {}", query);
         if (query == null) query = "";
         if (by == null) by = "";
         String normBy = by.trim().toLowerCase();
@@ -407,6 +436,7 @@ public class DbFilmRepository implements FilmRepository {
 
     @Override
     public List<Film> getFilmsRecommendations(Long id) {
+        log.info("Get recommendations by id: {}", id);
         List<Film> films = jdbc.query(FIND_FILMS_RECOMMENDATIONS, filmRowMapper, id, id, id, id, id);
         for (Film film : films) {
             film.setGenres(dbGenreRepository.loadGenres(film));
@@ -416,6 +446,7 @@ public class DbFilmRepository implements FilmRepository {
                     .map(user -> user.getId())
                     .collect(Collectors.toSet()));
         }
+        log.trace("Get recommendations by id: {}", films);
         return films;
     }
 
@@ -430,11 +461,12 @@ public class DbFilmRepository implements FilmRepository {
                     .map(user -> user.getId())
                     .collect(Collectors.toSet()));
         }
-        System.out.println(films);
+       log.trace("Get common films by id: {}", films);
         return films;
     }
 
     private Map<Long, List<Genre>> loadGenresByFilmIds(List<Long> ids) {
+        log.info("Load genres by film ids: {}", ids);
         String inSql = ids.stream().map(id -> "?").collect(Collectors.joining(","));
         String sql = LOAD_GENRES_BY_FILM_IDS_SQL_PREFIX + inSql + ")";
         List<Object> params = new ArrayList<>(ids);
@@ -445,11 +477,13 @@ public class DbFilmRepository implements FilmRepository {
                 Genre g = new Genre(rs.getLong("id"), rs.getString("name"));
                 map.computeIfAbsent(filmId, k -> new ArrayList<>()).add(g);
             }
+            log.trace("Load genres by film ids: {}", map);
             return map;
         });
     }
 
     private Map<Long, List<Director>> loadDirectorsByFilmIds(List<Long> ids) {
+        log.info("Load directors by film ids: {}", ids);
         String inSql = ids.stream().map(id -> "?").collect(Collectors.joining(","));
         String sql = LOAD_DIRECTORS_BY_FILM_IDS_SQL_PREFIX + inSql + ")";
         List<Object> params = new ArrayList<>(ids);
@@ -460,23 +494,27 @@ public class DbFilmRepository implements FilmRepository {
                 Director d = new Director(rs.getLong("id"), rs.getString("name"));
                 map.computeIfAbsent(filmId, k -> new ArrayList<>()).add(d);
             }
+            log.trace("Load directors by film ids: {}", map);
             return map;
         });
     }
 
     private void checkFilmId(Long id) {
+        log.info("Check film id: {}", id);
         if (jdbc.queryForObject(IF_FILM_EXISTS_QUERY, Integer.class, id) == 0) {
             throw new NotFoundException("Film with id " + id + " not found");
         }
     }
 
     private void checkUserId(Long id) {
+        log.info("Check user id: {}", id);
         if (jdbc.queryForObject(IF_USER_EXISTS_QUERY, Integer.class, id) == 0) {
             throw new NotFoundException("User with id " + id + " not found");
         }
     }
 
     private Set<User> loadLikes(Long filmId) {
+        log.info("Load likes: {}", filmId);
         List<User> likes = jdbc.query(GET_LIKES_FOR_FILM_QUERY, userRowMapper, filmId);
         Set<User> likes1 = new LinkedHashSet<>(likes);
         return likes1;

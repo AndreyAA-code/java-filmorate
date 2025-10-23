@@ -10,7 +10,6 @@ import ru.yandex.practicum.filmorate.model.UserEvent;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-@AllArgsConstructor
 @Component
 public class UserEventRowMapper implements RowMapper<UserEvent> {
 

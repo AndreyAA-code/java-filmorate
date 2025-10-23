@@ -16,6 +16,6 @@ public interface DirectorRepository {
 
     void deleteDirector(Long id);
 
-    void checkDirectorId(Long id);
+    //void checkDirectorId(Long id);
 
 }

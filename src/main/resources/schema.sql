@@ -1,27 +1,16 @@
 
-DROP table IF EXISTS FILMS_LIKES;
-
-DROP table IF EXISTS FRIENDS;
-
-DROP table IF EXISTS GENRES_FILMS;
-
-DROP table IF EXISTS GENRES;
-
-DROP table IF EXISTS DIRECTORS_FILMS;
-
-DROP table IF EXISTS DIRECTORS;
-
-DROP table IF EXISTS REVIEWS_USERS;
-
-DROP table IF EXISTS REVIEWS;
-
-DROP table IF EXISTS FILMS;
-
-DROP table IF EXISTS MPA;
-
-DROP table IF EXISTS USERS;
-
 DROP table IF EXISTS user_events;
+DROP table IF EXISTS reviews_users;
+DROP table IF EXISTS reviews;
+DROP table IF EXISTS films_likes;
+DROP table IF EXISTS friends;
+DROP table IF EXISTS genres_films;
+DROP table IF EXISTS directors_films;
+DROP table IF EXISTS films;
+DROP table IF EXISTS users;
+DROP table IF EXISTS mpa;
+DROP table IF EXISTS genres;
+DROP table IF EXISTS directors;
 
 CREATE TABLE IF NOT EXISTS mpa (
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
@@ -94,10 +83,9 @@ CREATE TABLE IF NOT EXISTS directors_films (
     PRIMARY KEY (director_id, film_id)
 );
 
-
 CREATE TABLE IF NOT EXISTS user_events (
     eventId BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    userId BIGINT NOT NULL,
+    userId BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     entityId BIGINT NOT NULL,
     eventType ENUM ('LIKE', 'REVIEW', 'FRIEND'),
     operation ENUM ('REMOVE', 'ADD', 'UPDATE'),

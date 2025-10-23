@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.repository.DbRepositories;
 
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -18,6 +19,7 @@ import java.util.Optional;
 import static ru.yandex.practicum.filmorate.model.EventType.REVIEW;
 import static ru.yandex.practicum.filmorate.model.Operation.*;
 
+@Slf4j
 @Repository
 @AllArgsConstructor
 @Primary
@@ -47,6 +49,7 @@ public class DbReviewRepository implements ReviewRepository {
 
     @Override
     public Review getReviewsById(Long id) {
+        log.info("Get reviews by id: {}", id);
         checkReviewId(id);
         Review review = jdbc.queryForObject(FIND_REVIEW_BY_ID_QUERY, mapper, id);
 
@@ -55,6 +58,7 @@ public class DbReviewRepository implements ReviewRepository {
 
     @Override
     public Review createReview(Review review) {
+        log.info("Create review: {}", review);
 
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
@@ -66,15 +70,20 @@ public class DbReviewRepository implements ReviewRepository {
             ps.setLong(4, review.getFilmId());
             return ps;
         }, keyHolder);
+        log.info("Created review: {}", keyHolder.getKey());
         Long generatedId = keyHolder.getKey().longValue();
+        log.info("Generated review id: {}", generatedId);
         review.setReviewId(generatedId);
+        log.info("Created review: {}", review);
         review.setUseful(0L);
         dbFeedRepository.createUserEvent(review.getUserId(),review.getReviewId(),REVIEW,ADD);
+        log.info("Created review: {}", review);
         return review;
     }
 
     @Override
     public Review updateReview(Review newReview) {
+        log.info("Update review: {}", newReview);
         jdbc.update(UPDATE_REVIEW_QUERY, newReview.getContent(), newReview.getIsPositive(), newReview.getReviewId());
         jdbc.update(DELETE_ALL_LIKES_DISLIKES_FOR_REVIEW, newReview.getReviewId());
         Long reviewUserId = jdbc.queryForObject(FIND_USERID_FROM_REVIEW_QUERY, Long.class, newReview.getReviewId());
@@ -85,33 +94,40 @@ public class DbReviewRepository implements ReviewRepository {
 
     @Override
     public void deleteReview(Long reviewId) {
+        log.info("Delete review: {}", reviewId);
         checkReviewId(reviewId);
         Review review = jdbc.queryForObject(FIND_REVIEW_BY_ID_QUERY, mapper, reviewId);
         dbFeedRepository.createUserEvent(review.getUserId(),review.getReviewId(),REVIEW,REMOVE);
         jdbc.update(DELETE_REVIEW_QUERY, reviewId);
         jdbc.update(DELETE_ALL_LIKES_DISLIKES_FOR_REVIEW, reviewId);
+        log.info("Deleted review: {}", reviewId);
     }
 
     @Override
     public List<Review> getReviews(Optional<Long> filmId, Long count) {
+        log.info("Get reviews by filmId: {}, count: {}", filmId, count);
         List<Review> reviews;
 
         if (filmId.isPresent()) {
             reviews = jdbc.query(GET_REVIEWS_BY_FILM_ID_QUERY, mapper, filmId.get(), count);
         } else {
             reviews = jdbc.query(GET_REVIEWS_FOR_ALL_FILMS, mapper, count);
+            log.info("Get reviews for all filmId: {}", filmId);
         }
         for (Review review : reviews) {
             review.setUseful(jdbc.queryForObject(GET_USEFUL_FOR_REVIEW,Long.class,review.getReviewId()));
             if (review.getUseful() == null) {
                 review.setUseful(0L);
+                log.info("Get reviews for useful: {}", review.getReviewId());
             }
         }
+        log.info("Get reviews by filmId: {}, count: {}", filmId, count);
         return reviews;
     }
 
     @Override
     public Review addLikeReview(Long reviewId, Long userId) {
+        log.info("Add like review: {}", reviewId);
         checkReviewId(reviewId);
         if (!checkIfLikeOrDislikeExists(reviewId, userId)) {
             jdbc.update(ADD_LIKE_DISLIKE_TO_REVIEW_QUERY, reviewId, userId, 1);
@@ -120,15 +136,18 @@ public class DbReviewRepository implements ReviewRepository {
         }
         Review review = getReviewsById(reviewId);
         review.setUseful(jdbc.queryForObject(GET_USEFUL_FOR_REVIEW,Long.class,reviewId));
+        log.info("Add like review: {}", reviewId);
         return review;
     }
 
     private boolean checkIfLikeOrDislikeExists(Long reviewId, Long userId) {
+        log.info("Check if like or dislike exists for review: {}", reviewId);
         return jdbc.queryForObject(IF_LIKE_DISLIKE_EXISTS_QUERY, Boolean.class, reviewId, userId);
     }
 
     @Override
     public Review addDislikeReview(Long reviewId, Long userId) {
+        log.info("Add dislike review: {}", reviewId);
         checkReviewId(reviewId);
         if (!checkIfLikeOrDislikeExists(reviewId, userId)) {
             jdbc.update(ADD_LIKE_DISLIKE_TO_REVIEW_QUERY, reviewId, userId, -1);
@@ -143,17 +162,20 @@ public class DbReviewRepository implements ReviewRepository {
 
     @Override
     public Review deleteLikeReview(Long reviewId, Long userId) {
+        log.info("Delete like review: {}", reviewId);
         jdbc.update(DELETE_LIKE_DISLIKE_FOR_REVIEW_QUERY, reviewId, userId);
         Review review = getReviewsById(reviewId);
         review.setUseful(jdbc.queryForObject(GET_USEFUL_FOR_REVIEW,Long.class,reviewId));
         if (review.getUseful() == null) {
             review.setUseful(0L);
         }
+        log.info("Delete like review: {}", reviewId);
         return review;
     }
 
     @Override
     public Review deleteDislikeReview(Long reviewId, Long userId) {
+        log.info("Delete dislike review: {}", reviewId);
         checkReviewId(reviewId);
         Review review = getReviewsById(reviewId);
         review.setUseful(jdbc.queryForObject(GET_USEFUL_FOR_REVIEW,Long.class,reviewId));
@@ -161,6 +183,7 @@ public class DbReviewRepository implements ReviewRepository {
     }
 
     private void checkReviewId(Long reviewId) {
+        log.info("Check review id {}", reviewId);
         if (jdbc.queryForObject(IF_REVIEW_EXISTS_QUERY, Integer.class, reviewId) == 0) {
             throw new NotFoundException("Review with id " + reviewId + " not found");
         }

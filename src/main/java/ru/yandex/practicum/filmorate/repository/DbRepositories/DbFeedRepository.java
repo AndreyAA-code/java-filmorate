@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.repository.DbRepositories;
 
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -15,6 +16,7 @@ import ru.yandex.practicum.filmorate.repository.mappers.UserEventRowMapper;
 import java.sql.PreparedStatement;
 import java.util.List;
 
+@Slf4j
 @Repository
 @Primary
 @AllArgsConstructor
@@ -28,12 +30,15 @@ public class DbFeedRepository implements FeedRepository {
 
     @Override
     public List<UserEvent> getFeedForUser(Long id) {
+        log.info("Get feed for user: {}", id);
         return jdbc.query(GET_FEED_FOR_USER_ID_QUERY, userEventRowMapper, id);
     }
-
+    @Override
     public void createUserEvent(Long userId, Long entityId, EventType eventType, Operation operation) {
+        log.info("Create user event for user: {}", userId);
         KeyHolder keyHolder = new GeneratedKeyHolder();
         Long timestamp = System.currentTimeMillis();
+        log.trace("Created timestamp {} for user event", timestamp);
         jdbc.update(connection -> {
             PreparedStatement ps = connection.prepareStatement(ADD_USER_EVENT_QUERY, new String[]{"eventId"});
             ps.setLong(1, userId);
