@@ -32,6 +32,7 @@ public class DbFeedRepository implements FeedRepository {
         log.info("Get feed for user: {}", id);
         return jdbc.query(GET_FEED_FOR_USER_ID_QUERY, userEventRowMapper, id);
     }
+
     @Override
     public void createUserEvent(Long userId, Long entityId, EventType eventType, Operation operation) {
         log.info("Create user event for user: {}", userId);
