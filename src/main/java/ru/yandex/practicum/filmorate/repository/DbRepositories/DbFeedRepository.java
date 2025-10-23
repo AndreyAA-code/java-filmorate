@@ -49,5 +49,4 @@ public class DbFeedRepository implements FeedRepository {
             return ps;
         }, keyHolder);
     }
-
 }
