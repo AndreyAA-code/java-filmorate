@@ -238,6 +238,7 @@ public class DbFilmRepository implements FilmRepository {
         jdbc.update(UPDATE_FILM_QUERY, newFilm.getName(), newFilm.getDescription(), newFilm.getReleaseDate(), newFilm.getDuration(), newFilm.getMpa().getId(), newFilm.getId());
         if (!(newFilm.getDirectors() == null)) {
             jdbc.update(DELETE_FILM_DIRECTORS_QUERY, newFilm.getId());
+            log.info("Delete directors: {}", newFilm.getDirectors());
             for (Director director : newFilm.getDirectors()) {
                 dbDirectorRepository.checkDirectorId(director.getId());
                 jdbc.update(ADD_DIRECTORS_TO_FILM_QUERY, director.getId(), newFilm.getId());
